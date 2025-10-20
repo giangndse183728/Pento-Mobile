@@ -42,6 +42,23 @@ dependencies:
   go_router: ^16.2.4
   go_transitions: ^0.8.2
   mobile_scanner: ^7.1.2
+  
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  
+  # Network
+  dio: ^5.7.0
+  
+  # Secure Storage
+  flutter_secure_storage: ^9.2.4
+  
+  # Logging
+  logging: ^1.3.0
+  
+  # JSON & Code Generation
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +71,12 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_native_splash: ^2.4.6
+  
+  # Code Generation
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.6.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
