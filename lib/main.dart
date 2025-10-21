@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logging/logging.dart';
 import 'core/routing/app_router.dart';
 import 'core/constants/app_colors.dart';
+import 'core/network/api_client.dart';
+import 'core/services/secure_storage_service.dart';
+import 'core/utils/logging.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Configure logging
+  AppLogger.initialize(level: Level.ALL); // Use Level.WARNING in production
+  
+  // Initialize services
+  SecureStorageService.instance.initialize();
+  ApiClient.instance.initialize();
+  
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -9,4 +9,7 @@ class AppRoutes {
   static const String barcode = '/barcode';
   static const String onboarding = '/onboarding';
   static const String auth = '/auth';
+  static const String bill = '/bill';
+  static const String foodscan = '/foodscan';
+  static const String inputform = '/inputform';
 }

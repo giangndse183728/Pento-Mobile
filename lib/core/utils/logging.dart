@@ -1,10 +1,8 @@
 import 'package:logging/logging.dart';
 
-/// Logging utility for the application
 class AppLogger {
   AppLogger._();
 
-  /// Initialize logging configuration
   static void initialize({Level level = Level.ALL}) {
     Logger.root.level = level;
     Logger.root.onRecord.listen((record) {
@@ -12,31 +10,26 @@ class AppLogger {
     });
   }
 
-  /// Print log with custom formatting
   static void _printLog(LogRecord record) {
     final level = record.level.name.padRight(7);
     final time = _formatTime(record.time);
     final logger = record.loggerName.padRight(15);
     final message = record.message;
 
-    // Color codes for different log levels (won't show in all terminals)
     final levelColor = _getLevelColor(record.level);
     final resetColor = '\x1B[0m';
 
     print('$levelColor$level$resetColor | $time | $logger | $message');
 
-    // Print error if available
     if (record.error != null) {
       print('  └─ Error: ${record.error}');
     }
 
-    // Print stack trace if available
     if (record.stackTrace != null) {
       print('  └─ Stack: ${record.stackTrace}');
     }
   }
 
-  /// Format time to HH:mm:ss.SSS
   static String _formatTime(DateTime time) {
     return '${time.hour.toString().padLeft(2, '0')}:'
         '${time.minute.toString().padLeft(2, '0')}:'
@@ -44,7 +37,6 @@ class AppLogger {
         '${time.millisecond.toString().padLeft(3, '0')}';
   }
 
-  /// Get ANSI color code for log level
   static String _getLevelColor(Level level) {
     if (level == Level.SEVERE || level == Level.SHOUT) {
       return '\x1B[31m'; // Red
@@ -59,27 +51,22 @@ class AppLogger {
     }
   }
 
-  /// Set log level for production
   static void setProductionLevel() {
     Logger.root.level = Level.WARNING;
   }
 
-  /// Set log level for development
   static void setDevelopmentLevel() {
     Logger.root.level = Level.ALL;
   }
 
-  /// Disable all logging
   static void disableLogging() {
     Logger.root.level = Level.OFF;
   }
 
-  /// Get a logger instance for a specific class or module
   static Logger getLogger(String name) {
     return Logger(name);
   }
 
-  /// Convenience loggers for common modules
   static Logger get network => Logger('Network');
   static Logger get auth => Logger('Auth');
   static Logger get storage => Logger('Storage');
