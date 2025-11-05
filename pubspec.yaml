@@ -59,6 +59,9 @@ dependencies:
   # JSON & Code Generation
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
+  flutter_advanced_drawer: ^1.5.0
+  toastification: ^3.0.3
+  pretty_qr_code: ^3.5.0
 
 dev_dependencies:
   flutter_test:
@@ -118,6 +121,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: MomoTrustDisplay
+      fonts:
+        - asset: assets/font/MomoTrustDisplay-Regular.ttf
 
 flutter_native_splash:
   android: true
