@@ -9,10 +9,14 @@ class ApiClient {
   static ApiClient get instance => _instance;
 
   late final Dio _dio;
+  
+  /// Callback to update user session when access token is refreshed
+  Future<void> Function(String newAccessToken)? onTokenRefreshed;
 
   Dio get dio => _dio;
 
-  void initialize() {
+  void initialize({Future<void> Function(String newAccessToken)? onTokenRefreshed}) {
+    this.onTokenRefreshed = onTokenRefreshed;
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,

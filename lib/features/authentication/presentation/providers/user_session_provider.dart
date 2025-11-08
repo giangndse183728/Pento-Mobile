@@ -3,10 +3,8 @@ import '../../../../core/utils/logging.dart';
 import '../../../../core/services/token_provider.dart';
 import '../../../../core/services/secure_storage_service.dart';
 import '../../data/models/user_session.dart';
-
 part 'user_session_provider.g.dart';
 
-/// Provider to hold the current user session (access token + decoded info)
 @Riverpod(keepAlive: true)
 class UserSessionNotifier extends _$UserSessionNotifier {
   final _logger = AppLogger.getLogger('UserSession');
@@ -19,15 +17,9 @@ class UserSessionNotifier extends _$UserSessionNotifier {
     return null;
   }
 
-  /// Set the user session
   void setSession(UserSession session) {
-    _logger.info('💾 Setting session - Email: ${session.email}, Username: ${session.preferredUsername}');
     state = session;
-    
-    // Update TokenProvider so Dio interceptors can access it
     _tokenProvider.setTokens(accessToken: session.accessToken);
-    
-    _logger.info('✅ Session state updated');
   }
 
   /// Update access token (after refresh)
@@ -36,6 +28,14 @@ class UserSessionNotifier extends _$UserSessionNotifier {
       _logger.info('🔄 Updating access token');
       state = state!.copyWith(accessToken: newAccessToken);
       _tokenProvider.setTokens(accessToken: newAccessToken);
+    } else {
+      _logger.info('🔄 Creating session with refreshed access token');
+      final minimalSession = UserSession(
+        accessToken: newAccessToken,
+        email: '',
+        preferredUsername: '',
+      );
+      setSession(minimalSession);
     }
   }
 
@@ -71,7 +71,6 @@ class UserSessionNotifier extends _$UserSessionNotifier {
     String? householdId,
   }) {
     if (state != null) {
-      _logger.info('🔄 Updating profile data');
       state = state!.copyWith(
         email: email ?? state!.email,
         preferredUsername: preferredUsername ?? state!.preferredUsername,
@@ -79,7 +78,6 @@ class UserSessionNotifier extends _$UserSessionNotifier {
         name: name,
         householdId: householdId,
       );
-      _logger.info('✅ Profile data updated');
     }
   }
 }
