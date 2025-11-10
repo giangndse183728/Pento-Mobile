@@ -12,11 +12,18 @@ class ApiClient {
   
   /// Callback to update user session when access token is refreshed
   Future<void> Function(String newAccessToken)? onTokenRefreshed;
+  
+  /// Callback to handle refresh token failure (e.g., navigate to auth screen)
+  Future<void> Function()? onRefreshTokenFailed;
 
   Dio get dio => _dio;
 
-  void initialize({Future<void> Function(String newAccessToken)? onTokenRefreshed}) {
+  void initialize({
+    Future<void> Function(String newAccessToken)? onTokenRefreshed,
+    Future<void> Function()? onRefreshTokenFailed,
+  }) {
     this.onTokenRefreshed = onTokenRefreshed;
+    this.onRefreshTokenFailed = onRefreshTokenFailed;
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
