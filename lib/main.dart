@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
 import 'package:toastification/toastification.dart';
 import 'core/routing/app_router.dart';
+import 'core/routing/app_routes.dart';
 import 'core/constants/app_colors.dart';
 import 'core/network/api_client.dart';
 import 'core/services/secure_storage_service.dart';
@@ -23,6 +24,9 @@ void main() async {
   final container = ProviderContainer();
   _globalContainer = container;
   
+  // Initialize router with container first
+  appRouter = createAppRouter(container);
+  
   ApiClient.instance.initialize(
     onTokenRefreshed: (String newAccessToken) async {
       if (_globalContainer != null) {
@@ -33,10 +37,11 @@ void main() async {
         }
       }
     },
+    onRefreshTokenFailed: () async {
+      // Navigate to auth screen when refresh token fails
+      appRouter.go(AppRoutes.auth);
+    },
   );
-  
-  // Initialize router with container
-  appRouter = createAppRouter(container);
   
   // Fetch user profile on app startup if user is logged in
   try {
