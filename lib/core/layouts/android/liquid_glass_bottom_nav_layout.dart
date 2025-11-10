@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../constants/app_colors.dart';
 import '../bottom_nav_items.dart';
 import '../../routing/app_routes.dart';
@@ -98,9 +99,9 @@ class _LiquidGlassBottomNavLayoutState
 
 
           Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
+            left: 16.w,
+            right: 16.w,
+            bottom: 16.h,
             child: SafeArea(
               top: false,
               child: Row(
@@ -137,7 +138,7 @@ class _LiquidGlassBottomNavLayoutState
                   child: ConstrainedBox(
                     key: ValueKey(_isExpanded),
                     constraints: BoxConstraints(
-                      maxWidth: _isExpanded ? double.infinity : 64,
+                      maxWidth: _isExpanded ? double.infinity : 64.w,
                       minWidth: 0,
                     ),
                     child: IntrinsicWidth(
@@ -232,7 +233,7 @@ class _GlassBarState extends State<_GlassBar>
       final Color accent = AppColors.blueGray;
       
       return SizedBox(
-        height: 80,
+        height: 68.h,
         child: Align(
           alignment: Alignment.center,
           child: GestureDetector(
@@ -244,9 +245,9 @@ class _GlassBarState extends State<_GlassBar>
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
                     child: Container(
-                      width: 64,
-                      height: 64,
-                      padding: const EdgeInsets.all(8),
+                      width: 64.w,
+                      height: 64.w,
+                      padding: EdgeInsets.all(8.w),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
@@ -266,14 +267,14 @@ class _GlassBarState extends State<_GlassBar>
                             color: accent.withValues(
                               alpha: 0.4 + (glowValue * 0.2),
                             ),
-                            blurRadius: 18 + (glowValue * 8),
+                            blurRadius: 17 + (glowValue * 7),
                             spreadRadius: 1 + (glowValue * 1),
                           ),
                           BoxShadow(
                             color: AppColors.powderBlue.withValues(
                               alpha: 0.2 + (glowValue * 0.15),
                             ),
-                            blurRadius: 24 + (glowValue * 6),
+                            blurRadius: 22 + (glowValue * 6),
                             spreadRadius: -2,
                           ),
                         ],
@@ -285,16 +286,16 @@ class _GlassBarState extends State<_GlassBar>
                           if (currentItem.asset != null)
                             Image.asset(
                               currentItem.asset!,
-                              width: 24,
-                              height: 24,
+                              width: 24.w,
+                              height: 24.w,
                             )
                           else
                             Icon(
                               currentItem.icon,
                               color: accent,
-                              size: 24,
+                              size: 22.sp,
                             ),
-                          const SizedBox(height: 3),
+                          SizedBox(height: 3.h),
                     
                         ],
                       ),
@@ -309,7 +310,7 @@ class _GlassBarState extends State<_GlassBar>
     }
   
     return SizedBox(
-      height: 80,
+      height: 68.h,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onPanStart: (details) {
@@ -338,7 +339,7 @@ class _GlassBarState extends State<_GlassBar>
           }
         },
         child: ClipRRect(
-        borderRadius: BorderRadius.circular(200),
+        borderRadius: BorderRadius.circular(160.r),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: AnimatedBuilder(
@@ -347,12 +348,12 @@ class _GlassBarState extends State<_GlassBar>
               final glowValue = _glowAnimation?.value ?? 1.0;
               
               return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 6,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8.w,
+                  vertical: 6.h,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(160),
+                  borderRadius: BorderRadius.circular(140.r),
                   gradient: LinearGradient(
                     colors: [
                       overlay,
@@ -370,14 +371,14 @@ class _GlassBarState extends State<_GlassBar>
                       color: AppColors.babyBlue.withValues(
                         alpha: 0.2 + (glowValue * 0.15),
                       ),
-                      blurRadius: 12 + (glowValue * 8),
-                      spreadRadius: 0 + (glowValue * 1.5),
+                      blurRadius: 11 + (glowValue * 7),
+                      spreadRadius: 0 + (glowValue * 1.2),
                     ),
                     BoxShadow(
                       color: AppColors.powderBlue.withValues(
                         alpha: 0.15 + (glowValue * 0.15),
                       ),
-                      blurRadius: 8 + (glowValue * 6),
+                      blurRadius: 7 + (glowValue * 6),
                       spreadRadius: 0,
                     ),
                     BoxShadow(
@@ -429,13 +430,13 @@ class _GlassItem extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(160),
+          borderRadius: BorderRadius.circular(140.r),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(140),
+              borderRadius: BorderRadius.circular(120.r),
               gradient: selected
                   ? LinearGradient(
                       colors: [
@@ -456,19 +457,19 @@ class _GlassItem extends StatelessWidget {
                   ? [
                       BoxShadow(
                         color: accent.withValues(alpha: 0.5),
-                        blurRadius: 20,
-                        spreadRadius: 1.5,
+                        blurRadius: 18,
+                        spreadRadius: 1.2,
                       ),
                       BoxShadow(
                         color: AppColors.powderBlue.withValues(alpha: 0.3),
-                        blurRadius: 28,
+                        blurRadius: 24,
                         spreadRadius: -2,
                       ),
                     ]
                   : [
                       BoxShadow(
                         color: AppColors.powderBlue.withValues(alpha: 0.10),
-                        blurRadius: 6,
+                        blurRadius: 5,
                         spreadRadius: 0,
                       ),
                     ],
@@ -480,23 +481,23 @@ class _GlassItem extends StatelessWidget {
                 if (item.asset != null)
                   Image.asset(
                     item.asset!,
-                    width: 24,
-                    height: 24,
+                    width: 22.w,
+                    height: 22.w,
                   )
                 else
                   Icon(
                     item.icon,
                     color: textColor,
-                    size: 24,
+                    size: 22.sp,
                   ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOutCubic,
                   style: TextStyle(
                     color: textColor,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                    fontSize: 11,
+                    fontSize: 9.sp,
                     height: 1.0,
                   ),
                   child: Text(

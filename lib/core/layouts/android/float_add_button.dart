@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../constants/app_colors.dart';
 import '../../routing/app_routes.dart';
 
@@ -16,16 +17,21 @@ class FloatingAddButton extends StatefulWidget {
     List<FabMenuItem>? items,
     ValueChanged<int>? onActionSelected,
     double right = 0,
-    double bottom = 30,
+    double bottom = 3,
   }) {
-    return Positioned(
-      right: right,
-      bottom: bottom,
-      child: FloatingAddButton(
-        key: key,
-        items: items,
-        onActionSelected: onActionSelected,
-      ),
+    return Builder(
+      builder: (context) {
+        final double bottomInset = MediaQuery.of(context).padding.bottom;
+        return Positioned(
+          right: right.w,
+          bottom: bottomInset + bottom.h,
+          child: FloatingAddButton(
+            key: key,
+            items: items,
+            onActionSelected: onActionSelected,
+          ),
+        );
+      },
     );
   }
 
@@ -170,8 +176,8 @@ class _FloatingAddButtonState extends State<FloatingAddButton> with SingleTicker
                 curve: Curves.easeOut,
                 scale: _isFabPressed ? 0.96 : 1.0,
                 child: Container(
-                  width: 64,
-                  height: 64,
+                  width: 64.w,
+                  height: 64.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
