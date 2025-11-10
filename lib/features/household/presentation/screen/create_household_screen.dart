@@ -314,12 +314,12 @@ class _InviteCodeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.iceberg,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              SizedBox(height: 40.h),
               // Success Icon
               Container(
                 width: 120.w,
@@ -494,6 +494,7 @@ class _InviteCodeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 40.h),
             ],
           ),
         ),
