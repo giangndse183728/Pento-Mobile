@@ -30,8 +30,8 @@ class _LiquidGlassBottomNavLayoutState
   static const List<String> _paths = [
     AppRoutes.pantry,
     AppRoutes.meal,
+    AppRoutes.recipe,
     AppRoutes.posts,
-    AppRoutes.cart,
   ];
 
   bool _isExpanded = true;
