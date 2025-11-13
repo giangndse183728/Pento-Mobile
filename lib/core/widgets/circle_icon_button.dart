@@ -12,6 +12,7 @@ class CircleIconButton extends StatelessWidget {
     this.iconSize,
     this.iconColor,
     this.size = 40,
+    this.padding,
   });
 
   final IconData icon;
@@ -19,12 +20,13 @@ class CircleIconButton extends StatelessWidget {
   final double? iconSize;
   final Color? iconColor;
   final double size;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      padding: const EdgeInsets.only(right: 16),
+      width: padding != null ? null : 56,
+      padding: padding ?? const EdgeInsets.only(right: 16),
       child: GestureDetector(
         onTap: onTap,
         child: Container(
