@@ -8,7 +8,7 @@ import '../../data/repositories/compartment_repository.dart';
 
 part 'compartment_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Compartments extends _$Compartments {
   late final CompartmentRepository _repository;
   late final String _storageId;
@@ -31,19 +31,79 @@ class Compartments extends _$Compartments {
     required String name,
     String notes = '',
   }) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await _repository.createCompartment(
-        storageId: _storageId,
+    final currentCompartments = state.whenOrNull(
+      data: (compartments) => compartments,
+    ) ?? [];
+
+    final newCompartment = await _repository.createCompartment(
+      storageId: _storageId,
+      name: name,
+      notes: notes,
+    );
+
+    state = AsyncValue.data([...currentCompartments, newCompartment]);
+  }
+
+  Future<void> updateCompartment({
+    required String compartmentId,
+    required String name,
+    String notes = '',
+  }) async {
+    final previousState = state;
+    
+    final currentCompartments = previousState.whenOrNull(
+      data: (compartments) => compartments,
+    ) ?? [];
+    
+    final optimisticUpdate = currentCompartments.map((c) {
+      if (c.id == compartmentId) {
+        return c.copyWith(
+          name: name,
+          notes: notes,
+        );
+      }
+      return c;
+    }).toList();
+    
+    state = AsyncValue.data(optimisticUpdate);
+    
+    try {
+     
+      await _repository.updateCompartment(
+        compartmentId: compartmentId,
         name: name,
         notes: notes,
       );
-      return await _repository.getCompartments(_storageId);
-    });
+
+    } catch (error) {
+      state = previousState;
+      rethrow;
+    }
+  }
+
+  Future<void> deleteCompartment(String compartmentId) async {
+    final previousState = state;
+    
+    final currentCompartments = previousState.whenOrNull(
+      data: (compartments) => compartments,
+    ) ?? [];
+    
+    final optimisticUpdate = currentCompartments
+        .where((c) => c.id != compartmentId)
+        .toList();
+    
+    state = AsyncValue.data(optimisticUpdate);
+    
+    try {
+      await _repository.deleteCompartment(compartmentId);
+    } catch (error) {
+      state = previousState;
+      rethrow;
+    }
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CompartmentItems extends _$CompartmentItems {
   static const int _pageSize = 12;
 

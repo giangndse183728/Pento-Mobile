@@ -12,13 +12,6 @@ _$CompartmentImpl _$$CompartmentImplFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       storageId: json['storageId'] as String,
       notes: json['notes'] as String? ?? '',
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
-      isDeleted: json['is_deleted'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$CompartmentImplToJson(_$CompartmentImpl instance) =>
@@ -27,9 +20,6 @@ Map<String, dynamic> _$$CompartmentImplToJson(_$CompartmentImpl instance) =>
       'name': instance.name,
       'storageId': instance.storageId,
       'notes': instance.notes,
-      'created_at': instance.createdAt?.toIso8601String(),
-      'updated_at': instance.updatedAt?.toIso8601String(),
-      'is_deleted': instance.isDeleted,
     };
 
 _$CompartmentItemImpl _$$CompartmentItemImplFromJson(

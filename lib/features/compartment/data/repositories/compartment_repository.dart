@@ -39,20 +39,71 @@ class CompartmentRepository {
       storageId,
     );
     final payload = {'name': name, 'notes': notes};
-
+    
     final createdRaw = await _network.post<dynamic>(
       path,
       data: payload,
-      onSuccess: (data) => data,
+      onSuccess: (data) {
+        return data;
+      },
     );
+    
     if (createdRaw is Map<String, dynamic>) {
-      return Compartment.fromJson(createdRaw);
+      if (createdRaw.containsKey('compartmentId') && 
+          !createdRaw.containsKey('name')) {
+        final compartmentId = createdRaw['compartmentId'] as String;
+        
+        return Compartment(
+          id: compartmentId,
+          name: name,
+          storageId: storageId,
+          notes: notes,
+        );
+      }
+      
+      try {
+        final compartment = Compartment.fromJson(createdRaw);
+        return compartment;
+      } catch (e) {
+        throw Exception('Failed to parse compartment from response');
+      }
     }
-    // If API returns just ID, fetch the full compartment
-    final list = await getCompartments(storageId);
-    return list.isNotEmpty
-        ? list.last
-        : throw Exception('Create compartment failed');
+    
+    throw Exception('Invalid response format for create compartment');
+  }
+
+  Future<void> updateCompartment({
+    required String compartmentId,
+    required String name,
+    String notes = '',
+  }) async {
+    final path = ApiEndpoints.updateCompartment.replaceFirst(
+      '{compartmentId}',
+      compartmentId,
+    );
+    final payload = {'name': name, 'notes': notes};
+
+    await _network.put<void>(
+      path,
+      data: payload,
+      onSuccess: (_) {
+        return null;
+      },
+    );
+  }
+
+  Future<void> deleteCompartment(String compartmentId) async {
+    final path = ApiEndpoints.deleteCompartment.replaceFirst(
+      '{compartmentId}',
+      compartmentId,
+    );
+    
+    await _network.delete<void>(
+      path,
+      onSuccess: (_) {
+        return null;
+      },
+    );
   }
 
   Future<CompartmentItemsPage> getCompartmentItems(

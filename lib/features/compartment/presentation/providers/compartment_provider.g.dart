@@ -6,7 +6,7 @@ part of 'compartment_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compartmentsHash() => r'e434c1c5dd1cbfa2b4e7b3a811ae0d4e4c5df8cc';
+String _$compartmentsHash() => r'3bc9e418c158abe3767d3cd5ff76d49eb14d4941';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,7 +30,7 @@ class _SystemHash {
 }
 
 abstract class _$Compartments
-    extends BuildlessAutoDisposeAsyncNotifier<List<Compartment>> {
+    extends BuildlessAsyncNotifier<List<Compartment>> {
   late final String storageId;
 
   FutureOr<List<Compartment>> build(String storageId);
@@ -74,8 +74,7 @@ class CompartmentsFamily extends Family<AsyncValue<List<Compartment>>> {
 
 /// See also [Compartments].
 class CompartmentsProvider
-    extends
-        AutoDisposeAsyncNotifierProviderImpl<Compartments, List<Compartment>> {
+    extends AsyncNotifierProviderImpl<Compartments, List<Compartment>> {
   /// See also [Compartments].
   CompartmentsProvider(String storageId)
     : this._internal(
@@ -127,7 +126,7 @@ class CompartmentsProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<Compartments, List<Compartment>>
+  AsyncNotifierProviderElement<Compartments, List<Compartment>>
   createElement() {
     return _CompartmentsProviderElement(this);
   }
@@ -148,15 +147,13 @@ class CompartmentsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CompartmentsRef
-    on AutoDisposeAsyncNotifierProviderRef<List<Compartment>> {
+mixin CompartmentsRef on AsyncNotifierProviderRef<List<Compartment>> {
   /// The parameter `storageId` of this provider.
   String get storageId;
 }
 
 class _CompartmentsProviderElement
-    extends
-        AutoDisposeAsyncNotifierProviderElement<Compartments, List<Compartment>>
+    extends AsyncNotifierProviderElement<Compartments, List<Compartment>>
     with CompartmentsRef {
   _CompartmentsProviderElement(super.provider);
 
@@ -164,10 +161,10 @@ class _CompartmentsProviderElement
   String get storageId => (origin as CompartmentsProvider).storageId;
 }
 
-String _$compartmentItemsHash() => r'f6d66aa9b9449d319e617929b111d4b0b7969e04';
+String _$compartmentItemsHash() => r'e58f74a2c0ca0a908c02facf4480b318ec764ebc';
 
 abstract class _$CompartmentItems
-    extends BuildlessAutoDisposeAsyncNotifier<CompartmentItemsState> {
+    extends BuildlessAsyncNotifier<CompartmentItemsState> {
   late final String compartmentId;
 
   FutureOr<CompartmentItemsState> build(String compartmentId);
@@ -211,11 +208,7 @@ class CompartmentItemsFamily extends Family<AsyncValue<CompartmentItemsState>> {
 
 /// See also [CompartmentItems].
 class CompartmentItemsProvider
-    extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          CompartmentItems,
-          CompartmentItemsState
-        > {
+    extends AsyncNotifierProviderImpl<CompartmentItems, CompartmentItemsState> {
   /// See also [CompartmentItems].
   CompartmentItemsProvider(String compartmentId)
     : this._internal(
@@ -267,10 +260,7 @@ class CompartmentItemsProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<
-    CompartmentItems,
-    CompartmentItemsState
-  >
+  AsyncNotifierProviderElement<CompartmentItems, CompartmentItemsState>
   createElement() {
     return _CompartmentItemsProviderElement(this);
   }
@@ -292,18 +282,14 @@ class CompartmentItemsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CompartmentItemsRef
-    on AutoDisposeAsyncNotifierProviderRef<CompartmentItemsState> {
+mixin CompartmentItemsRef on AsyncNotifierProviderRef<CompartmentItemsState> {
   /// The parameter `compartmentId` of this provider.
   String get compartmentId;
 }
 
 class _CompartmentItemsProviderElement
     extends
-        AutoDisposeAsyncNotifierProviderElement<
-          CompartmentItems,
-          CompartmentItemsState
-        >
+        AsyncNotifierProviderElement<CompartmentItems, CompartmentItemsState>
     with CompartmentItemsRef {
   _CompartmentItemsProviderElement(super.provider);
 

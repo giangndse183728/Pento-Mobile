@@ -25,12 +25,6 @@ mixin _$Compartment {
   String get name => throw _privateConstructorUsedError;
   String get storageId => throw _privateConstructorUsedError;
   String get notes => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_deleted')
-  bool get isDeleted => throw _privateConstructorUsedError;
 
   /// Serializes this Compartment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,15 +43,7 @@ abstract class $CompartmentCopyWith<$Res> {
     $Res Function(Compartment) then,
   ) = _$CompartmentCopyWithImpl<$Res, Compartment>;
   @useResult
-  $Res call({
-    String id,
-    String name,
-    String storageId,
-    String notes,
-    @JsonKey(name: 'created_at') DateTime? createdAt,
-    @JsonKey(name: 'updated_at') DateTime? updatedAt,
-    @JsonKey(name: 'is_deleted') bool isDeleted,
-  });
+  $Res call({String id, String name, String storageId, String notes});
 }
 
 /// @nodoc
@@ -79,9 +65,6 @@ class _$CompartmentCopyWithImpl<$Res, $Val extends Compartment>
     Object? name = null,
     Object? storageId = null,
     Object? notes = null,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-    Object? isDeleted = null,
   }) {
     return _then(
       _value.copyWith(
@@ -101,18 +84,6 @@ class _$CompartmentCopyWithImpl<$Res, $Val extends Compartment>
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String,
-            createdAt: freezed == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            updatedAt: freezed == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            isDeleted: null == isDeleted
-                ? _value.isDeleted
-                : isDeleted // ignore: cast_nullable_to_non_nullable
-                      as bool,
           )
           as $Val,
     );
@@ -128,15 +99,7 @@ abstract class _$$CompartmentImplCopyWith<$Res>
   ) = __$$CompartmentImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    String name,
-    String storageId,
-    String notes,
-    @JsonKey(name: 'created_at') DateTime? createdAt,
-    @JsonKey(name: 'updated_at') DateTime? updatedAt,
-    @JsonKey(name: 'is_deleted') bool isDeleted,
-  });
+  $Res call({String id, String name, String storageId, String notes});
 }
 
 /// @nodoc
@@ -157,9 +120,6 @@ class __$$CompartmentImplCopyWithImpl<$Res>
     Object? name = null,
     Object? storageId = null,
     Object? notes = null,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-    Object? isDeleted = null,
   }) {
     return _then(
       _$CompartmentImpl(
@@ -179,18 +139,6 @@ class __$$CompartmentImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String,
-        createdAt: freezed == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        updatedAt: freezed == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        isDeleted: null == isDeleted
-            ? _value.isDeleted
-            : isDeleted // ignore: cast_nullable_to_non_nullable
-                  as bool,
       ),
     );
   }
@@ -204,9 +152,6 @@ class _$CompartmentImpl implements _Compartment {
     required this.name,
     required this.storageId,
     this.notes = '',
-    @JsonKey(name: 'created_at') this.createdAt,
-    @JsonKey(name: 'updated_at') this.updatedAt,
-    @JsonKey(name: 'is_deleted') this.isDeleted = false,
   });
 
   factory _$CompartmentImpl.fromJson(Map<String, dynamic> json) =>
@@ -221,19 +166,10 @@ class _$CompartmentImpl implements _Compartment {
   @override
   @JsonKey()
   final String notes;
-  @override
-  @JsonKey(name: 'created_at')
-  final DateTime? createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  final DateTime? updatedAt;
-  @override
-  @JsonKey(name: 'is_deleted')
-  final bool isDeleted;
 
   @override
   String toString() {
-    return 'Compartment(id: $id, name: $name, storageId: $storageId, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt, isDeleted: $isDeleted)';
+    return 'Compartment(id: $id, name: $name, storageId: $storageId, notes: $notes)';
   }
 
   @override
@@ -245,27 +181,12 @@ class _$CompartmentImpl implements _Compartment {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.storageId, storageId) ||
                 other.storageId == storageId) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.isDeleted, isDeleted) ||
-                other.isDeleted == isDeleted));
+            (identical(other.notes, notes) || other.notes == notes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    name,
-    storageId,
-    notes,
-    createdAt,
-    updatedAt,
-    isDeleted,
-  );
+  int get hashCode => Object.hash(runtimeType, id, name, storageId, notes);
 
   /// Create a copy of Compartment
   /// with the given fields replaced by the non-null parameter values.
@@ -287,9 +208,6 @@ abstract class _Compartment implements Compartment {
     required final String name,
     required final String storageId,
     final String notes,
-    @JsonKey(name: 'created_at') final DateTime? createdAt,
-    @JsonKey(name: 'updated_at') final DateTime? updatedAt,
-    @JsonKey(name: 'is_deleted') final bool isDeleted,
   }) = _$CompartmentImpl;
 
   factory _Compartment.fromJson(Map<String, dynamic> json) =
@@ -303,15 +221,6 @@ abstract class _Compartment implements Compartment {
   String get storageId;
   @override
   String get notes;
-  @override
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt;
-  @override
-  @JsonKey(name: 'is_deleted')
-  bool get isDeleted;
 
   /// Create a copy of Compartment
   /// with the given fields replaced by the non-null parameter values.

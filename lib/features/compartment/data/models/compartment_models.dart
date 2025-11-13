@@ -12,13 +12,21 @@ class Compartment with _$Compartment {
     required String name,
     required String storageId,
     @Default('') String notes,
-    @JsonKey(name: 'created_at') DateTime? createdAt,
-    @JsonKey(name: 'updated_at') DateTime? updatedAt,
-    @Default(false) @JsonKey(name: 'is_deleted') bool isDeleted,
   }) = _Compartment;
 
   factory Compartment.fromJson(Map<String, dynamic> json) =>
       _$CompartmentFromJson(json);
+}
+
+Map<String, dynamic> _normalizeExpirationFields(Map<String, dynamic> json) {
+  if (json.containsKey('expirationDateUtc') ||
+      !json.containsKey('expirationDate')) {
+    return json;
+  }
+  return {
+    ...json,
+    'expirationDateUtc': json['expirationDate'],
+  };
 }
 
 @freezed
@@ -36,12 +44,8 @@ class CompartmentItem with _$CompartmentItem {
     @Default(1) int version,
   }) = _CompartmentItem;
 
-  factory CompartmentItem.fromJson(Map<String, dynamic> json) {
-    final mapped = Map<String, dynamic>.from(json);
-    mapped['expirationDateUtc'] =
-        json['expirationDateUtc'] ?? json['expirationDate'];
-    return _$CompartmentItemFromJson(mapped);
-  }
+  factory CompartmentItem.fromJson(Map<String, dynamic> json) =>
+      _$CompartmentItemFromJson(_normalizeExpirationFields(json));
 }
 
 class CompartmentItemsPage {
@@ -151,12 +155,8 @@ class CompartmentItemDetail with _$CompartmentItemDetail {
     @Default(1) int version,
   }) = _CompartmentItemDetail;
 
-  factory CompartmentItemDetail.fromJson(Map<String, dynamic> json) {
-    final mapped = Map<String, dynamic>.from(json);
-    mapped['expirationDateUtc'] =
-        json['expirationDateUtc'] ?? json['expirationDate'];
-    return _$CompartmentItemDetailFromJson(mapped);
-  }
+  factory CompartmentItemDetail.fromJson(Map<String, dynamic> json) =>
+      _$CompartmentItemDetailFromJson(_normalizeExpirationFields(json));
 }
 
 @freezed
