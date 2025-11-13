@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/board_ui_provider.dart';
@@ -10,7 +9,6 @@ import '../../../../core/layouts/app_scaffold.dart';
 import '../providers/compartment_provider.dart';
 import '../widgets/add_compartment_tile.dart';
 import '../widgets/compartment_column.dart';
-import '../../data/models/compartment_models.dart';
 
 class CompartmentScreen extends ConsumerStatefulWidget {
   const CompartmentScreen({super.key});
@@ -127,6 +125,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: CompartmentColumn(
                         compartmentId: compartment.id,
+                        storageId: storageId,
                         title: compartment.name,
                         subtitle: compartment.notes,
                         width: MediaQuery.of(context).size.width - 32.w,
@@ -158,19 +157,22 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(width: 8.w),
-                  ...compartments.map(
-                    (c) => Padding(
-                      padding: EdgeInsets.only(right: 8.w),
-                      child: _buildDraggableCompartment(c),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 8.w),
-                    child: AddCompartmentTile(
+                  for (final c in compartments) ...[
+                    CompartmentColumn(
+                      compartmentId: c.id,
                       storageId: storageId,
+                      title: c.name,
+                      subtitle: c.notes,
                       width: 200.w,
+                      scale: 0.7,
                     ),
+                    SizedBox(width: 8.w),
+                  ],
+                  AddCompartmentTile(
+                    storageId: storageId,
+                    width: 200.w,
                   ),
+                  SizedBox(width: 8.w),
                 ],
               ),
             ),
@@ -179,65 +181,4 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
       ),
     );
   }
-
-  Widget _buildDraggableCompartment(Compartment compartment) {
-    return DragTarget<Map<String, dynamic>>(
-      onWillAcceptWithDetails: (details) => true,
-      onAcceptWithDetails: (details) async {
-        final data = details.data;
-        final foodItemId = data['foodItemId'] as String;
-        final sourceCompartmentId = data['compartmentId'] as String;
-        final version = data['version'] as int;
-
-        if (sourceCompartmentId != compartment.id) {
-          // Move item to new compartment
-          try {
-            await ref
-                .read(compartmentItemsProvider(sourceCompartmentId).notifier)
-                .updateFoodItemCompartment(
-                  foodItemId: foodItemId,
-                  version: version,
-                  newCompartmentId: compartment.id,
-                );
-            
-            // Refresh both compartments
-            if (mounted) {
-              ref.invalidate(compartmentItemsProvider(sourceCompartmentId));
-              ref.invalidate(compartmentItemsProvider(compartment.id));
-            }
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Failed to move item: $e'),
-                  backgroundColor: Colors.red.shade400,
-                ),
-              );
-            }
-          }
-        }
-      },
-      builder: (context, candidateData, rejectedData) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.r),
-            border: candidateData.isNotEmpty
-                ? Border.all(
-                    color: AppColors.blueGray.withValues(alpha: 0.5),
-                    width: 2,
-                  )
-                : null,
-          ),
-          child: CompartmentColumn(
-            compartmentId: compartment.id,
-            title: compartment.name,
-            subtitle: compartment.notes,
-            width: 200.w,
-            scale: 0.7,
-          ),
-        );
-      },
-    );
-  }
-
 }

@@ -6,12 +6,14 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../providers/compartment_provider.dart';
+import 'edit_compartment_dialog.dart';
 import 'food_item_card.dart';
 
 class CompartmentColumn extends ConsumerWidget {
   const CompartmentColumn({
     super.key,
     required this.compartmentId,
+    required this.storageId,
     required this.title,
     required this.subtitle,
     required this.width,
@@ -19,6 +21,7 @@ class CompartmentColumn extends ConsumerWidget {
   });
 
   final String compartmentId;
+  final String storageId;
   final String title;
   final String subtitle;
   final double width;
@@ -32,6 +35,98 @@ class CompartmentColumn extends ConsumerWidget {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Food item added')));
+    }
+  }
+
+  Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => EditCompartmentDialog(
+        compartmentId: compartmentId,
+        initialName: title,
+        initialNotes: subtitle,
+      ),
+    );
+
+    if (result != null && context.mounted) {
+      try {
+        await ref.read(compartmentsProvider(storageId).notifier).updateCompartment(
+          compartmentId: compartmentId,
+          name: result['name']!,
+          notes: result['notes']!,
+        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Compartment updated')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Compartment'),
+        content: Text(
+          'Are you sure you want to delete "$title"? This action cannot be undone.',
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.blueGray,
+                fontSize: 14.sp,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            child: Text(
+              'Delete',
+              style: TextStyle(fontSize: 14.sp),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await ref.read(compartmentsProvider(storageId).notifier).deleteCompartment(
+          compartmentId,
+        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Compartment deleted')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -116,10 +211,61 @@ class CompartmentColumn extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        Icon(
-                          Icons.view_column,
-                          size: 18.sp * scale,
-                          color: AppColors.blueGray,
+                        PopupMenuButton<String>(
+                          icon: Icon(
+                            Icons.more_vert,
+                            size: 18.sp * scale,
+                            color: AppColors.blueGray,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _handleEdit(context, ref);
+                            } else if (value == 'delete') {
+                              _handleDelete(context, ref);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit,
+                                    size: 16.sp,
+                                    color: AppColors.blueGray,
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'Edit',
+                                    style: TextStyle(fontSize: 14.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    size: 16.sp,
+                                    color: Colors.red,
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'Delete',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
