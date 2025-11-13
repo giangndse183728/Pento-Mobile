@@ -14,6 +14,8 @@ class PantryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncStorages = ref.watch(pantryProvider);
+    Future<void> refreshStorages() =>
+        ref.read(pantryProvider.notifier).refresh();
 
     Future<void> onAddStorage() async {
       final nameCtrl = TextEditingController();
@@ -88,29 +90,209 @@ class PantryScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: 'Pantry',
-      body: asyncStorages.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Failed to load pantry items'),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () => ref.read(pantryProvider.notifier).refresh(),
-                child: const Text('Retry'),
+      body: RefreshIndicator(
+        onRefresh: refreshStorages,
+        child: asyncStorages.when(
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            children: const [
+              SizedBox(
+                height: 320,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ],
           ),
-        ),
-        data: (storages) {
-          if (storages.isEmpty) {
+          error: (e, st) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Failed to load pantry items'),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: refreshStorages,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          data: (storages) {
+            if (storages.isEmpty) {
+              return Stack(
+                children: [
+                  ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    children: const [
+                      SizedBox(height: 160),
+                      Center(child: Text('No storages found')),
+                    ],
+                  ),
+                  FloatingAddButton.defaultPositioned(
+                    right: 0,
+                    bottom: 30,
+                    items: [
+                      FabMenuItem(
+                        label: 'Add Storage',
+                        icon: Icons.add_circle,
+                        onTap: onAddStorage,
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+            final freezer = storages
+                .where((s) => s.type == StorageType.freezer)
+                .toList();
+            final pantryItems = storages
+                .where((s) => s.type == StorageType.pantry)
+                .toList();
+            final fridgeItems = storages
+                .where((s) => s.type == StorageType.fridge)
+                .toList();
+
             return Stack(
               children: [
-                const Center(child: Text('No storages found')),
+                ListView(
+                  padding: EdgeInsets.zero,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).padding.top +
+                          kToolbarHeight,
+                    ),
+                    if (pantryItems.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          'Pantry',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontFamily: 'MomoTrustDisplay',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 120,
+                        child: PageView.builder(
+                          controller: PageController(viewportFraction: 0.92),
+                          padEnds: false,
+                          itemCount: (pantryItems.length / 2).ceil(),
+                          itemBuilder: (context, pageIndex) {
+                            final start = pageIndex * 2;
+                            final end =
+                                (start + 2).clamp(0, pantryItems.length);
+                            final pageItems =
+                                pantryItems.sublist(start, end);
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: SmallStorageCard(
+                                      storage: pageItems[0],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: pageItems.length > 1
+                                        ? SmallStorageCard(
+                                            storage: pageItems[1],
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (fridgeItems.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          'Fridge',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontFamily: 'MomoTrustDisplay',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 120,
+                        child: PageView.builder(
+                          controller: PageController(viewportFraction: 0.92),
+                          padEnds: false,
+                          itemCount: (fridgeItems.length / 2).ceil(),
+                          itemBuilder: (context, pageIndex) {
+                            final start = pageIndex * 2;
+                            final end =
+                                (start + 2).clamp(0, fridgeItems.length);
+                            final pageItems =
+                                fridgeItems.sublist(start, end);
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: SmallStorageCard(
+                                      storage: pageItems[0],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: pageItems.length > 1
+                                        ? SmallStorageCard(
+                                            storage: pageItems[1],
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (freezer.isNotEmpty) ...[
+                      SizedBox(
+                        height: 120,
+                        child: PageView.builder(
+                          controller: PageController(viewportFraction: 0.9),
+                          padEnds: false,
+                          itemCount: freezer.length,
+                          itemBuilder: (context, index) {
+                            final storage = freezer[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 16),
+                              child: FreezerCard(storage: storage),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    const SizedBox(height: 80),
+                  ],
+                ),
                 FloatingAddButton.defaultPositioned(
-                  right: 0,
-                  bottom: 30,
                   items: [
                     FabMenuItem(
                       label: 'Add Storage',
@@ -121,154 +303,8 @@ class PantryScreen extends ConsumerWidget {
                 ),
               ],
             );
-          }
-          final freezer = storages
-              .where((s) => s.type == StorageType.freezer)
-              .toList();
-          final pantryItems = storages
-              .where((s) => s.type == StorageType.pantry)
-              .toList();
-          final fridgeItems = storages
-              .where((s) => s.type == StorageType.fridge)
-              .toList();
-
-          return Stack(
-            children: [
-              ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).padding.top +
-                        kToolbarHeight,
-                  ),
-                  if (pantryItems.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        'Pantry',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          fontFamily: 'MomoTrustDisplay',
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 120,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 0.92),
-                        padEnds: false,
-                        itemCount: (pantryItems.length / 2).ceil(),
-                        itemBuilder: (context, pageIndex) {
-                          final start = pageIndex * 2;
-                          final end = (start + 2).clamp(0, pantryItems.length);
-                          final pageItems = pantryItems.sublist(start, end);
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: SmallStorageCard(
-                                    storage: pageItems[0],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: pageItems.length > 1
-                                      ? SmallStorageCard(
-                                          storage: pageItems[1],
-                                        )
-                                      : const SizedBox.shrink(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                  ],
-                  if (fridgeItems.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        'Fridge',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          fontFamily: 'MomoTrustDisplay',
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 120,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 0.92),
-                        padEnds: false,
-                        itemCount: (fridgeItems.length / 2).ceil(),
-                        itemBuilder: (context, pageIndex) {
-                          final start = pageIndex * 2;
-                          final end = (start + 2).clamp(0, fridgeItems.length);
-                          final pageItems = fridgeItems.sublist(start, end);
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: SmallStorageCard(
-                                    storage: pageItems[0],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: pageItems.length > 1
-                                      ? SmallStorageCard(
-                                          storage: pageItems[1],
-                                        )
-                                      : const SizedBox.shrink(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  if (freezer.isNotEmpty) ...[
-                    SizedBox(
-                      height: 120,
-                      child: PageView.builder(
-                        controller: PageController(viewportFraction: 0.9),
-                        padEnds: false,
-                        itemCount: freezer.length,
-                        itemBuilder: (context, index) {
-                          final storage = freezer[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: FreezerCard(storage: storage),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  const SizedBox(height: 80),
-                ],
-              ),
-              FloatingAddButton.defaultPositioned(
-                items: [
-                  FabMenuItem(
-                    label: 'Add Storage',
-                    icon: Icons.add_circle,
-                    onTap: onAddStorage,
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+          },
+        ),
       ),
     );
   }

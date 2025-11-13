@@ -7,7 +7,7 @@ import '../../data/repositories/pantry_repository.dart';
 
 part 'pantry_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Pantry extends _$Pantry {
   late final PantryRepository _repository;
 
