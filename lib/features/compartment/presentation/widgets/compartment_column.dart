@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/compartment_provider.dart';
 import 'edit_compartment_dialog.dart';
 import 'food_item_card.dart';
@@ -145,16 +146,9 @@ class CompartmentColumn extends ConsumerWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r * scale),
           border: Border.all(
-            color: AppColors.powderBlue.withValues(alpha: 0.6),
+            color: Colors.black26,
             width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.powderBlue.withValues(alpha: 0.15),
-              blurRadius: 10,
-              spreadRadius: 0,
-            ),
-          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16.r * scale),
@@ -185,8 +179,9 @@ class CompartmentColumn extends ConsumerWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.babyBlue.withValues(alpha: 0.8),
-                          AppColors.iceberg.withValues(alpha: 0.4),
+                           AppColors.iceberg,
+                          AppColors.babyBlue,
+                         
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -199,6 +194,7 @@ class CompartmentColumn extends ConsumerWidget {
                       ),
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
@@ -211,61 +207,15 @@ class CompartmentColumn extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          icon: Icon(
-                            Icons.more_vert,
-                            size: 18.sp * scale,
-                            color: AppColors.blueGray,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _handleEdit(context, ref);
-                            } else if (value == 'delete') {
-                              _handleDelete(context, ref);
-                            }
+                        Builder(
+                          builder: (builderContext) {
+                            return _PopupMenuButtonWithCircleIcon(
+                              compartmentId: compartmentId,
+                              scale: scale,
+                              onEdit: () => _handleEdit(context, ref),
+                              onDelete: () => _handleDelete(context, ref),
+                            );
                           },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit,
-                                    size: 16.sp,
-                                    color: AppColors.blueGray,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    'Edit',
-                                    style: TextStyle(fontSize: 14.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete,
-                                    size: 16.sp,
-                                    color: Colors.red,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    'Delete',
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
@@ -486,6 +436,96 @@ class CompartmentColumn extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PopupMenuButtonWithCircleIcon extends StatefulWidget {
+  const _PopupMenuButtonWithCircleIcon({
+    required this.compartmentId,
+    required this.scale,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final String compartmentId;
+  final double scale;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  State<_PopupMenuButtonWithCircleIcon> createState() =>
+      _PopupMenuButtonWithCircleIconState();
+}
+
+class _PopupMenuButtonWithCircleIconState
+    extends State<_PopupMenuButtonWithCircleIcon> {
+  final GlobalKey<PopupMenuButtonState<String>> _menuKey =
+      GlobalKey<PopupMenuButtonState<String>>();
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      key: _menuKey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      onSelected: (value) {
+        if (value == 'edit') {
+          widget.onEdit();
+        } else if (value == 'delete') {
+          widget.onDelete();
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(
+                Icons.edit,
+                size: 16.sp,
+                color: AppColors.blueGray,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Edit',
+                style: TextStyle(fontSize: 14.sp),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(
+                Icons.delete,
+                size: 16.sp,
+                color: Colors.red,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Delete',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+      child: CircleIconButton(
+        icon: Icons.more_vert,
+        iconSize: 18.sp * widget.scale,
+        iconColor: Colors.black87,
+        size: 40 * widget.scale,
+        padding: EdgeInsets.zero,
+        onTap: () {
+          _menuKey.currentState?.showButtonMenu();
+        },
       ),
     );
   }

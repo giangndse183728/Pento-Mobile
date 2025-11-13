@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_text_form_field.dart';
 import '../providers/compartment_provider.dart';
 
 class AddCompartmentTile extends ConsumerWidget {
@@ -113,8 +115,8 @@ class _CreateCompartmentDialogState
     extends ConsumerState<CreateCompartmentDialog> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _notesCtrl;
+  final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
-  String? _nameError;
 
   @override
   void initState() {
@@ -131,18 +133,14 @@ class _CreateCompartmentDialogState
   }
 
   Future<void> _submit() async {
-    final name = _nameCtrl.text.trim();
-    final notes = _notesCtrl.text.trim();
-
-    if (name.isEmpty) {
-      setState(() {
-        _nameError = 'Name is required';
-      });
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    final name = _nameCtrl.text.trim();
+    final notes = _notesCtrl.text.trim();
+
     setState(() {
-      _nameError = null;
       _isSubmitting = true;
     });
 
@@ -167,54 +165,84 @@ class _CreateCompartmentDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Create compartment'),
-      content: SingleChildScrollView(
+    return AppDialog(
+      child: Form(
+        key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
+            Text(
+              'Create compartment',
+              style: AppTextStyles.sectionHeader(),
+            ),
+            SizedBox(height: 20.h),
+            AppTextFormField(
               controller: _nameCtrl,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                errorText: _nameError,
-              ),
+              labelText: 'Name',
               textInputAction: TextInputAction.next,
-              onChanged: (value) {
-                if (_nameError != null && value.trim().isNotEmpty) {
-                  setState(() {
-                    _nameError = null;
-                  });
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Name is required';
                 }
+                return null;
               },
             ),
-            SizedBox(height: 12.h),
-            TextField(
+            SizedBox(height: 16.h),
+            AppTextFormField(
               controller: _notesCtrl,
-              decoration: const InputDecoration(labelText: 'Notes (optional)'),
+              labelText: 'Notes (optional)',
               maxLines: 3,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: AppColors.blueGray,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                ElevatedButton(
+                  onPressed: _isSubmitting ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.blueGray,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 24.w,
+                      vertical: 12.h,
+                    ),
+                  ),
+                  child: _isSubmitting
+                      ? SizedBox(
+                          height: 16.sp,
+                          width: 16.sp,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Create',
+                          style: TextStyle(fontSize: 14.sp),
+                        ),
+                ),
+              ],
             ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isSubmitting
-              ? null
-              : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _isSubmitting ? null : _submit,
-          child: _isSubmitting
-              ? const SizedBox(
-                  height: 16,
-                  width: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Create'),
-        ),
-      ],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/widgets/app_text_form_field.dart';
 import '../../../food/data/models/food_reference.dart';
 import '../providers/compartment_provider.dart';
 import '../../../food/presentation/providers/food_reference_provider.dart';
@@ -515,34 +517,31 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
               style: AppTextStyles.sectionHeader(),
             ),
             SizedBox(height: 12.h),
-            TextField(
+            AppTextFormField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.label),
-              ),
+              labelText: 'Name',
+              prefixIcon: const Icon(Icons.label),
             ),
             SizedBox(height: 12.h),
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: AppTextFormField(
                     controller: _quantityCtrl,
+                    labelText: 'Quantity',
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      prefixIcon: Icon(Icons.numbers),
-                    ),
+                    prefixIcon: const Icon(Icons.numbers),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                   ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                  child: TextField(
+                  child: AppTextFormField(
                     controller: _unitCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Unit ID (optional)',
-                      prefixIcon: Icon(Icons.scale),
-                    ),
+                    labelText: 'Unit ID (optional)',
+                    prefixIcon: const Icon(Icons.scale),
                   ),
                 ),
               ],
