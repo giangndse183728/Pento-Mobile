@@ -588,7 +588,9 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
                         Text(
                           _expirationDate == null
                               ? 'No expiration selected'
-                              : '${_expirationDate!.day}/${_expirationDate!.month}/${_expirationDate!.year}',
+                              : '${_expirationDate!.year.toString().padLeft(4, '0')}-'
+                                  '${_expirationDate!.month.toString().padLeft(2, '0')}-'
+                                  '${_expirationDate!.day.toString().padLeft(2, '0')}',
                           style: AppTextStyles.inputHint,
                         ),
                       ],

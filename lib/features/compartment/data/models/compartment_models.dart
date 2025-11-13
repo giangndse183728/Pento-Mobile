@@ -36,8 +36,12 @@ class CompartmentItem with _$CompartmentItem {
     @Default(1) int version,
   }) = _CompartmentItem;
 
-  factory CompartmentItem.fromJson(Map<String, dynamic> json) =>
-      _$CompartmentItemFromJson(json);
+  factory CompartmentItem.fromJson(Map<String, dynamic> json) {
+    final mapped = Map<String, dynamic>.from(json);
+    mapped['expirationDateUtc'] =
+        json['expirationDateUtc'] ?? json['expirationDate'];
+    return _$CompartmentItemFromJson(mapped);
+  }
 }
 
 class CompartmentItemsPage {
@@ -147,8 +151,12 @@ class CompartmentItemDetail with _$CompartmentItemDetail {
     @Default(1) int version,
   }) = _CompartmentItemDetail;
 
-  factory CompartmentItemDetail.fromJson(Map<String, dynamic> json) =>
-      _$CompartmentItemDetailFromJson(json);
+  factory CompartmentItemDetail.fromJson(Map<String, dynamic> json) {
+    final mapped = Map<String, dynamic>.from(json);
+    mapped['expirationDateUtc'] =
+        json['expirationDateUtc'] ?? json['expirationDate'];
+    return _$CompartmentItemDetailFromJson(mapped);
+  }
 }
 
 @freezed

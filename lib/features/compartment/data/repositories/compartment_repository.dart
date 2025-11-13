@@ -5,6 +5,13 @@ import '../models/compartment_models.dart';
 class CompartmentRepository {
   final NetworkService _network = NetworkService.instance;
 
+  String _formatPayloadDate(DateTime date) {
+    final year = date.year.toString().padLeft(4, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
   Future<List<Compartment>> getCompartments(String storageId) async {
     final path = ApiEndpoints.getStorageCompartments.replaceFirst(
       '{storageId}',
@@ -89,7 +96,7 @@ class CompartmentRepository {
       payload['unitId'] = unitId;
     }
     if (expirationDate != null) {
-      payload['expirationDate'] = expirationDate.toIso8601String();
+      payload['expirationDate'] = _formatPayloadDate(expirationDate);
     }
     if (notes != null && notes.isNotEmpty) {
       payload['notes'] = notes;
@@ -148,7 +155,7 @@ class CompartmentRepository {
       payload['unitId'] = unitId;
     }
     if (expirationDate != null) {
-      payload['expirationDate'] = expirationDate.toIso8601String();
+      payload['expirationDate'] = _formatPayloadDate(expirationDate);
     }
     if (notes != null) {
       payload['notes'] = notes;
