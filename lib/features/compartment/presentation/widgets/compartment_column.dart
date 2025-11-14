@@ -131,44 +131,100 @@ class CompartmentColumn extends ConsumerWidget {
     }
   }
 
+  Future<void> _handleDrop(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> data,
+  ) async {
+    final foodItemId = data['foodItemId'] as String;
+    final sourceCompartmentId = data['compartmentId'] as String;
+
+    if (sourceCompartmentId == compartmentId) {
+      return;
+    }
+
+    try {
+      await ref.read(
+        compartmentItemsProvider(sourceCompartmentId).notifier,
+      ).moveFoodItemToCompartment(
+        foodItemId: foodItemId,
+        targetCompartmentId: compartmentId,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Item moved successfully')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to move item: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncItems = ref.watch(compartmentItemsProvider(compartmentId));
 
-    return RepaintBoundary(
-      child: Container(
-        width: width,
-        height: (MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                kToolbarHeight -
-                48.h) *
-            scale,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r * scale),
-          border: Border.all(
-            color: Colors.black26,
-            width: 1,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.r * scale),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.blueGray.withValues(alpha: 0.8),
-                        AppColors.blueGray.withValues(alpha: 0.4),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+    return DragTarget<Map<String, dynamic>>(
+      onWillAcceptWithDetails: (details) {
+        final sourceCompartmentId = details.data['compartmentId'] as String?;
+        return sourceCompartmentId != null &&
+            sourceCompartmentId != compartmentId;
+      },
+      onAcceptWithDetails: (details) {
+        _handleDrop(context, ref, details.data);
+      },
+      builder: (context, candidateData, rejectedData) {
+        final isHovering = candidateData.isNotEmpty;
+        return RepaintBoundary(
+          child: Container(
+            width: width,
+            height: (MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    kToolbarHeight -
+                    48.h) *
+                scale,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r * scale),
+              border: Border.all(
+                color: isHovering
+                    ? AppColors.babyBlue
+                    : Colors.black26,
+                width: isHovering ? 2 : 1,
+              ),
+              boxShadow: isHovering
+                  ? [
+                      BoxShadow(
+                        color: AppColors.babyBlue.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.r * scale),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.blueGray.withValues(alpha: 0.8),
+                            AppColors.blueGray.withValues(alpha: 0.4),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Column(
+                  Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
@@ -436,7 +492,9 @@ class CompartmentColumn extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

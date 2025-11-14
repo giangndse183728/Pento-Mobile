@@ -143,7 +143,7 @@ class FoodItemCard extends StatelessWidget {
         data: {
           'foodItemId': item.id,
           'compartmentId': compartmentId,
-          'version': item.version,
+          'item': item,
         },
         feedback: Material(
           color: Colors.transparent,

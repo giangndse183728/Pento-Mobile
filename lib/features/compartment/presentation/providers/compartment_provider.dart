@@ -197,15 +197,76 @@ class CompartmentItems extends _$CompartmentItems {
     await refresh();
   }
 
-  Future<void> updateFoodItemCompartment({
-    required String foodItemId,
-    required int version,
-    required String newCompartmentId,
-  }) async {
-    await _repository.updateFoodItem(
-      foodItemId: foodItemId,
-      version: version,
-      compartmentId: newCompartmentId,
+  void removeItemOptimistically(String foodItemId) {
+    final currentState = state;
+    if (currentState is! AsyncData<CompartmentItemsState>) {
+      return;
+    }
+    
+    final updatedItems = currentState.value.items
+        .where((item) => item.id != foodItemId)
+        .toList();
+    
+    state = AsyncValue.data(
+      currentState.value.copyWith(items: updatedItems),
     );
+  }
+
+  void addItemOptimistically(CompartmentItem item) {
+    final currentState = state;
+    if (currentState is! AsyncData<CompartmentItemsState>) {
+      return;
+    }
+    
+    final updatedItems = [item, ...currentState.value.items];
+    
+    state = AsyncValue.data(
+      currentState.value.copyWith(items: updatedItems),
+    );
+  }
+
+  void rollbackState(AsyncValue<CompartmentItemsState> previousState) {
+    state = previousState;
+  }
+
+  Future<void> moveFoodItemToCompartment({
+    required String foodItemId,
+    required String targetCompartmentId,
+  }) async {
+    final currentState = state;
+    if (currentState is! AsyncData<CompartmentItemsState>) {
+      return;
+    }
+    
+    final movedItem = currentState.value.items.firstWhere(
+      (item) => item.id == foodItemId,
+    );
+    
+    final updatedItem = movedItem.copyWith(
+      compartmentId: targetCompartmentId,
+    );
+    
+    final targetNotifier = ref.read(
+      compartmentItemsProvider(targetCompartmentId).notifier,
+    );
+    final targetState = ref.read(
+      compartmentItemsProvider(targetCompartmentId),
+    );
+    
+    removeItemOptimistically(foodItemId);
+    targetNotifier.addItemOptimistically(updatedItem);
+    
+    try {
+      await _repository.updateFoodItem(
+        foodItemId: foodItemId,
+        compartmentId: targetCompartmentId,
+      );
+    } catch (error) {
+      rollbackState(currentState);
+      if (targetState is AsyncData<CompartmentItemsState>) {
+        targetNotifier.rollbackState(targetState);
+      }
+      rethrow;
+    }
   }
 }
