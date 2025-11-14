@@ -47,5 +47,8 @@ class ApiEndpoints {
   //Food Reference
   static const String getFoodReference = '/food-references';
 
+  //Unit
+  static const String getUnit = '/units';
+
 }
 
