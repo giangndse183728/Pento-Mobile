@@ -1205,6 +1205,7 @@ FoodItemUser _$FoodItemUserFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FoodItemUser {
+  @JsonKey(name: 'userId')
   String get id => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
   String? get lastName => throw _privateConstructorUsedError;
@@ -1228,7 +1229,7 @@ abstract class $FoodItemUserCopyWith<$Res> {
   ) = _$FoodItemUserCopyWithImpl<$Res, FoodItemUser>;
   @useResult
   $Res call({
-    String id,
+    @JsonKey(name: 'userId') String id,
     String? firstName,
     String? lastName,
     String? avatarUrl,
@@ -1289,7 +1290,7 @@ abstract class _$$FoodItemUserImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String id,
+    @JsonKey(name: 'userId') String id,
     String? firstName,
     String? lastName,
     String? avatarUrl,
@@ -1342,7 +1343,7 @@ class __$$FoodItemUserImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FoodItemUserImpl implements _FoodItemUser {
   const _$FoodItemUserImpl({
-    required this.id,
+    @JsonKey(name: 'userId') required this.id,
     this.firstName,
     this.lastName,
     this.avatarUrl,
@@ -1352,6 +1353,7 @@ class _$FoodItemUserImpl implements _FoodItemUser {
       _$$FoodItemUserImplFromJson(json);
 
   @override
+  @JsonKey(name: 'userId')
   final String id;
   @override
   final String? firstName;
@@ -1400,7 +1402,7 @@ class _$FoodItemUserImpl implements _FoodItemUser {
 
 abstract class _FoodItemUser implements FoodItemUser {
   const factory _FoodItemUser({
-    required final String id,
+    @JsonKey(name: 'userId') required final String id,
     final String? firstName,
     final String? lastName,
     final String? avatarUrl,
@@ -1410,6 +1412,7 @@ abstract class _FoodItemUser implements FoodItemUser {
       _$FoodItemUserImpl.fromJson;
 
   @override
+  @JsonKey(name: 'userId')
   String get id;
   @override
   String? get firstName;

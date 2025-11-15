@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -7,14 +8,28 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../data/models/compartment_models.dart';
 import '../providers/food_item_detail_provider.dart';
+import '../widgets/food_item_action_buttons.dart';
 
 class FoodItemDetailScreen extends ConsumerWidget {
-  const FoodItemDetailScreen({super.key, required this.foodItemId});
+  const FoodItemDetailScreen({
+    super.key,
+    required this.foodItemId,
+    this.compartmentId,
+  });
 
   final String foodItemId;
+  final String? compartmentId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Set compartmentId in provider if available
+    if (compartmentId != null && compartmentId!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(foodItemDetailProvider(foodItemId).notifier)
+            .setCompartmentId(compartmentId);
+      });
+    }
+
     final detailAsync = ref.watch(foodItemDetailProvider(foodItemId));
 
     return AppScaffold(
@@ -379,6 +394,11 @@ class _DetailBody extends StatelessWidget {
               ),
             ),
           ],
+
+          // Action Buttons
+          SizedBox(height: 32.h),
+          FoodItemActionButtons(detail: detail),
+          SizedBox(height: 32.h),
               ],
             ),
           ),
@@ -561,4 +581,3 @@ class _Divider extends StatelessWidget {
     );
   }
 }
-

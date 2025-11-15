@@ -206,7 +206,11 @@ GoRouter createAppRouter(ProviderContainer container) {
       pageBuilder: GoTransitions.fadeUpwards.build(
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
-          return FoodItemDetailScreen(foodItemId: id);
+          final compartmentId = state.uri.queryParameters['compartmentId'];
+          return FoodItemDetailScreen(
+            foodItemId: id,
+            compartmentId: compartmentId,
+          );
         },
       ),
     ),

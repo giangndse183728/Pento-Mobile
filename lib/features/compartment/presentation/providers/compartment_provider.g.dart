@@ -6,7 +6,7 @@ part of 'compartment_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compartmentsHash() => r'3bc9e418c158abe3767d3cd5ff76d49eb14d4941';
+String _$compartmentsHash() => r'1a762c7487659a298fe70db6beaf571143bb9442';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -161,10 +161,10 @@ class _CompartmentsProviderElement
   String get storageId => (origin as CompartmentsProvider).storageId;
 }
 
-String _$compartmentItemsHash() => r'e58f74a2c0ca0a908c02facf4480b318ec764ebc';
+String _$compartmentItemsHash() => r'e7b7f884d22031fee4720d3d949ad4c4de19ccbc';
 
 abstract class _$CompartmentItems
-    extends BuildlessAsyncNotifier<CompartmentItemsState> {
+    extends BuildlessAutoDisposeAsyncNotifier<CompartmentItemsState> {
   late final String compartmentId;
 
   FutureOr<CompartmentItemsState> build(String compartmentId);
@@ -208,7 +208,11 @@ class CompartmentItemsFamily extends Family<AsyncValue<CompartmentItemsState>> {
 
 /// See also [CompartmentItems].
 class CompartmentItemsProvider
-    extends AsyncNotifierProviderImpl<CompartmentItems, CompartmentItemsState> {
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          CompartmentItems,
+          CompartmentItemsState
+        > {
   /// See also [CompartmentItems].
   CompartmentItemsProvider(String compartmentId)
     : this._internal(
@@ -260,7 +264,10 @@ class CompartmentItemsProvider
   }
 
   @override
-  AsyncNotifierProviderElement<CompartmentItems, CompartmentItemsState>
+  AutoDisposeAsyncNotifierProviderElement<
+    CompartmentItems,
+    CompartmentItemsState
+  >
   createElement() {
     return _CompartmentItemsProviderElement(this);
   }
@@ -282,14 +289,18 @@ class CompartmentItemsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CompartmentItemsRef on AsyncNotifierProviderRef<CompartmentItemsState> {
+mixin CompartmentItemsRef
+    on AutoDisposeAsyncNotifierProviderRef<CompartmentItemsState> {
   /// The parameter `compartmentId` of this provider.
   String get compartmentId;
 }
 
 class _CompartmentItemsProviderElement
     extends
-        AsyncNotifierProviderElement<CompartmentItems, CompartmentItemsState>
+        AutoDisposeAsyncNotifierProviderElement<
+          CompartmentItems,
+          CompartmentItemsState
+        >
     with CompartmentItemsRef {
   _CompartmentItemsProviderElement(super.provider);
 

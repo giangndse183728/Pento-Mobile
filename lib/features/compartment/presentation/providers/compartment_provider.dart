@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/models/compartment_models.dart';
 import '../../data/repositories/compartment_repository.dart';
+import '../../data/repositories/food_item_repository.dart';
 
 part 'compartment_provider.g.dart';
 
@@ -103,18 +104,18 @@ class Compartments extends _$Compartments {
   }
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 class CompartmentItems extends _$CompartmentItems {
   static const int _pageSize = 12;
 
-  late final CompartmentRepository _repository;
+  late final FoodItemRepository _foodItemRepository;
   late final String _compartmentId;
 
   @override
   FutureOr<CompartmentItemsState> build(String compartmentId) async {
-    _repository = CompartmentRepository();
+    _foodItemRepository = FoodItemRepository();
     _compartmentId = compartmentId;
-    final page = await _repository.getCompartmentItems(
+    final page = await _foodItemRepository.getCompartmentItems(
       compartmentId,
       pageNumber: 1,
       pageSize: _pageSize,
@@ -129,7 +130,7 @@ class CompartmentItems extends _$CompartmentItems {
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final page = await _repository.getCompartmentItems(
+      final page = await _foodItemRepository.getCompartmentItems(
         _compartmentId,
         pageNumber: 1,
         pageSize: _pageSize,
@@ -155,7 +156,7 @@ class CompartmentItems extends _$CompartmentItems {
     state = AsyncValue.data(value.copyWith(isLoadingMore: true));
 
     try {
-      final nextPage = await _repository.getCompartmentItems(
+      final nextPage = await _foodItemRepository.getCompartmentItems(
         _compartmentId,
         pageNumber: value.pageNumber + 1,
         pageSize: _pageSize,
@@ -185,7 +186,7 @@ class CompartmentItems extends _$CompartmentItems {
     DateTime? expirationDate,
     String? notes,
   }) async {
-    await _repository.createFoodItem(
+    await _foodItemRepository.createFoodItem(
       foodRefId: foodRefId,
       compartmentId: _compartmentId,
       name: name,
@@ -229,6 +230,27 @@ class CompartmentItems extends _$CompartmentItems {
     state = previousState;
   }
 
+  void updateItemQuantityOptimistically({
+    required String foodItemId,
+    required int newQuantity,
+  }) {
+    final currentState = state;
+    if (currentState is! AsyncData<CompartmentItemsState>) {
+      return;
+    }
+    
+    final updatedItems = currentState.value.items.map((item) {
+      if (item.id == foodItemId) {
+        return item.copyWith(quantity: newQuantity);
+      }
+      return item;
+    }).toList();
+    
+    state = AsyncValue.data(
+      currentState.value.copyWith(items: updatedItems),
+    );
+  }
+
   Future<void> moveFoodItemToCompartment({
     required String foodItemId,
     required String targetCompartmentId,
@@ -257,7 +279,8 @@ class CompartmentItems extends _$CompartmentItems {
     targetNotifier.addItemOptimistically(updatedItem);
     
     try {
-      await _repository.updateFoodItem(
+      final foodItemRepository = FoodItemRepository();
+      await foodItemRepository.updateFoodItem(
         foodItemId: foodItemId,
         compartmentId: targetCompartmentId,
       );

@@ -32,7 +32,10 @@ class FoodItemCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.r * scale),
         onTap: () {
-          context.push(AppRoutes.foodItemDetailRoute(item.id));
+          final route = compartmentId != null
+              ? '${AppRoutes.foodItemDetailRoute(item.id)}?compartmentId=$compartmentId'
+              : AppRoutes.foodItemDetailRoute(item.id);
+          context.push(route);
         },
         child: Container(
           margin: EdgeInsets.only(bottom: 8.h * scale),

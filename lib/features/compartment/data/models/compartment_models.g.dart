@@ -112,7 +112,7 @@ Map<String, dynamic> _$$CompartmentItemDetailImplToJson(
 
 _$FoodItemUserImpl _$$FoodItemUserImplFromJson(Map<String, dynamic> json) =>
     _$FoodItemUserImpl(
-      id: json['id'] as String,
+      id: json['userId'] as String,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
@@ -120,7 +120,7 @@ _$FoodItemUserImpl _$$FoodItemUserImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$FoodItemUserImplToJson(_$FoodItemUserImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'userId': instance.id,
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'avatarUrl': instance.avatarUrl,

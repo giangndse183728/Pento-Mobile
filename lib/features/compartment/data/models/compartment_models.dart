@@ -64,8 +64,8 @@ class CompartmentItemsPage {
   final bool hasMore;
 
   factory CompartmentItemsPage.fromJson(Map<String, dynamic> json) {
-    final rawItems = json['items'] ?? json['previews'] ?? [];
-    final items = (rawItems as List<dynamic>)
+    final rawItems = json['items'] as List<dynamic>? ?? [];
+    final items = rawItems
         .map((e) => CompartmentItem.fromJson(e as Map<String, dynamic>))
         .toList();
     final pageNumber =
@@ -90,6 +90,7 @@ class CompartmentItemsPage {
     final hasMore =
         json['hasMore'] as bool? ??
         json['hasNextPage'] as bool? ??
+        json['hasNext'] as bool? ??
         (totalPages == 0
             ? items.length == pageSize && items.isNotEmpty
             : pageNumber < totalPages);
@@ -162,7 +163,7 @@ class CompartmentItemDetail with _$CompartmentItemDetail {
 @freezed
 class FoodItemUser with _$FoodItemUser {
   const factory FoodItemUser({
-    required String id,
+    @JsonKey(name: 'userId') required String id,
     String? firstName,
     String? lastName,
     String? avatarUrl,

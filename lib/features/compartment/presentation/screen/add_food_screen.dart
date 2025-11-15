@@ -9,9 +9,10 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/widgets/app_text_form_field.dart';
-import '../../../food/data/models/food_reference.dart';
+import '../../../reference/data/models/food_reference.dart';
+import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../providers/compartment_provider.dart';
-import '../../../food/presentation/providers/food_reference_provider.dart';
+import '../../../reference/presentation/providers/food_reference_provider.dart';
 
 class AddFoodScreen extends ConsumerStatefulWidget {
   const AddFoodScreen({super.key});
@@ -24,7 +25,6 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _quantityCtrl = TextEditingController(text: '1');
-  final TextEditingController _unitCtrl = TextEditingController();
   final TextEditingController _notesCtrl = TextEditingController();
 
   static const List<String> _foodGroups = [
@@ -44,6 +44,7 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
   String? _searchTerm;
   String? _selectedGroup;
   FoodReference? _selectedReference;
+  String? _selectedUnitId;
   DateTime? _expirationDate;
   bool _isSubmitting = false;
 
@@ -52,7 +53,6 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
     _searchCtrl.dispose();
     _nameCtrl.dispose();
     _quantityCtrl.dispose();
-    _unitCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
   }
@@ -61,12 +61,15 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
     setState(() {
       _selectedReference = reference;
       _nameCtrl.text = reference.name;
+      // Reset unit selection when reference changes
+      _selectedUnitId = null;
     });
   }
 
   void _clearSelectedReference() {
     setState(() {
       _selectedReference = null;
+      _selectedUnitId = null;
       _nameCtrl.clear();
     });
   }
@@ -126,8 +129,7 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
             foodRefId: _selectedReference!.id,
             name: name,
             quantity: quantity,
-            unitId:
-                _unitCtrl.text.trim().isEmpty ? null : _unitCtrl.text.trim(),
+            unitId: _selectedUnitId,
             expirationDate: _expirationDate,
             notes: _notesCtrl.text.trim().isEmpty
                 ? null
@@ -538,10 +540,16 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                  child: AppTextFormField(
-                    controller: _unitCtrl,
-                    labelText: 'Unit ID (optional)',
-                    prefixIcon: const Icon(Icons.scale),
+                  child: UnitSelectField(
+                    hintText: 'Select unit',
+                    selectedUnitId: _selectedUnitId,
+                    preferredUnitType: _selectedReference?.unitType,
+                    enabled: _selectedReference != null,
+                    onUnitSelected: (unit) {
+                      setState(() {
+                        _selectedUnitId = unit?.id;
+                      });
+                    },
                   ),
                 ),
               ],
