@@ -6,7 +6,6 @@ import '../layouts/bottom_nav_items.dart';
 import '../../features/pantry/presentation/screen/pantry_screen.dart';
 import '../../screens/meal_screen.dart';
 import '../../screens/posts_screen.dart';
-import '../../screens/cart_screen.dart';
 import '../../features/pantry/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/authentication/presentation/screen/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
@@ -18,6 +17,8 @@ import '../../features/profile/presentation/screen/profile_screen.dart';
 import '../../features/compartment/presentation/screen/compartment_screen.dart';
 import '../../features/compartment/presentation/screen/add_food_screen.dart';
 import '../../features/compartment/presentation/screen/food_item_detail_screen.dart';
+import '../../features/recipe/presentation/screen/recipe_screen.dart';
+import '../../features/recipe/presentation/screen/recipe_detail_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -113,17 +114,17 @@ GoRouter createAppRouter(ProviderContainer container) {
           final storage = SecureStorageService.instance;
           return OnboardingScreen(
             onFinished: () async {
-              // Check refresh token before routing
+          
               final refreshToken = await storage.getRefreshToken();
               if (refreshToken != null &&
                   refreshToken.isNotEmpty &&
                   !JwtUtils.isTokenExpired(refreshToken)) {
-                // Valid refresh token exists, ensure it's in TokenProvider and fetch profile
+             
                 final tokenProvider = TokenProvider.instance;
                 if (tokenProvider.refreshToken == null) {
                   tokenProvider.setTokens(refreshToken: refreshToken);
                 }
-                // Trigger profile fetch to get name, email, avatarUrl
+          
                 final userSession = container.read(userSessionNotifierProvider);
                 if (userSession == null || userSession.name == null) {
                   try {
@@ -132,12 +133,10 @@ GoRouter createAppRouter(ProviderContainer container) {
                     // Silently fail - profile will be fetched later
                   }
                 }
-                // Go to pantry
                 if (context.mounted) {
                   context.go(AppRoutes.pantry);
                 }
               } else {
-                // No valid refresh token, go to auth
                 if (context.mounted) {
                   context.go(AppRoutes.auth);
                 }
@@ -214,6 +213,17 @@ GoRouter createAppRouter(ProviderContainer container) {
         },
       ),
     ),
+    GoRoute(
+      path: AppRoutes.recipeDetail,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return RecipeDetailScreen(
+            recipeId: id,
+          );
+        },
+      ),
+    ),
 
     
 ShellRoute(
@@ -237,8 +247,8 @@ ShellRoute(
           builder: (context, state) => const PostsScreen(),
         ),
         GoRoute(
-          path: AppRoutes.cart,
-          builder: (context, state) => const CartScreen(),
+          path: AppRoutes.recipe,
+          builder: (context, state) => const RecipeScreen(),
         ),
       ],
     ),

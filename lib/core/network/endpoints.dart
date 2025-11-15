@@ -50,5 +50,9 @@ class ApiEndpoints {
   //Unit
   static const String getUnit = '/units';
 
+  //Recipe
+  static const String getRecipe = '/recipes';
+  static const String getRecipeById = '/recipes/{recipeId}';
+
 }
 
