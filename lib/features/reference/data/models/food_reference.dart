@@ -12,6 +12,7 @@ class FoodReference with _$FoodReference {
     required String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'dataType') String? dataType,
+    @JsonKey(name: 'unitType') String? unitType,
     String? notes,
     @JsonKey(name: 'typicalShelfLifeDays_Pantry')
     @Default(0)

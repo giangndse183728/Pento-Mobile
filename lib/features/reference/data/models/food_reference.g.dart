@@ -12,6 +12,7 @@ _$FoodReferenceImpl _$$FoodReferenceImplFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       foodGroup: json['foodGroup'] as String?,
       dataType: json['dataType'] as String?,
+      unitType: json['unitType'] as String?,
       notes: json['notes'] as String?,
       typicalShelfLifeDaysPantry:
           (json['typicalShelfLifeDays_Pantry'] as num?)?.toInt() ?? 0,
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$FoodReferenceImplToJson(_$FoodReferenceImpl instance) =>
       'name': instance.name,
       'foodGroup': instance.foodGroup,
       'dataType': instance.dataType,
+      'unitType': instance.unitType,
       'notes': instance.notes,
       'typicalShelfLifeDays_Pantry': instance.typicalShelfLifeDaysPantry,
       'typicalShelfLifeDays_Fridge': instance.typicalShelfLifeDaysFridge,

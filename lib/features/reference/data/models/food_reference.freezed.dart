@@ -27,6 +27,8 @@ mixin _$FoodReference {
   String? get foodGroup => throw _privateConstructorUsedError;
   @JsonKey(name: 'dataType')
   String? get dataType => throw _privateConstructorUsedError;
+  @JsonKey(name: 'unitType')
+  String? get unitType => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   @JsonKey(name: 'typicalShelfLifeDays_Pantry')
   int get typicalShelfLifeDaysPantry => throw _privateConstructorUsedError;
@@ -67,6 +69,7 @@ abstract class $FoodReferenceCopyWith<$Res> {
     String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'dataType') String? dataType,
+    @JsonKey(name: 'unitType') String? unitType,
     String? notes,
     @JsonKey(name: 'typicalShelfLifeDays_Pantry')
     int typicalShelfLifeDaysPantry,
@@ -103,6 +106,7 @@ class _$FoodReferenceCopyWithImpl<$Res, $Val extends FoodReference>
     Object? name = null,
     Object? foodGroup = freezed,
     Object? dataType = freezed,
+    Object? unitType = freezed,
     Object? notes = freezed,
     Object? typicalShelfLifeDaysPantry = null,
     Object? typicalShelfLifeDaysFridge = null,
@@ -132,6 +136,10 @@ class _$FoodReferenceCopyWithImpl<$Res, $Val extends FoodReference>
             dataType: freezed == dataType
                 ? _value.dataType
                 : dataType // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            unitType: freezed == unitType
+                ? _value.unitType
+                : unitType // ignore: cast_nullable_to_non_nullable
                       as String?,
             notes: freezed == notes
                 ? _value.notes
@@ -197,6 +205,7 @@ abstract class _$$FoodReferenceImplCopyWith<$Res>
     String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'dataType') String? dataType,
+    @JsonKey(name: 'unitType') String? unitType,
     String? notes,
     @JsonKey(name: 'typicalShelfLifeDays_Pantry')
     int typicalShelfLifeDaysPantry,
@@ -232,6 +241,7 @@ class __$$FoodReferenceImplCopyWithImpl<$Res>
     Object? name = null,
     Object? foodGroup = freezed,
     Object? dataType = freezed,
+    Object? unitType = freezed,
     Object? notes = freezed,
     Object? typicalShelfLifeDaysPantry = null,
     Object? typicalShelfLifeDaysFridge = null,
@@ -261,6 +271,10 @@ class __$$FoodReferenceImplCopyWithImpl<$Res>
         dataType: freezed == dataType
             ? _value.dataType
             : dataType // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        unitType: freezed == unitType
+            ? _value.unitType
+            : unitType // ignore: cast_nullable_to_non_nullable
                   as String?,
         notes: freezed == notes
             ? _value.notes
@@ -319,6 +333,7 @@ class _$FoodReferenceImpl implements _FoodReference {
     required this.name,
     @JsonKey(name: 'foodGroup') this.foodGroup,
     @JsonKey(name: 'dataType') this.dataType,
+    @JsonKey(name: 'unitType') this.unitType,
     this.notes,
     @JsonKey(name: 'typicalShelfLifeDays_Pantry')
     this.typicalShelfLifeDaysPantry = 0,
@@ -348,6 +363,9 @@ class _$FoodReferenceImpl implements _FoodReference {
   @override
   @JsonKey(name: 'dataType')
   final String? dataType;
+  @override
+  @JsonKey(name: 'unitType')
+  final String? unitType;
   @override
   final String? notes;
   @override
@@ -379,7 +397,7 @@ class _$FoodReferenceImpl implements _FoodReference {
 
   @override
   String toString() {
-    return 'FoodReference(id: $id, name: $name, foodGroup: $foodGroup, dataType: $dataType, notes: $notes, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, addedBy: $addedBy, imageUrl: $imageUrl, brand: $brand, barcode: $barcode, createdAt: $createdAt, updatedAt: $updatedAt, isDeleted: $isDeleted)';
+    return 'FoodReference(id: $id, name: $name, foodGroup: $foodGroup, dataType: $dataType, unitType: $unitType, notes: $notes, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, addedBy: $addedBy, imageUrl: $imageUrl, brand: $brand, barcode: $barcode, createdAt: $createdAt, updatedAt: $updatedAt, isDeleted: $isDeleted)';
   }
 
   @override
@@ -393,6 +411,8 @@ class _$FoodReferenceImpl implements _FoodReference {
                 other.foodGroup == foodGroup) &&
             (identical(other.dataType, dataType) ||
                 other.dataType == dataType) &&
+            (identical(other.unitType, unitType) ||
+                other.unitType == unitType) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(
                   other.typicalShelfLifeDaysPantry,
@@ -433,6 +453,7 @@ class _$FoodReferenceImpl implements _FoodReference {
     name,
     foodGroup,
     dataType,
+    unitType,
     notes,
     typicalShelfLifeDaysPantry,
     typicalShelfLifeDaysFridge,
@@ -466,6 +487,7 @@ abstract class _FoodReference implements FoodReference {
     required final String name,
     @JsonKey(name: 'foodGroup') final String? foodGroup,
     @JsonKey(name: 'dataType') final String? dataType,
+    @JsonKey(name: 'unitType') final String? unitType,
     final String? notes,
     @JsonKey(name: 'typicalShelfLifeDays_Pantry')
     final int typicalShelfLifeDaysPantry,
@@ -495,6 +517,9 @@ abstract class _FoodReference implements FoodReference {
   @override
   @JsonKey(name: 'dataType')
   String? get dataType;
+  @override
+  @JsonKey(name: 'unitType')
+  String? get unitType;
   @override
   String? get notes;
   @override
