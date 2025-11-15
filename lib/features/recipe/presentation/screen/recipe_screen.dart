@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 
@@ -90,7 +92,9 @@ class RecipeScreen extends ConsumerWidget {
                         return RecipeCard(
                           recipe: recipe,
                           onTap: () {
-                            // TODO: Navigate to recipe detail
+                            context.push(
+                              AppRoutes.recipeDetailRoute(recipe.id),
+                            );
                           },
                         );
                       },

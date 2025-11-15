@@ -22,7 +22,8 @@ final recipesProvider =
     );
 
 typedef _$Recipes = AutoDisposeAsyncNotifier<List<Recipe>>;
-String _$recipeDetailHash() => r'ff69e2aaf5352168d8937d66f3cce24d2aa4a185';
+String _$recipeDetailNotifierHash() =>
+    r'c8eaf92976967e5841a582c34484fde02c1a2869';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -45,30 +46,30 @@ class _SystemHash {
   }
 }
 
-abstract class _$RecipeDetail
-    extends BuildlessAutoDisposeAsyncNotifier<Recipe> {
+abstract class _$RecipeDetailNotifier
+    extends BuildlessAutoDisposeAsyncNotifier<RecipeDetail> {
   late final String recipeId;
 
-  FutureOr<Recipe> build(String recipeId);
+  FutureOr<RecipeDetail> build(String recipeId);
 }
 
-/// See also [RecipeDetail].
-@ProviderFor(RecipeDetail)
-const recipeDetailProvider = RecipeDetailFamily();
+/// See also [RecipeDetailNotifier].
+@ProviderFor(RecipeDetailNotifier)
+const recipeDetailNotifierProvider = RecipeDetailNotifierFamily();
 
-/// See also [RecipeDetail].
-class RecipeDetailFamily extends Family<AsyncValue<Recipe>> {
-  /// See also [RecipeDetail].
-  const RecipeDetailFamily();
+/// See also [RecipeDetailNotifier].
+class RecipeDetailNotifierFamily extends Family<AsyncValue<RecipeDetail>> {
+  /// See also [RecipeDetailNotifier].
+  const RecipeDetailNotifierFamily();
 
-  /// See also [RecipeDetail].
-  RecipeDetailProvider call(String recipeId) {
-    return RecipeDetailProvider(recipeId);
+  /// See also [RecipeDetailNotifier].
+  RecipeDetailNotifierProvider call(String recipeId) {
+    return RecipeDetailNotifierProvider(recipeId);
   }
 
   @override
-  RecipeDetailProvider getProviderOverride(
-    covariant RecipeDetailProvider provider,
+  RecipeDetailNotifierProvider getProviderOverride(
+    covariant RecipeDetailNotifierProvider provider,
   ) {
     return call(provider.recipeId);
   }
@@ -85,28 +86,32 @@ class RecipeDetailFamily extends Family<AsyncValue<Recipe>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'recipeDetailProvider';
+  String? get name => r'recipeDetailNotifierProvider';
 }
 
-/// See also [RecipeDetail].
-class RecipeDetailProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<RecipeDetail, Recipe> {
-  /// See also [RecipeDetail].
-  RecipeDetailProvider(String recipeId)
+/// See also [RecipeDetailNotifier].
+class RecipeDetailNotifierProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          RecipeDetailNotifier,
+          RecipeDetail
+        > {
+  /// See also [RecipeDetailNotifier].
+  RecipeDetailNotifierProvider(String recipeId)
     : this._internal(
-        () => RecipeDetail()..recipeId = recipeId,
-        from: recipeDetailProvider,
-        name: r'recipeDetailProvider',
+        () => RecipeDetailNotifier()..recipeId = recipeId,
+        from: recipeDetailNotifierProvider,
+        name: r'recipeDetailNotifierProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
             ? null
-            : _$recipeDetailHash,
-        dependencies: RecipeDetailFamily._dependencies,
+            : _$recipeDetailNotifierHash,
+        dependencies: RecipeDetailNotifierFamily._dependencies,
         allTransitiveDependencies:
-            RecipeDetailFamily._allTransitiveDependencies,
+            RecipeDetailNotifierFamily._allTransitiveDependencies,
         recipeId: recipeId,
       );
 
-  RecipeDetailProvider._internal(
+  RecipeDetailNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -119,15 +124,17 @@ class RecipeDetailProvider
   final String recipeId;
 
   @override
-  FutureOr<Recipe> runNotifierBuild(covariant RecipeDetail notifier) {
+  FutureOr<RecipeDetail> runNotifierBuild(
+    covariant RecipeDetailNotifier notifier,
+  ) {
     return notifier.build(recipeId);
   }
 
   @override
-  Override overrideWith(RecipeDetail Function() create) {
+  Override overrideWith(RecipeDetailNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: RecipeDetailProvider._internal(
+      override: RecipeDetailNotifierProvider._internal(
         () => create()..recipeId = recipeId,
         from: from,
         name: null,
@@ -140,14 +147,14 @@ class RecipeDetailProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<RecipeDetail, Recipe>
+  AutoDisposeAsyncNotifierProviderElement<RecipeDetailNotifier, RecipeDetail>
   createElement() {
-    return _RecipeDetailProviderElement(this);
+    return _RecipeDetailNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is RecipeDetailProvider && other.recipeId == recipeId;
+    return other is RecipeDetailNotifierProvider && other.recipeId == recipeId;
   }
 
   @override
@@ -161,18 +168,23 @@ class RecipeDetailProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin RecipeDetailRef on AutoDisposeAsyncNotifierProviderRef<Recipe> {
+mixin RecipeDetailNotifierRef
+    on AutoDisposeAsyncNotifierProviderRef<RecipeDetail> {
   /// The parameter `recipeId` of this provider.
   String get recipeId;
 }
 
-class _RecipeDetailProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<RecipeDetail, Recipe>
-    with RecipeDetailRef {
-  _RecipeDetailProviderElement(super.provider);
+class _RecipeDetailNotifierProviderElement
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          RecipeDetailNotifier,
+          RecipeDetail
+        >
+    with RecipeDetailNotifierRef {
+  _RecipeDetailNotifierProviderElement(super.provider);
 
   @override
-  String get recipeId => (origin as RecipeDetailProvider).recipeId;
+  String get recipeId => (origin as RecipeDetailNotifierProvider).recipeId;
 }
 
 // ignore_for_file: type=lint

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/models/recipe_model.dart';
+import '../../data/models/recipe_detail_model.dart';
 import '../../data/repositories/recipe_repository.dart';
 
 part 'recipe_provider.g.dart';
@@ -26,12 +27,12 @@ class Recipes extends _$Recipes {
 }
 
 @riverpod
-class RecipeDetail extends _$RecipeDetail {
+class RecipeDetailNotifier extends _$RecipeDetailNotifier {
   late final RecipeRepository _repository;
   late final String _recipeId;
 
   @override
-  FutureOr<Recipe> build(String recipeId) async {
+  FutureOr<RecipeDetail> build(String recipeId) async {
     _repository = RecipeRepository();
     _recipeId = recipeId;
     return await _repository.getRecipeById(recipeId);

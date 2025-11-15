@@ -1,6 +1,7 @@
 import '../../../../core/network/endpoints.dart';
 import '../../../../core/network/network_service.dart';
 import '../models/recipe_model.dart';
+import '../models/recipe_detail_model.dart';
 
 class RecipeRepository {
   final NetworkService _network = NetworkService.instance;
@@ -18,15 +19,15 @@ class RecipeRepository {
     return list;
   }
 
-  Future<Recipe> getRecipeById(String recipeId) async {
+  Future<RecipeDetail> getRecipeById(String recipeId) async {
     final path = ApiEndpoints.getRecipeById.replaceFirst(
       '{recipeId}',
       recipeId,
     );
-    final recipe = await _network.get<Recipe>(
-      path,
+    final recipe = await _network.get<RecipeDetail>(
+      '$path?include=All',
       onSuccess: (data) {
-        return Recipe.fromJson(data as Map<String, dynamic>);
+        return RecipeDetail.fromJson(data as Map<String, dynamic>);
       },
     );
     return recipe;
