@@ -22,11 +22,10 @@ class AppRoutes {
   static const String addFood = '/compartment/add-food';
   static const String foodItemDetail = '/compartment/food-item/:id';
   static const String recipeDetail = '/recipe/:id';
+  static const String foodItemLogs = '/food-item-logs';
   
-  // Helper method to build food item detail route
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';
-  
-  // Helper method to build recipe detail route
+
   static String recipeDetailRoute(String id) => '/recipe/$id';
 }

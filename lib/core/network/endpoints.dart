@@ -54,5 +54,9 @@ class ApiEndpoints {
   static const String getRecipe = '/recipes';
   static const String getRecipeById = '/recipes/{recipeId}';
 
+  //Activity Log
+  static const String getSummaryFoodItemLogs = '/food-item-logs/summary';
+  static const String getFoodItemLogs = '/food-item-logs';
+
 }
 
