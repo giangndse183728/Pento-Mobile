@@ -161,7 +161,7 @@ class _CompartmentsProviderElement
   String get storageId => (origin as CompartmentsProvider).storageId;
 }
 
-String _$compartmentItemsHash() => r'e7b7f884d22031fee4720d3d949ad4c4de19ccbc';
+String _$compartmentItemsHash() => r'd131a5526a004b53bea438e5f725cee118e862cc';
 
 abstract class _$CompartmentItems
     extends BuildlessAutoDisposeAsyncNotifier<CompartmentItemsState> {
