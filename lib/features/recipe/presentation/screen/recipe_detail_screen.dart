@@ -5,7 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
-import '../../data/models/recipe_detail_model.dart';
+import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 
 class RecipeDetailScreen extends ConsumerWidget {
@@ -201,7 +201,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              detail.recipeTitle,
+                              detail.unifiedTitle,
                               style: TextStyle(
                                 fontSize: 28.sp,
                                 fontWeight: FontWeight.bold,

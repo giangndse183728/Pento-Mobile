@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 
@@ -93,7 +94,7 @@ class RecipeScreen extends ConsumerWidget {
                           recipe: recipe,
                           onTap: () {
                             context.push(
-                              AppRoutes.recipeDetailRoute(recipe.id),
+                              AppRoutes.recipeDetailRoute(recipe.unifiedId),
                             );
                           },
                         );

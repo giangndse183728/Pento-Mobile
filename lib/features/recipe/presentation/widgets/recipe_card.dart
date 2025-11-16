@@ -122,7 +122,7 @@ class RecipeCard extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        recipe.title,
+                        recipe.unifiedTitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -143,7 +143,7 @@ class RecipeCard extends StatelessWidget {
                         ),
                         SizedBox(width: 3.w),
                         Text(
-                          '${recipe.totalTimes} mins',
+                          '${recipe.unifiedTotalTime} mins',
                           style: TextStyle(
                             fontSize: 11.sp,
                             color: AppColors.blueGray,

@@ -23,7 +23,7 @@ final recipesProvider =
 
 typedef _$Recipes = AutoDisposeAsyncNotifier<List<Recipe>>;
 String _$recipeDetailNotifierHash() =>
-    r'c8eaf92976967e5841a582c34484fde02c1a2869';
+    r'e7541fa5e320b378427bdd46aed808a4a2f312cf';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -47,10 +47,10 @@ class _SystemHash {
 }
 
 abstract class _$RecipeDetailNotifier
-    extends BuildlessAutoDisposeAsyncNotifier<RecipeDetail> {
+    extends BuildlessAutoDisposeAsyncNotifier<Recipe> {
   late final String recipeId;
 
-  FutureOr<RecipeDetail> build(String recipeId);
+  FutureOr<Recipe> build(String recipeId);
 }
 
 /// See also [RecipeDetailNotifier].
@@ -58,7 +58,7 @@ abstract class _$RecipeDetailNotifier
 const recipeDetailNotifierProvider = RecipeDetailNotifierFamily();
 
 /// See also [RecipeDetailNotifier].
-class RecipeDetailNotifierFamily extends Family<AsyncValue<RecipeDetail>> {
+class RecipeDetailNotifierFamily extends Family<AsyncValue<Recipe>> {
   /// See also [RecipeDetailNotifier].
   const RecipeDetailNotifierFamily();
 
@@ -91,11 +91,7 @@ class RecipeDetailNotifierFamily extends Family<AsyncValue<RecipeDetail>> {
 
 /// See also [RecipeDetailNotifier].
 class RecipeDetailNotifierProvider
-    extends
-        AutoDisposeAsyncNotifierProviderImpl<
-          RecipeDetailNotifier,
-          RecipeDetail
-        > {
+    extends AutoDisposeAsyncNotifierProviderImpl<RecipeDetailNotifier, Recipe> {
   /// See also [RecipeDetailNotifier].
   RecipeDetailNotifierProvider(String recipeId)
     : this._internal(
@@ -124,9 +120,7 @@ class RecipeDetailNotifierProvider
   final String recipeId;
 
   @override
-  FutureOr<RecipeDetail> runNotifierBuild(
-    covariant RecipeDetailNotifier notifier,
-  ) {
+  FutureOr<Recipe> runNotifierBuild(covariant RecipeDetailNotifier notifier) {
     return notifier.build(recipeId);
   }
 
@@ -147,7 +141,7 @@ class RecipeDetailNotifierProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<RecipeDetailNotifier, RecipeDetail>
+  AutoDisposeAsyncNotifierProviderElement<RecipeDetailNotifier, Recipe>
   createElement() {
     return _RecipeDetailNotifierProviderElement(this);
   }
@@ -168,18 +162,14 @@ class RecipeDetailNotifierProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin RecipeDetailNotifierRef
-    on AutoDisposeAsyncNotifierProviderRef<RecipeDetail> {
+mixin RecipeDetailNotifierRef on AutoDisposeAsyncNotifierProviderRef<Recipe> {
   /// The parameter `recipeId` of this provider.
   String get recipeId;
 }
 
 class _RecipeDetailNotifierProviderElement
     extends
-        AutoDisposeAsyncNotifierProviderElement<
-          RecipeDetailNotifier,
-          RecipeDetail
-        >
+        AutoDisposeAsyncNotifierProviderElement<RecipeDetailNotifier, Recipe>
     with RecipeDetailNotifierRef {
   _RecipeDetailNotifierProviderElement(super.provider);
 
