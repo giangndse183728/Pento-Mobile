@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/board_ui_provider.dart';
 import '../../../../core/layouts/app_scaffold.dart';
@@ -29,6 +30,10 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
   void _handleZoomToggle() {
     final boardUiCtrl = ref.read(compartmentBoardUiProvider.notifier);
     boardUiCtrl.toggleZoom();
+  }
+
+  void _navigateToLogs(BuildContext context) {
+    context.push(AppRoutes.foodItemLogs);
   }
 
   @override
@@ -64,6 +69,12 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
           icon: boardUi.isZoomed ? Icons.zoom_out : Icons.zoom_in,
           onTap: _handleZoomToggle,
         ),
+         SizedBox(width: 2.w),
+        CircleIconButton(
+          icon: Icons.history,
+          onTap: () => _navigateToLogs(context),
+        ),
+       
       ],
       body: asyncCompartments.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -109,7 +120,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
           // Zoomed mode: Carousel
           if (boardUi.isZoomed) {
             _pageController ??= PageController();
-            
+
             return Padding(
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top + kToolbarHeight,
@@ -168,10 +179,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
                     ),
                     SizedBox(width: 12.w),
                   ],
-                  AddCompartmentTile(
-                    storageId: storageId,
-                    width: 220.w,
-                  ),
+                  AddCompartmentTile(storageId: storageId, width: 220.w),
                   SizedBox(width: 12.w),
                 ],
               ),
