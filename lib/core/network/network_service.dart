@@ -200,7 +200,6 @@ class NetworkService {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? headers,
     required T Function(dynamic data) onSuccess,
   }) async {
     return handleRequest(
@@ -208,7 +207,6 @@ class NetworkService {
         path,
         data: data,
         queryParameters: queryParameters,
-        options: headers != null ? Options(headers: headers) : null,
       ),
       onSuccess: onSuccess,
     );

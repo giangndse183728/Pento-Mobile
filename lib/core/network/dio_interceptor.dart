@@ -160,6 +160,9 @@ class AuthInterceptor extends Interceptor {
   Future<void> _clearAllTokens() async {
     _tokenProvider.clearTokens();
     await _storage.clearAll();
+    
+    // Trigger callback to handle auth failure (e.g., navigate to auth screen)
+    await ApiClient.instance.onRefreshTokenFailed?.call();
   }
 }
 

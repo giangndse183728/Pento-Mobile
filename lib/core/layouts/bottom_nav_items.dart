@@ -12,8 +12,8 @@ class NavItem {
 const List<NavItem> kDefaultNavItems = [
   NavItem(asset: AppImages.pantry, label: 'Pantry'),
   NavItem(asset: AppImages.meal, label: 'Meal'),
+  NavItem(asset: AppImages.recipe, label: 'Recipe'),
   NavItem(asset: AppImages.posts, label: 'Posts'),
-  NavItem(asset: AppImages.cart, label: 'Cart'),
 ];
 
 
