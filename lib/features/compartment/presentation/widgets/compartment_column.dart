@@ -39,6 +39,12 @@ class CompartmentColumn extends ConsumerWidget {
     }
   }
 
+  Future<void> _navigateToBarcodeScanner(BuildContext context) async {
+    await context.push(
+      '${AppRoutes.barcodeScanner}?compartmentId=$compartmentId',
+    );
+  }
+
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<Map<String, String>>(
       context: context,
@@ -463,28 +469,46 @@ class CompartmentColumn extends ConsumerWidget {
                       horizontal: 12.w * scale,
                       vertical: 10.h * scale,
                     ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        onPressed: () => _navigateToAddFood(context),
-                        icon: Icon(
-                          Icons.add,
-                          size: 18.sp * scale,
-                          color: AppColors.blueGray,
-                        ),
-                        label: Text(
-                          'Add food',
-                          style: TextStyle(
-                            fontSize: 14.sp * scale,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.blueGray,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextButton.icon(
+                            onPressed: () => _navigateToAddFood(context),
+                            icon: Icon(
+                              Icons.add,
+                              size: 18.sp * scale,
+                              color: AppColors.blueGray,
+                            ),
+                            label: Text(
+                              'Add food',
+                              style: TextStyle(
+                                fontSize: 14.sp * scale,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.blueGray,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 6.h * scale,
+                              ),
+                              foregroundColor: AppColors.blueGray,
+                            ),
                           ),
                         ),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 6.h * scale),
-                          foregroundColor: AppColors.blueGray,
+                        SizedBox(width: 4.w * scale),
+                        IconButton(
+                          onPressed: () => _navigateToBarcodeScanner(context),
+                          icon: Icon(
+                            Icons.qr_code_scanner,
+                            size: 20.sp * scale,
+                            color: AppColors.blueGray,
+                          ),
+                          style: IconButton.styleFrom(
+                            padding: EdgeInsets.all(8.w * scale),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],
