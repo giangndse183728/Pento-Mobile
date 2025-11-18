@@ -7,19 +7,13 @@ part 'storage_models.g.dart';
 
 enum StorageType { pantry, fridge, freezer }
 
-/// Converter for parsing API response string enum names (e.g., "Pantry", "Fridge", "Freezer") to StorageType for UI display.
-/// This is ONLY used when deserializing Storage from JSON (API responses).
-/// For request bodies, use [storageTypeToInt] to convert StorageType to int (0,1,2).
 class _StorageTypeConverter
     implements JsonConverter<StorageType, Object?> {
   const _StorageTypeConverter();
 
-  /// Parses string enum names from API response to StorageType for UI display.
-  /// API returns: "Pantry", "Fridge", "Freezer" (case-insensitive)
   @override
   StorageType fromJson(Object? json) {
     if (json is String) {
-      // Handle string enum names from API (case-insensitive)
       final lowerJson = json.toLowerCase();
       switch (lowerJson) {
         case 'pantry':
@@ -29,16 +23,13 @@ class _StorageTypeConverter
         case 'freezer':
           return StorageType.freezer;
         default:
-          return StorageType.pantry; // Default fallback
+          return StorageType.pantry;
       }
     }
     
-    // Default fallback if json is not a string
     return StorageType.pantry;
   }
 
-  /// Converts StorageType to int (0,1,2) for JSON serialization.
-  /// Note: This is NOT used - we use [storageTypeToInt] for request bodies instead.
   @override
   Object toJson(StorageType object) {
     switch (object) {
@@ -74,6 +65,19 @@ class Storage with _$Storage {
 
   factory Storage.fromJson(Map<String, dynamic> json) =>
       _$StorageFromJson(json);
+}
+
+@freezed
+class PaginatedStorages with _$PaginatedStorages {
+  const factory PaginatedStorages({
+    required int currentPage,
+    required int totalPages,
+    required int pageSize,
+    required int totalCount,
+    required bool hasPrevious,
+    required bool hasNext,
+    @Default(<Storage>[]) List<Storage> items,
+  }) = _PaginatedStorages;
 }
 
 

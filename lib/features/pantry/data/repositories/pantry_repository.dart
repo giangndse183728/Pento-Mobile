@@ -4,19 +4,43 @@ import '../models/storage_models.dart';
 import '../../../../core/utils/logging.dart';
 
 class PantryRepository {
+  PantryRepository();
+
+  static const int defaultPageSize = 24;
+
   final NetworkService _network = NetworkService.instance;
   final _logger = AppLogger.getLogger('PantryRepository');
-  Future<List<Storage>> getStorages() async {
-    final list = await _network.get<List<Storage>>(
+
+  Future<PaginatedStorages> getStorages({
+    int pageNumber = 1,
+    int pageSize = defaultPageSize,
+  }) async {
+    return await _network.get<PaginatedStorages>(
       ApiEndpoints.getStorage,
+      queryParameters: {
+        'pageNumber': pageNumber,
+        'pageSize': pageSize,
+      },
       onSuccess: (data) {
-        final items = (data as List<dynamic>? ?? []);
-        return items
-            .map((e) => Storage.fromJson(e as Map<String, dynamic>))
+        final map = (data as Map<String, dynamic>? ?? {})..removeWhere(
+            (key, value) => value == null,
+          );
+        final items = (map['items'] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()
+            .map(_mapStorage)
             .toList();
+
+        return PaginatedStorages(
+          currentPage: map['currentPage'] as int? ?? pageNumber,
+          totalPages: map['totalPages'] as int? ?? 1,
+          pageSize: map['pageSize'] as int? ?? pageSize,
+          totalCount: map['totalCount'] as int? ?? items.length,
+          hasPrevious: map['hasPrevious'] as bool? ?? pageNumber > 1,
+          hasNext: map['hasNext'] as bool? ?? false,
+          items: items,
+        );
       },
     );
-    return list;
   }
 
   Future<Storage> createStorage({
@@ -37,13 +61,16 @@ class PantryRepository {
       onSuccess: (data) => data,
     );
     if (createdRaw is Map<String, dynamic>) {
-      return Storage.fromJson(createdRaw);
+      return _mapStorage(createdRaw);
     }
     if (createdRaw is String && createdRaw.isNotEmpty) {
       return await getStorageById(createdRaw);
     }
-    final list = await getStorages();
-    return list.isNotEmpty ? list.last : throw Exception('Create storage failed');
+    final paged = await getStorages(pageSize: 1);
+    if (paged.items.isNotEmpty) {
+      return paged.items.first;
+    }
+    throw Exception('Create storage failed');
   }
 
   Future<Storage> updateStorage({
@@ -61,7 +88,7 @@ class PantryRepository {
     final updated = await _network.put<Storage>(
       path,
       data: payload,
-      onSuccess: (data) => Storage.fromJson(data as Map<String, dynamic>),
+      onSuccess: (data) => _mapStorage(data as Map<String, dynamic>),
     );
     return updated;
   }
@@ -78,9 +105,22 @@ class PantryRepository {
     final path = ApiEndpoints.getStorageById.replaceFirst('{storageId}', id);
     final storage = await _network.get<Storage>(
       path,
-      onSuccess: (data) => Storage.fromJson(data as Map<String, dynamic>),
+      onSuccess: (data) => _mapStorage(data as Map<String, dynamic>),
     );
     return storage;
+  }
+
+  Storage _mapStorage(Map<String, dynamic> json) {
+    if (json.containsKey('id')) {
+      return Storage.fromJson(json);
+    }
+
+    return Storage.fromJson({
+      'id': json['storageId'] ?? json['id'] ?? '',
+      'name': json['storageName'] ?? json['name'] ?? '',
+      'type': json['storageType'] ?? json['type'] ?? '',
+      'notes': json['notes'] ?? '',
+    });
   }
 }
 

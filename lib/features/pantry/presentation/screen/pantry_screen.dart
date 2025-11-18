@@ -90,9 +90,25 @@ class PantryScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: 'Pantry',
-      body: RefreshIndicator(
-        onRefresh: refreshStorages,
-        child: asyncStorages.when(
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.metrics.axis != Axis.vertical) {
+            return false;
+          }
+          final data = asyncStorages.valueOrNull;
+          if (data == null || data.isLoadingMore || !data.hasNext) {
+            return false;
+          }
+          final threshold = notification.metrics.maxScrollExtent - 120;
+          if (notification.metrics.pixels >= threshold &&
+              notification.metrics.maxScrollExtent > 0) {
+            ref.read(pantryProvider.notifier).loadNextPage();
+          }
+          return false;
+        },
+        child: RefreshIndicator(
+          onRefresh: refreshStorages,
+          child: asyncStorages.when(
           loading: () => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
@@ -127,7 +143,8 @@ class PantryScreen extends ConsumerWidget {
               ),
             ],
           ),
-          data: (storages) {
+          data: (pantryState) {
+            final storages = pantryState.storages;
             if (storages.isEmpty) {
               return Stack(
                 children: [
@@ -163,6 +180,16 @@ class PantryScreen extends ConsumerWidget {
                 .where((s) => s.type == StorageType.fridge)
                 .toList();
 
+            void handlePageChanged(int index, int totalPages) {
+              if (totalPages == 0 ||
+                  index < totalPages - 1 ||
+                  pantryState.isLoadingMore ||
+                  !pantryState.hasNext) {
+                return;
+              }
+              ref.read(pantryProvider.notifier).loadNextPage();
+            }
+
             return Stack(
               children: [
                 ListView(
@@ -187,35 +214,46 @@ class PantryScreen extends ConsumerWidget {
                       ),
                       SizedBox(
                         height: 120,
-                        child: PageView.builder(
-                          controller: PageController(viewportFraction: 0.92),
-                          padEnds: false,
-                          itemCount: (pantryItems.length / 2).ceil(),
-                          itemBuilder: (context, pageIndex) {
-                            final start = pageIndex * 2;
-                            final end =
-                                (start + 2).clamp(0, pantryItems.length);
-                            final pageItems =
-                                pantryItems.sublist(start, end);
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 16),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: SmallStorageCard(
-                                      storage: pageItems[0],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: pageItems.length > 1
-                                        ? SmallStorageCard(
-                                            storage: pageItems[1],
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                ],
+                        child: Builder(
+                          builder: (context) {
+                            final pageCount =
+                                (pantryItems.length / 2).ceil();
+                            return PageView.builder(
+                              controller:
+                                  PageController(viewportFraction: 0.92),
+                              padEnds: false,
+                              itemCount: pageCount,
+                              onPageChanged: (index) => handlePageChanged(
+                                index,
+                                pageCount,
                               ),
+                              itemBuilder: (context, pageIndex) {
+                                final start = pageIndex * 2;
+                                final end =
+                                    (start + 2).clamp(0, pantryItems.length);
+                                final pageItems =
+                                    pantryItems.sublist(start, end);
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 16),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: SmallStorageCard(
+                                          storage: pageItems[0],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: pageItems.length > 1
+                                            ? SmallStorageCard(
+                                                storage: pageItems[1],
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -236,35 +274,46 @@ class PantryScreen extends ConsumerWidget {
                       ),
                       SizedBox(
                         height: 120,
-                        child: PageView.builder(
-                          controller: PageController(viewportFraction: 0.92),
-                          padEnds: false,
-                          itemCount: (fridgeItems.length / 2).ceil(),
-                          itemBuilder: (context, pageIndex) {
-                            final start = pageIndex * 2;
-                            final end =
-                                (start + 2).clamp(0, fridgeItems.length);
-                            final pageItems =
-                                fridgeItems.sublist(start, end);
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 16),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: SmallStorageCard(
-                                      storage: pageItems[0],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: pageItems.length > 1
-                                        ? SmallStorageCard(
-                                            storage: pageItems[1],
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                ],
+                        child: Builder(
+                          builder: (context) {
+                            final pageCount =
+                                (fridgeItems.length / 2).ceil();
+                            return PageView.builder(
+                              controller:
+                                  PageController(viewportFraction: 0.92),
+                              padEnds: false,
+                              itemCount: pageCount,
+                              onPageChanged: (index) => handlePageChanged(
+                                index,
+                                pageCount,
                               ),
+                              itemBuilder: (context, pageIndex) {
+                                final start = pageIndex * 2;
+                                final end =
+                                    (start + 2).clamp(0, fridgeItems.length);
+                                final pageItems =
+                                    fridgeItems.sublist(start, end);
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 16),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: SmallStorageCard(
+                                          storage: pageItems[0],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: pageItems.length > 1
+                                            ? SmallStorageCard(
+                                                storage: pageItems[1],
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -274,20 +323,51 @@ class PantryScreen extends ConsumerWidget {
                     if (freezer.isNotEmpty) ...[
                       SizedBox(
                         height: 120,
-                        child: PageView.builder(
-                          controller: PageController(viewportFraction: 0.9),
-                          padEnds: false,
-                          itemCount: freezer.length,
-                          itemBuilder: (context, index) {
-                            final storage = freezer[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 16),
-                              child: FreezerCard(storage: storage),
+                        child: Builder(
+                          builder: (context) {
+                            final pageCount = freezer.length;
+                            return PageView.builder(
+                              controller:
+                                  PageController(viewportFraction: 0.9),
+                              padEnds: false,
+                              itemCount: pageCount,
+                              onPageChanged: (index) => handlePageChanged(
+                                index,
+                                pageCount,
+                              ),
+                              itemBuilder: (context, index) {
+                                final storage = freezer[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(left: 16),
+                                  child: FreezerCard(storage: storage),
+                                );
+                              },
                             );
                           },
                         ),
                       ),
                       const SizedBox(height: 12),
+                    ],
+                    if (pantryState.isLoadingMore) ...[
+                      const SizedBox(height: 12),
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ],
+                    if (pantryState.loadMoreError != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          'Failed to load more storages. Pull to refresh.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
                     ],
                     const SizedBox(height: 80),
                   ],
@@ -306,6 +386,7 @@ class PantryScreen extends ConsumerWidget {
           },
         ),
       ),
-    );
+    ),
+  );
   }
 }
