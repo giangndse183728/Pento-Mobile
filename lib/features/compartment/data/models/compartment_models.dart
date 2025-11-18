@@ -18,6 +18,19 @@ class Compartment with _$Compartment {
       _$CompartmentFromJson(json);
 }
 
+@freezed
+class PaginatedCompartments with _$PaginatedCompartments {
+  const factory PaginatedCompartments({
+    required int currentPage,
+    required int totalPages,
+    required int pageSize,
+    required int totalCount,
+    required bool hasPrevious,
+    required bool hasNext,
+    @Default(<Compartment>[]) List<Compartment> items,
+  }) = _PaginatedCompartments;
+}
+
 Map<String, dynamic> _normalizeExpirationFields(Map<String, dynamic> json) {
   if (json.containsKey('expirationDateUtc') ||
       !json.containsKey('expirationDate')) {

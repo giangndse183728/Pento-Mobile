@@ -3,23 +3,50 @@ import '../../../../core/network/network_service.dart';
 import '../models/compartment_models.dart';
 
 class CompartmentRepository {
+  static const int defaultPageSize = 6;
+
   final NetworkService _network = NetworkService.instance;
 
-  Future<List<Compartment>> getCompartments(String storageId) async {
+  Future<PaginatedCompartments> getCompartments(
+    String storageId, {
+    int pageNumber = 1,
+    int pageSize = defaultPageSize,
+  }) async {
     final path = ApiEndpoints.getStorageCompartments.replaceFirst(
       '{storageId}',
       storageId,
     );
-    final list = await _network.get<List<Compartment>>(
+    return await _network.get<PaginatedCompartments>(
       path,
+      queryParameters: {
+        'pageNumber': pageNumber,
+        'pageSize': pageSize,
+      },
       onSuccess: (data) {
-        final items = (data as List<dynamic>? ?? []);
-        return items
-            .map((e) => Compartment.fromJson(e as Map<String, dynamic>))
+        final map = (data as Map<String, dynamic>? ?? {})..removeWhere(
+            (key, value) => value == null,
+          );
+        final items = (map['items'] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()
+            .map(
+              (e) => _mapCompartment(
+                e,
+                storageId: storageId,
+              ),
+            )
             .toList();
+
+        return PaginatedCompartments(
+          currentPage: map['currentPage'] as int? ?? pageNumber,
+          totalPages: map['totalPages'] as int? ?? 1,
+          pageSize: map['pageSize'] as int? ?? pageSize,
+          totalCount: map['totalCount'] as int? ?? items.length,
+          hasPrevious: map['hasPrevious'] as bool? ?? pageNumber > 1,
+          hasNext: map['hasNext'] as bool? ?? false,
+          items: items,
+        );
       },
     );
-    return list;
   }
 
   Future<Compartment> createCompartment({
@@ -42,24 +69,12 @@ class CompartmentRepository {
     );
     
     if (createdRaw is Map<String, dynamic>) {
-      if (createdRaw.containsKey('compartmentId') && 
-          !createdRaw.containsKey('name')) {
-        final compartmentId = createdRaw['compartmentId'] as String;
-        
-        return Compartment(
-          id: compartmentId,
-          name: name,
-          storageId: storageId,
-          notes: notes,
-        );
-      }
-      
-      try {
-        final compartment = Compartment.fromJson(createdRaw);
-        return compartment;
-      } catch (e) {
-        throw Exception('Failed to parse compartment from response');
-      }
+      return _mapCompartment(
+        createdRaw,
+        storageId: storageId,
+        fallbackName: name,
+        fallbackNotes: notes,
+      );
     }
     
     throw Exception('Invalid response format for create compartment');
@@ -98,4 +113,20 @@ class CompartmentRepository {
       },
     );
   }
+}
+
+Compartment _mapCompartment(
+  Map<String, dynamic> json, {
+  required String storageId,
+  String? fallbackName,
+  String? fallbackNotes,
+}) {
+  final normalized = <String, dynamic>{
+    'id': json['id'] ?? json['compartmentId'] ?? '',
+    'name': json['name'] ?? json['compartmentName'] ?? fallbackName ?? '',
+    'storageId': json['storageId'] ?? storageId,
+    'notes': json['notes'] ?? fallbackNotes ?? '',
+  };
+
+  return Compartment.fromJson(normalized);
 }

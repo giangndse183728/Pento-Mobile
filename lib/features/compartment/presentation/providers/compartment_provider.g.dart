@@ -6,7 +6,7 @@ part of 'compartment_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$compartmentsHash() => r'1a762c7487659a298fe70db6beaf571143bb9442';
+String _$compartmentsHash() => r'a7a300c38b982145cfea7d3913cd3a3916a4bcdc';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,10 +30,10 @@ class _SystemHash {
 }
 
 abstract class _$Compartments
-    extends BuildlessAsyncNotifier<List<Compartment>> {
+    extends BuildlessAsyncNotifier<CompartmentListState> {
   late final String storageId;
 
-  FutureOr<List<Compartment>> build(String storageId);
+  FutureOr<CompartmentListState> build(String storageId);
 }
 
 /// See also [Compartments].
@@ -41,7 +41,7 @@ abstract class _$Compartments
 const compartmentsProvider = CompartmentsFamily();
 
 /// See also [Compartments].
-class CompartmentsFamily extends Family<AsyncValue<List<Compartment>>> {
+class CompartmentsFamily extends Family<AsyncValue<CompartmentListState>> {
   /// See also [Compartments].
   const CompartmentsFamily();
 
@@ -74,7 +74,7 @@ class CompartmentsFamily extends Family<AsyncValue<List<Compartment>>> {
 
 /// See also [Compartments].
 class CompartmentsProvider
-    extends AsyncNotifierProviderImpl<Compartments, List<Compartment>> {
+    extends AsyncNotifierProviderImpl<Compartments, CompartmentListState> {
   /// See also [Compartments].
   CompartmentsProvider(String storageId)
     : this._internal(
@@ -103,7 +103,7 @@ class CompartmentsProvider
   final String storageId;
 
   @override
-  FutureOr<List<Compartment>> runNotifierBuild(
+  FutureOr<CompartmentListState> runNotifierBuild(
     covariant Compartments notifier,
   ) {
     return notifier.build(storageId);
@@ -126,7 +126,7 @@ class CompartmentsProvider
   }
 
   @override
-  AsyncNotifierProviderElement<Compartments, List<Compartment>>
+  AsyncNotifierProviderElement<Compartments, CompartmentListState>
   createElement() {
     return _CompartmentsProviderElement(this);
   }
@@ -147,13 +147,13 @@ class CompartmentsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CompartmentsRef on AsyncNotifierProviderRef<List<Compartment>> {
+mixin CompartmentsRef on AsyncNotifierProviderRef<CompartmentListState> {
   /// The parameter `storageId` of this provider.
   String get storageId;
 }
 
 class _CompartmentsProviderElement
-    extends AsyncNotifierProviderElement<Compartments, List<Compartment>>
+    extends AsyncNotifierProviderElement<Compartments, CompartmentListState>
     with CompartmentsRef {
   _CompartmentsProviderElement(super.provider);
 

@@ -230,6 +230,298 @@ abstract class _Compartment implements Compartment {
       throw _privateConstructorUsedError;
 }
 
+/// @nodoc
+mixin _$PaginatedCompartments {
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  int get pageSize => throw _privateConstructorUsedError;
+  int get totalCount => throw _privateConstructorUsedError;
+  bool get hasPrevious => throw _privateConstructorUsedError;
+  bool get hasNext => throw _privateConstructorUsedError;
+  List<Compartment> get items => throw _privateConstructorUsedError;
+
+  /// Create a copy of PaginatedCompartments
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaginatedCompartmentsCopyWith<PaginatedCompartments> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaginatedCompartmentsCopyWith<$Res> {
+  factory $PaginatedCompartmentsCopyWith(
+    PaginatedCompartments value,
+    $Res Function(PaginatedCompartments) then,
+  ) = _$PaginatedCompartmentsCopyWithImpl<$Res, PaginatedCompartments>;
+  @useResult
+  $Res call({
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+    List<Compartment> items,
+  });
+}
+
+/// @nodoc
+class _$PaginatedCompartmentsCopyWithImpl<
+  $Res,
+  $Val extends PaginatedCompartments
+>
+    implements $PaginatedCompartmentsCopyWith<$Res> {
+  _$PaginatedCompartmentsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PaginatedCompartments
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+    Object? items = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pageSize: null == pageSize
+                ? _value.pageSize
+                : pageSize // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCount: null == totalCount
+                ? _value.totalCount
+                : totalCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasPrevious: null == hasPrevious
+                ? _value.hasPrevious
+                : hasPrevious // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasNext: null == hasNext
+                ? _value.hasNext
+                : hasNext // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<Compartment>,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PaginatedCompartmentsImplCopyWith<$Res>
+    implements $PaginatedCompartmentsCopyWith<$Res> {
+  factory _$$PaginatedCompartmentsImplCopyWith(
+    _$PaginatedCompartmentsImpl value,
+    $Res Function(_$PaginatedCompartmentsImpl) then,
+  ) = __$$PaginatedCompartmentsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+    List<Compartment> items,
+  });
+}
+
+/// @nodoc
+class __$$PaginatedCompartmentsImplCopyWithImpl<$Res>
+    extends
+        _$PaginatedCompartmentsCopyWithImpl<$Res, _$PaginatedCompartmentsImpl>
+    implements _$$PaginatedCompartmentsImplCopyWith<$Res> {
+  __$$PaginatedCompartmentsImplCopyWithImpl(
+    _$PaginatedCompartmentsImpl _value,
+    $Res Function(_$PaginatedCompartmentsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PaginatedCompartments
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+    Object? items = null,
+  }) {
+    return _then(
+      _$PaginatedCompartmentsImpl(
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pageSize: null == pageSize
+            ? _value.pageSize
+            : pageSize // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCount: null == totalCount
+            ? _value.totalCount
+            : totalCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasPrevious: null == hasPrevious
+            ? _value.hasPrevious
+            : hasPrevious // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasNext: null == hasNext
+            ? _value.hasNext
+            : hasNext // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<Compartment>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$PaginatedCompartmentsImpl implements _PaginatedCompartments {
+  const _$PaginatedCompartmentsImpl({
+    required this.currentPage,
+    required this.totalPages,
+    required this.pageSize,
+    required this.totalCount,
+    required this.hasPrevious,
+    required this.hasNext,
+    final List<Compartment> items = const <Compartment>[],
+  }) : _items = items;
+
+  @override
+  final int currentPage;
+  @override
+  final int totalPages;
+  @override
+  final int pageSize;
+  @override
+  final int totalCount;
+  @override
+  final bool hasPrevious;
+  @override
+  final bool hasNext;
+  final List<Compartment> _items;
+  @override
+  @JsonKey()
+  List<Compartment> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  String toString() {
+    return 'PaginatedCompartments(currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext, items: $items)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaginatedCompartmentsImpl &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.pageSize, pageSize) ||
+                other.pageSize == pageSize) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.hasPrevious, hasPrevious) ||
+                other.hasPrevious == hasPrevious) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
+            const DeepCollectionEquality().equals(other._items, _items));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    currentPage,
+    totalPages,
+    pageSize,
+    totalCount,
+    hasPrevious,
+    hasNext,
+    const DeepCollectionEquality().hash(_items),
+  );
+
+  /// Create a copy of PaginatedCompartments
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaginatedCompartmentsImplCopyWith<_$PaginatedCompartmentsImpl>
+  get copyWith =>
+      __$$PaginatedCompartmentsImplCopyWithImpl<_$PaginatedCompartmentsImpl>(
+        this,
+        _$identity,
+      );
+}
+
+abstract class _PaginatedCompartments implements PaginatedCompartments {
+  const factory _PaginatedCompartments({
+    required final int currentPage,
+    required final int totalPages,
+    required final int pageSize,
+    required final int totalCount,
+    required final bool hasPrevious,
+    required final bool hasNext,
+    final List<Compartment> items,
+  }) = _$PaginatedCompartmentsImpl;
+
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  int get pageSize;
+  @override
+  int get totalCount;
+  @override
+  bool get hasPrevious;
+  @override
+  bool get hasNext;
+  @override
+  List<Compartment> get items;
+
+  /// Create a copy of PaginatedCompartments
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaginatedCompartmentsImplCopyWith<_$PaginatedCompartmentsImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
 CompartmentItem _$CompartmentItemFromJson(Map<String, dynamic> json) {
   return _CompartmentItem.fromJson(json);
 }
