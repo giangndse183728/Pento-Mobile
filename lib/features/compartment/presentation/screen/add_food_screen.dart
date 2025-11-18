@@ -10,9 +10,10 @@ import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/widgets/app_text_form_field.dart';
 import '../../../reference/data/models/food_reference.dart';
+import '../../../reference/presentation/widgets/index.dart';
+import '../../../reference/presentation/providers/food_reference_provider.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../providers/compartment_provider.dart';
-import '../../../reference/presentation/providers/food_reference_provider.dart';
 
 class AddFoodScreen extends ConsumerStatefulWidget {
   const AddFoodScreen({super.key});
@@ -22,46 +23,80 @@ class AddFoodScreen extends ConsumerStatefulWidget {
 }
 
 class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
-  final TextEditingController _searchCtrl = TextEditingController();
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _quantityCtrl = TextEditingController(text: '1');
   final TextEditingController _notesCtrl = TextEditingController();
 
-  static const List<String> _foodGroups = [
-    'Meat',
-    'Seafood',
-    'FruitsVegetables',
-    'Dairy',
-    'CerealGrainsPasta',
-    'LegumesNutsSeeds',
-    'FatsOils',
-    'Confectionery',
-    'Beverages',
-    'Condiments',
-    'MixedDishes',
-  ];
-
-  String? _searchTerm;
-  String? _selectedGroup;
   FoodReference? _selectedReference;
   String? _selectedUnitId;
   DateTime? _expirationDate;
   bool _isSubmitting = false;
+  bool _initialized = false;
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
     _nameCtrl.dispose();
     _quantityCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      _initializeFromQueryParams();
+    }
+  }
+
+  void _initializeFromQueryParams() {
+    final foodRefId =
+        GoRouterState.of(context).uri.queryParameters['foodRefId'];
+    final foodRefName =
+        GoRouterState.of(context).uri.queryParameters['foodRefName'];
+ final barcode = GoRouterState.of(context).uri.queryParameters['barcode'];
+    final fromScanner =
+        GoRouterState.of(context).uri.queryParameters['fromScanner'] == 'true';
+
+    if (foodRefId != null && foodRefName != null) {
+      if (fromScanner && barcode != null) {
+        ref.read(foodReferenceByBarcodeProvider(barcode).future).then(
+          (foodRef) {
+            if (mounted) {
+              setState(() {
+                _selectedReference = foodRef;
+                _nameCtrl.text = foodRef.name;
+              });
+            }
+          },
+        ).catchError((error) {
+          if (mounted) {
+            setState(() {
+              _selectedReference = FoodReference(
+                id: foodRefId,
+                name: foodRefName,
+              );
+              _nameCtrl.text = foodRefName;
+            });
+          }
+        });
+      } else {
+        setState(() {
+          _selectedReference = FoodReference(
+            id: foodRefId,
+            name: foodRefName,
+          );
+          _nameCtrl.text = foodRefName;
+        });
+      }
+    }
+  }
+
   void _onSelectReference(FoodReference reference) {
     setState(() {
       _selectedReference = reference;
       _nameCtrl.text = reference.name;
-      // Reset unit selection when reference changes
       _selectedUnitId = null;
     });
   }
@@ -160,13 +195,8 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filter = FoodReferenceFilter(
-      page: 1,
-      pageSize: 20,
-      search: _searchTerm,
-      foodGroup: _selectedGroup,
-    );
-    final asyncReferences = ref.watch(foodReferencesProvider(filter));
+    final fromScanner =
+        GoRouterState.of(context).uri.queryParameters['fromScanner'] == 'true';
 
     return AppScaffold(
       title: 'Add Food Item',
@@ -184,336 +214,23 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Food Reference Section
-            Text(
-              'Search Food Reference',
-              style: AppTextStyles.sectionHeader(),
-            ),
-            SizedBox(height: 12.h),
-            TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                labelText: 'Search food reference',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          setState(() {
-                            _searchCtrl.clear();
-                            _searchTerm = null;
-                          });
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchTerm = value.trim().isEmpty ? null : value.trim();
-                });
-              },
-              onSubmitted: (value) {
-                setState(() {
-                  _searchTerm = value.trim().isEmpty ? null : value.trim();
-                });
-              },
-            ),
-            SizedBox(height: 16.h),
-
-            // Food Groups Filter
-            SizedBox(
-              height: 40.h,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _foodGroups.length + 1,
-                separatorBuilder: (_, __) => SizedBox(width: 8.w),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    final isSelected = _selectedGroup == null;
-                    return ChoiceChip(
-                      label: const Text('All'),
-                      selected: isSelected,
-                      onSelected: (_) {
-                        setState(() {
-                          _selectedGroup = null;
-                        });
-                      },
-                    );
-                  }
-                  final group = _foodGroups[index - 1];
-                  final isSelected = _selectedGroup == group;
-                  return ChoiceChip(
-                    label: Text(group),
-                    selected: isSelected,
-                    onSelected: (_) {
-                      setState(() {
-                        _selectedGroup = isSelected ? null : group;
-                      });
-                    },
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 20.h),
-
-            // Selected Reference Display
-            if (_selectedReference != null) ...[
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: AppColors.babyBlue.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppColors.powderBlue.withValues(alpha: 0.6),
-                    width: 2,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Food Reference Image
-                    if (_selectedReference!.imageUrl != null &&
-                        _selectedReference!.imageUrl!.isNotEmpty)
-                      Container(
-                        width: 64.w,
-                        height: 64.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.r),
-                          image: DecorationImage(
-                            image: NetworkImage(_selectedReference!.imageUrl!),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 64.w,
-                        height: 64.w,
-                        decoration: BoxDecoration(
-                          color: AppColors.babyBlue.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Icon(
-                          Icons.restaurant,
-                          color: AppColors.blueGray,
-                          size: 28.sp,
-                        ),
-                      ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: AppColors.blueGray,
-                                size: 18.sp,
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                'Selected Reference',
-                                style: AppTextStyles.inputLabel,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            _selectedReference!.name,
-                            style: AppTextStyles.sectionHeader(
-                              color: AppColors.blueGray,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      color: AppColors.blueGray,
-                      tooltip: 'Clear selection',
-                      onPressed: _clearSelectedReference,
-                    ),
-                  ],
-                ),
+            if (!fromScanner) ...[
+              FoodReferenceSearchSection(
+                onReferenceSelected: _onSelectReference,
+                selectedReferenceId: _selectedReference?.id,
               ),
               SizedBox(height: 20.h),
             ],
 
-            // Food References List
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.iceberg,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: AppColors.powderBlue.withValues(alpha: 0.4),
-                ),
+            if (_selectedReference != null) ...[
+              SelectedFoodReferenceDisplay(
+                foodReference: _selectedReference!,
+                showCloseButton: !fromScanner,
+                onClose: _clearSelectedReference,
               ),
-              child: asyncReferences.when(
-                loading: () => Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: SizedBox(
-                    height: 200.h,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                error: (error, stack) => Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 48.sp,
-                        color: AppColors.blueGray.withValues(alpha: 0.5),
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        'Failed to load references',
-                        style: AppTextStyles.socialDivider,
-                      ),
-                      SizedBox(height: 8.h),
-                      TextButton(
-                        onPressed: () =>
-                            ref.read(foodReferencesProvider(filter).notifier).refresh(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
-                data: (items) {
-                  if (items.isEmpty) {
-                    return Padding(
-                      padding: EdgeInsets.all(32.h),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.restaurant,
-                              size: 48.sp,
-                              color: AppColors.blueGray.withValues(alpha: 0.3),
-                            ),
-                            SizedBox(height: 12.h),
-                            Text(
-                              'No food references found',
-                              style: AppTextStyles.socialDivider,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                  return Padding(
-                    padding: EdgeInsets.all(16.w),
-                    child: SizedBox(
-                      height: 280.h,
-                      child: ListView.separated(
-                        itemCount: items.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 8.h),
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          final isSelected = _selectedReference?.id == item.id;
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12.r),
-                              onTap: () => _onSelectReference(item),
-                              child: Container(
-                                padding: EdgeInsets.all(12.w),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.babyBlue.withValues(alpha: 0.3)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AppColors.blueGray
-                                        : AppColors.powderBlue
-                                            .withValues(alpha: 0.3),
-                                    width: isSelected ? 2 : 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Food Reference Image
-                                    if (item.imageUrl != null &&
-                                        item.imageUrl!.isNotEmpty)
-                                      Container(
-                                        width: 56.w,
-                                        height: 56.w,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                          image: DecorationImage(
-                                            image: NetworkImage(item.imageUrl!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Container(
-                                        width: 56.w,
-                                        height: 56.w,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.babyBlue
-                                              .withValues(alpha: 0.3),
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                        ),
-                                        child: Icon(
-                                          Icons.restaurant,
-                                          color: AppColors.blueGray,
-                                          size: 24.sp,
-                                        ),
-                                      ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.name,
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          if (item.notes != null) ...[
-                                            SizedBox(height: 4.h),
-                                            Text(
-                                              item.notes!,
-                                              style: AppTextStyles.inputHint,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                    if (isSelected)
-                                      Icon(
-                                        Icons.check_circle,
-                                        color: AppColors.blueGray,
-                                        size: 24.sp,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 24.h),
+              SizedBox(height: 20.h),
+            ],
 
-            // Food Details Section
             Text(
               'Food Details',
               style: AppTextStyles.sectionHeader(),
@@ -565,7 +282,6 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
             ),
             SizedBox(height: 16.h),
 
-            // Expiration Date Picker
             Container(
               padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
@@ -613,7 +329,6 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
             ),
             SizedBox(height: 32.h),
 
-            // Submit Button
             SizedBox(
               width: double.infinity,
               height: 48.h,
@@ -639,4 +354,3 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
     );
   }
 }
-
