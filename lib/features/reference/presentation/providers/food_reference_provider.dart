@@ -89,3 +89,12 @@ class FoodReferences extends _$FoodReferences {
     });
   }
 }
+
+@riverpod
+Future<FoodReference> foodReferenceByBarcode(
+  FoodReferenceByBarcodeRef ref,
+  String barcode,
+) async {
+  final repository = FoodRepository();
+  return await repository.getFoodReferenceByBarcode(barcode);
+}

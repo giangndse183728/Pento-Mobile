@@ -20,6 +20,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String compartment = '/compartment';
   static const String addFood = '/compartment/add-food';
+  static const String barcodeScanner = '/compartment/barcode-scanner';
   static const String foodItemDetail = '/compartment/food-item/:id';
   static const String recipeDetail = '/recipe/:id';
   static const String foodItemLogs = '/food-item-logs';

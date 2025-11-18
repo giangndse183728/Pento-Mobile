@@ -251,6 +251,33 @@ class CompartmentItems extends _$CompartmentItems {
     );
   }
 
+  void updateItemDetailsOptimistically({
+    required String foodItemId,
+    String? name,
+    int? quantity,
+    DateTime? expirationDate,
+  }) {
+    final currentState = state;
+    if (currentState is! AsyncData<CompartmentItemsState>) {
+      return;
+    }
+    
+    final updatedItems = currentState.value.items.map((item) {
+      if (item.id == foodItemId) {
+        return item.copyWith(
+          name: name ?? item.name,
+          quantity: quantity ?? item.quantity,
+          expirationDateUtc: expirationDate,
+        );
+      }
+      return item;
+    }).toList();
+    
+    state = AsyncValue.data(
+      currentState.value.copyWith(items: updatedItems),
+    );
+  }
+
   Future<void> moveFoodItemToCompartment({
     required String foodItemId,
     required String targetCompartmentId,

@@ -6,7 +6,7 @@ part of 'food_item_log_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$foodItemLogsHash() => r'fe87f9c5cbbe2963f5f79d94541c0566a2c276f4';
+String _$foodItemLogsHash() => r'44971057a748da349a6f94ac4b2715fa4b502e3c';
 
 /// See also [FoodItemLogs].
 @ProviderFor(FoodItemLogs)

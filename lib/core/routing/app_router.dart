@@ -6,7 +6,6 @@ import '../layouts/bottom_nav_items.dart';
 import '../../features/pantry/presentation/screen/pantry_screen.dart';
 import '../../screens/meal_screen.dart';
 import '../../screens/posts_screen.dart';
-import '../../features/pantry/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/authentication/presentation/screen/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/household/presentation/screen/household_screen.dart';
@@ -16,6 +15,7 @@ import '../../features/household/presentation/screen/household_detail_screen.dar
 import '../../features/profile/presentation/screen/profile_screen.dart';
 import '../../features/compartment/presentation/screen/compartment_screen.dart';
 import '../../features/compartment/presentation/screen/add_food_screen.dart';
+import '../../features/compartment/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/compartment/presentation/screen/food_item_detail_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_detail_screen.dart';
@@ -154,12 +154,6 @@ GoRouter createAppRouter(ProviderContainer container) {
       ),
     ),
     GoRoute(
-      path: AppRoutes.barcode,
-      pageBuilder: GoTransitions.fadeUpwards.build(
-        child: const BarcodeScannerScreen(),
-      ),
-    ),
-    GoRoute(
       path: AppRoutes.household,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const HouseholdScreen(),
@@ -199,6 +193,12 @@ GoRouter createAppRouter(ProviderContainer container) {
       path: AppRoutes.addFood,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const AddFoodScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.barcodeScanner,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const BarcodeScannerScreen(),
       ),
     ),
     GoRoute(

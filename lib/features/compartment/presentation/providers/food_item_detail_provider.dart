@@ -52,6 +52,33 @@ class FoodItemDetail extends _$FoodItemDetail {
     }
   }
 
+  void _updateItemDetailsInCompartments({
+    required String? compartmentId,
+    String? name,
+    int? quantity,
+    DateTime? expirationDate,
+  }) {
+    if (compartmentId == null || compartmentId.isEmpty) return;
+    
+    try {
+      final itemsState = ref.read(compartmentItemsProvider(compartmentId));
+      itemsState.whenData((state) {
+        final hasItem = state.items.any((item) => item.id == _foodItemId);
+        if (hasItem) {
+          ref.read(compartmentItemsProvider(compartmentId).notifier)
+              .updateItemDetailsOptimistically(
+            foodItemId: _foodItemId,
+            name: name,
+            quantity: quantity,
+            expirationDate: expirationDate,
+          );
+        }
+      });
+    } catch (_) {
+      // Silently fail 
+    }
+  }
+
   Future<void> consumeItem({
     required int quantity,
     required String unitId,
@@ -98,6 +125,50 @@ class FoodItemDetail extends _$FoodItemDetail {
         foodItemId: _foodItemId,
         quantity: quantity,
         unitId: unitId,
+      );
+      await refresh();
+    } catch (error) {
+      state = previousState;
+      rethrow;
+    }
+  }
+
+  Future<void> updateItem({
+    String? name,
+    int? quantity,
+    String? unitId,
+    DateTime? expirationDate,
+    String? notes,
+  }) async {
+    final currentDetail = state.valueOrNull;
+    if (currentDetail == null) return;
+
+    final previousState = state;
+    
+    // Optimistic update in detail screen
+    state = AsyncValue.data(currentDetail.copyWith(
+      name: name ?? currentDetail.name,
+      quantity: quantity ?? currentDetail.quantity,
+      expirationDateUtc: expirationDate,
+      notes: notes,
+    ));
+
+    // Optimistic update in compartment items list
+    _updateItemDetailsInCompartments(
+      compartmentId: _compartmentId,
+      name: name,
+      quantity: quantity,
+      expirationDate: expirationDate,
+    );
+
+    try {
+      await _repository.updateFoodItem(
+        foodItemId: _foodItemId,
+        name: name,
+        quantity: quantity,
+        unitId: unitId,
+        expirationDate: expirationDate,
+        notes: notes,
       );
       await refresh();
     } catch (error) {

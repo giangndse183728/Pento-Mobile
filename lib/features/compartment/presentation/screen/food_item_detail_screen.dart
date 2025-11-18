@@ -6,8 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
 import '../../data/models/compartment_models.dart';
 import '../providers/food_item_detail_provider.dart';
+import '../widgets/edit_food_item_dialog.dart';
 import '../widgets/food_item_action_buttons.dart';
 
 class FoodItemDetailScreen extends ConsumerWidget {
@@ -32,6 +34,16 @@ class FoodItemDetailScreen extends ConsumerWidget {
 
     final detailAsync = ref.watch(foodItemDetailProvider(foodItemId));
 
+    void showEditDialog(CompartmentItemDetail detail) {
+      showDialog(
+        context: context,
+        builder: (context) => EditFoodItemDialog(
+          foodItemId: foodItemId,
+          detail: detail,
+        ),
+      );
+    }
+
     return AppScaffold(
       title: 'Food Item Details',
       showBackButton: true,
@@ -40,6 +52,15 @@ class FoodItemDetailScreen extends ConsumerWidget {
       forcePillMode: false,
       padding: EdgeInsets.zero,
       transparentAppBar: true,
+      actions: detailAsync.maybeWhen(
+        data: (detail) => [
+          CircleIconButton(
+            icon: Icons.edit_rounded,
+            onTap: () => showEditDialog(detail),
+          ),
+        ],
+        orElse: () => null,
+      ),
       body: detailAsync.when(
         loading: () => Center(
           child: Padding(

@@ -39,5 +39,21 @@ class FoodRepository {
     );
     return response;
   }
+
+  Future<FoodReference> getFoodReferenceByBarcode(String barcode) async {
+    final endpoint =
+        ApiEndpoints.getFoodReferenceBarcode.replaceAll('{barcode}', barcode);
+
+    final response = await _network.get<FoodReference>(
+      endpoint,
+      onSuccess: (data) {
+        if (data is Map<String, dynamic>) {
+          return FoodReference.fromJson(data);
+        }
+        throw Exception('Invalid response format');
+      },
+    );
+    return response;
+  }
 }
 
