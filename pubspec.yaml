@@ -73,6 +73,7 @@ dependencies:
   toastification: ^3.0.3
   pretty_qr_code: ^3.5.0
   image_picker: ^1.1.2
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   flutter_test:
