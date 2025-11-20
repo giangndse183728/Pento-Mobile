@@ -58,5 +58,16 @@ class FoodItemLogRepository {
 
     return result;
   }
+
+  Future<FoodItemLogSummary> getSummary() async {
+    final result = await _network.get<FoodItemLogSummary>(
+      ApiEndpoints.getSummaryFoodItemLogs,
+      onSuccess: (data) {
+        return FoodItemLogSummary.fromJson(data as Map<String, dynamic>);
+      },
+    );
+
+    return result;
+  }
 }
 

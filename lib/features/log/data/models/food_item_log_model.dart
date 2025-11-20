@@ -37,3 +37,20 @@ class PaginatedFoodItemLogs with _$PaginatedFoodItemLogs {
       _$PaginatedFoodItemLogsFromJson(json);
 }
 
+@freezed
+class FoodItemLogSummary with _$FoodItemLogSummary {
+  const factory FoodItemLogSummary({
+    required double totalIntakeByWeight,
+    required double totalIntakeByVolume,
+    required double totalConsumptionByWeight,
+    required double totalConsumptionByVolume,
+    required double totalDiscardByWeight,
+    required double totalDiscardByVolume,
+    required String weightUnit,
+    required String volumeUnit,
+  }) = _FoodItemLogSummary;
+
+  factory FoodItemLogSummary.fromJson(Map<String, dynamic> json) =>
+      _$FoodItemLogSummaryFromJson(json);
+}
+

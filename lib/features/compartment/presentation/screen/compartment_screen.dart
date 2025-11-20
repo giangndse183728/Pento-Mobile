@@ -69,12 +69,11 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
           icon: boardUi.isZoomed ? Icons.zoom_out : Icons.zoom_in,
           onTap: _handleZoomToggle,
         ),
-         SizedBox(width: 2.w),
+        SizedBox(width: 2.w),
         CircleIconButton(
           icon: Icons.history,
           onTap: () => _navigateToLogs(context),
         ),
-       
       ],
       body: asyncCompartments.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -93,7 +92,8 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
             ],
           ),
         ),
-        data: (compartments) {
+        data: (compartmentState) {
+          final compartments = compartmentState.compartments;
           if (compartments.isEmpty) {
             return Padding(
               padding: EdgeInsets.only(
@@ -117,6 +117,20 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
             );
           }
 
+          void requestNextPage() {
+            if (!compartmentState.hasNext || compartmentState.isLoadingMore) {
+              return;
+            }
+            ref.read(compartmentsProvider(storageId).notifier).loadNextPage();
+          }
+
+          void handlePageChanged(int index) {
+            if (index < compartments.length - 1) {
+              return;
+            }
+            requestNextPage();
+          }
+
           // Zoomed mode: Carousel
           if (boardUi.isZoomed) {
             _pageController ??= PageController();
@@ -129,6 +143,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: compartments.length + 1,
+                onPageChanged: handlePageChanged,
                 itemBuilder: (context, index) {
                   if (index < compartments.length) {
                     final compartment = compartments[index];
@@ -162,26 +177,59 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
               top: MediaQuery.of(context).padding.top + kToolbarHeight,
               bottom: 24.h,
             ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(width: 8.w),
-                  for (final c in compartments) ...[
-                    CompartmentColumn(
-                      compartmentId: c.id,
-                      storageId: storageId,
-                      title: c.name,
-                      subtitle: c.notes,
-                      width: 220.w,
-                      scale: 0.7,
-                    ),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.axis != Axis.horizontal) {
+                  return false;
+                }
+                final threshold =
+                    notification.metrics.maxScrollExtent - 160.w;
+                if (notification.metrics.pixels >= threshold &&
+                    notification.metrics.maxScrollExtent > 0) {
+                  requestNextPage();
+                }
+                return false;
+              },
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 8.w),
+                    for (final c in compartments) ...[
+                      CompartmentColumn(
+                        compartmentId: c.id,
+                        storageId: storageId,
+                        title: c.name,
+                        subtitle: c.notes,
+                        width: 220.w,
+                        scale: 0.7,
+                      ),
+                      SizedBox(width: 12.w),
+                    ],
+                    if (compartmentState.isLoadingMore) ...[
+                      SizedBox(
+                        width: 220.w,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                    ],
+                    if (compartmentState.loadMoreError != null) ...[
+                      SizedBox(
+                        width: 220.w,
+                        child: Text(
+                          'Failed to load more compartments. Pull down to refresh.',
+                          style: AppTextStyles.inputHint,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                    ],
+                    AddCompartmentTile(storageId: storageId, width: 220.w),
                     SizedBox(width: 12.w),
                   ],
-                  AddCompartmentTile(storageId: storageId, width: 220.w),
-                  SizedBox(width: 12.w),
-                ],
+                ),
               ),
             ),
           );

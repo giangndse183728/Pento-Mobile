@@ -624,3 +624,333 @@ abstract class _PaginatedFoodItemLogs implements PaginatedFoodItemLogs {
   _$$PaginatedFoodItemLogsImplCopyWith<_$PaginatedFoodItemLogsImpl>
   get copyWith => throw _privateConstructorUsedError;
 }
+
+FoodItemLogSummary _$FoodItemLogSummaryFromJson(Map<String, dynamic> json) {
+  return _FoodItemLogSummary.fromJson(json);
+}
+
+/// @nodoc
+mixin _$FoodItemLogSummary {
+  double get totalIntakeByWeight => throw _privateConstructorUsedError;
+  double get totalIntakeByVolume => throw _privateConstructorUsedError;
+  double get totalConsumptionByWeight => throw _privateConstructorUsedError;
+  double get totalConsumptionByVolume => throw _privateConstructorUsedError;
+  double get totalDiscardByWeight => throw _privateConstructorUsedError;
+  double get totalDiscardByVolume => throw _privateConstructorUsedError;
+  String get weightUnit => throw _privateConstructorUsedError;
+  String get volumeUnit => throw _privateConstructorUsedError;
+
+  /// Serializes this FoodItemLogSummary to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of FoodItemLogSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $FoodItemLogSummaryCopyWith<FoodItemLogSummary> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $FoodItemLogSummaryCopyWith<$Res> {
+  factory $FoodItemLogSummaryCopyWith(
+    FoodItemLogSummary value,
+    $Res Function(FoodItemLogSummary) then,
+  ) = _$FoodItemLogSummaryCopyWithImpl<$Res, FoodItemLogSummary>;
+  @useResult
+  $Res call({
+    double totalIntakeByWeight,
+    double totalIntakeByVolume,
+    double totalConsumptionByWeight,
+    double totalConsumptionByVolume,
+    double totalDiscardByWeight,
+    double totalDiscardByVolume,
+    String weightUnit,
+    String volumeUnit,
+  });
+}
+
+/// @nodoc
+class _$FoodItemLogSummaryCopyWithImpl<$Res, $Val extends FoodItemLogSummary>
+    implements $FoodItemLogSummaryCopyWith<$Res> {
+  _$FoodItemLogSummaryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of FoodItemLogSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalIntakeByWeight = null,
+    Object? totalIntakeByVolume = null,
+    Object? totalConsumptionByWeight = null,
+    Object? totalConsumptionByVolume = null,
+    Object? totalDiscardByWeight = null,
+    Object? totalDiscardByVolume = null,
+    Object? weightUnit = null,
+    Object? volumeUnit = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            totalIntakeByWeight: null == totalIntakeByWeight
+                ? _value.totalIntakeByWeight
+                : totalIntakeByWeight // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalIntakeByVolume: null == totalIntakeByVolume
+                ? _value.totalIntakeByVolume
+                : totalIntakeByVolume // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalConsumptionByWeight: null == totalConsumptionByWeight
+                ? _value.totalConsumptionByWeight
+                : totalConsumptionByWeight // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalConsumptionByVolume: null == totalConsumptionByVolume
+                ? _value.totalConsumptionByVolume
+                : totalConsumptionByVolume // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalDiscardByWeight: null == totalDiscardByWeight
+                ? _value.totalDiscardByWeight
+                : totalDiscardByWeight // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalDiscardByVolume: null == totalDiscardByVolume
+                ? _value.totalDiscardByVolume
+                : totalDiscardByVolume // ignore: cast_nullable_to_non_nullable
+                      as double,
+            weightUnit: null == weightUnit
+                ? _value.weightUnit
+                : weightUnit // ignore: cast_nullable_to_non_nullable
+                      as String,
+            volumeUnit: null == volumeUnit
+                ? _value.volumeUnit
+                : volumeUnit // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$FoodItemLogSummaryImplCopyWith<$Res>
+    implements $FoodItemLogSummaryCopyWith<$Res> {
+  factory _$$FoodItemLogSummaryImplCopyWith(
+    _$FoodItemLogSummaryImpl value,
+    $Res Function(_$FoodItemLogSummaryImpl) then,
+  ) = __$$FoodItemLogSummaryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    double totalIntakeByWeight,
+    double totalIntakeByVolume,
+    double totalConsumptionByWeight,
+    double totalConsumptionByVolume,
+    double totalDiscardByWeight,
+    double totalDiscardByVolume,
+    String weightUnit,
+    String volumeUnit,
+  });
+}
+
+/// @nodoc
+class __$$FoodItemLogSummaryImplCopyWithImpl<$Res>
+    extends _$FoodItemLogSummaryCopyWithImpl<$Res, _$FoodItemLogSummaryImpl>
+    implements _$$FoodItemLogSummaryImplCopyWith<$Res> {
+  __$$FoodItemLogSummaryImplCopyWithImpl(
+    _$FoodItemLogSummaryImpl _value,
+    $Res Function(_$FoodItemLogSummaryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of FoodItemLogSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalIntakeByWeight = null,
+    Object? totalIntakeByVolume = null,
+    Object? totalConsumptionByWeight = null,
+    Object? totalConsumptionByVolume = null,
+    Object? totalDiscardByWeight = null,
+    Object? totalDiscardByVolume = null,
+    Object? weightUnit = null,
+    Object? volumeUnit = null,
+  }) {
+    return _then(
+      _$FoodItemLogSummaryImpl(
+        totalIntakeByWeight: null == totalIntakeByWeight
+            ? _value.totalIntakeByWeight
+            : totalIntakeByWeight // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalIntakeByVolume: null == totalIntakeByVolume
+            ? _value.totalIntakeByVolume
+            : totalIntakeByVolume // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalConsumptionByWeight: null == totalConsumptionByWeight
+            ? _value.totalConsumptionByWeight
+            : totalConsumptionByWeight // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalConsumptionByVolume: null == totalConsumptionByVolume
+            ? _value.totalConsumptionByVolume
+            : totalConsumptionByVolume // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalDiscardByWeight: null == totalDiscardByWeight
+            ? _value.totalDiscardByWeight
+            : totalDiscardByWeight // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalDiscardByVolume: null == totalDiscardByVolume
+            ? _value.totalDiscardByVolume
+            : totalDiscardByVolume // ignore: cast_nullable_to_non_nullable
+                  as double,
+        weightUnit: null == weightUnit
+            ? _value.weightUnit
+            : weightUnit // ignore: cast_nullable_to_non_nullable
+                  as String,
+        volumeUnit: null == volumeUnit
+            ? _value.volumeUnit
+            : volumeUnit // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$FoodItemLogSummaryImpl implements _FoodItemLogSummary {
+  const _$FoodItemLogSummaryImpl({
+    required this.totalIntakeByWeight,
+    required this.totalIntakeByVolume,
+    required this.totalConsumptionByWeight,
+    required this.totalConsumptionByVolume,
+    required this.totalDiscardByWeight,
+    required this.totalDiscardByVolume,
+    required this.weightUnit,
+    required this.volumeUnit,
+  });
+
+  factory _$FoodItemLogSummaryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$FoodItemLogSummaryImplFromJson(json);
+
+  @override
+  final double totalIntakeByWeight;
+  @override
+  final double totalIntakeByVolume;
+  @override
+  final double totalConsumptionByWeight;
+  @override
+  final double totalConsumptionByVolume;
+  @override
+  final double totalDiscardByWeight;
+  @override
+  final double totalDiscardByVolume;
+  @override
+  final String weightUnit;
+  @override
+  final String volumeUnit;
+
+  @override
+  String toString() {
+    return 'FoodItemLogSummary(totalIntakeByWeight: $totalIntakeByWeight, totalIntakeByVolume: $totalIntakeByVolume, totalConsumptionByWeight: $totalConsumptionByWeight, totalConsumptionByVolume: $totalConsumptionByVolume, totalDiscardByWeight: $totalDiscardByWeight, totalDiscardByVolume: $totalDiscardByVolume, weightUnit: $weightUnit, volumeUnit: $volumeUnit)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$FoodItemLogSummaryImpl &&
+            (identical(other.totalIntakeByWeight, totalIntakeByWeight) ||
+                other.totalIntakeByWeight == totalIntakeByWeight) &&
+            (identical(other.totalIntakeByVolume, totalIntakeByVolume) ||
+                other.totalIntakeByVolume == totalIntakeByVolume) &&
+            (identical(
+                  other.totalConsumptionByWeight,
+                  totalConsumptionByWeight,
+                ) ||
+                other.totalConsumptionByWeight == totalConsumptionByWeight) &&
+            (identical(
+                  other.totalConsumptionByVolume,
+                  totalConsumptionByVolume,
+                ) ||
+                other.totalConsumptionByVolume == totalConsumptionByVolume) &&
+            (identical(other.totalDiscardByWeight, totalDiscardByWeight) ||
+                other.totalDiscardByWeight == totalDiscardByWeight) &&
+            (identical(other.totalDiscardByVolume, totalDiscardByVolume) ||
+                other.totalDiscardByVolume == totalDiscardByVolume) &&
+            (identical(other.weightUnit, weightUnit) ||
+                other.weightUnit == weightUnit) &&
+            (identical(other.volumeUnit, volumeUnit) ||
+                other.volumeUnit == volumeUnit));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    totalIntakeByWeight,
+    totalIntakeByVolume,
+    totalConsumptionByWeight,
+    totalConsumptionByVolume,
+    totalDiscardByWeight,
+    totalDiscardByVolume,
+    weightUnit,
+    volumeUnit,
+  );
+
+  /// Create a copy of FoodItemLogSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FoodItemLogSummaryImplCopyWith<_$FoodItemLogSummaryImpl> get copyWith =>
+      __$$FoodItemLogSummaryImplCopyWithImpl<_$FoodItemLogSummaryImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$FoodItemLogSummaryImplToJson(this);
+  }
+}
+
+abstract class _FoodItemLogSummary implements FoodItemLogSummary {
+  const factory _FoodItemLogSummary({
+    required final double totalIntakeByWeight,
+    required final double totalIntakeByVolume,
+    required final double totalConsumptionByWeight,
+    required final double totalConsumptionByVolume,
+    required final double totalDiscardByWeight,
+    required final double totalDiscardByVolume,
+    required final String weightUnit,
+    required final String volumeUnit,
+  }) = _$FoodItemLogSummaryImpl;
+
+  factory _FoodItemLogSummary.fromJson(Map<String, dynamic> json) =
+      _$FoodItemLogSummaryImpl.fromJson;
+
+  @override
+  double get totalIntakeByWeight;
+  @override
+  double get totalIntakeByVolume;
+  @override
+  double get totalConsumptionByWeight;
+  @override
+  double get totalConsumptionByVolume;
+  @override
+  double get totalDiscardByWeight;
+  @override
+  double get totalDiscardByVolume;
+  @override
+  String get weightUnit;
+  @override
+  String get volumeUnit;
+
+  /// Create a copy of FoodItemLogSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$FoodItemLogSummaryImplCopyWith<_$FoodItemLogSummaryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
