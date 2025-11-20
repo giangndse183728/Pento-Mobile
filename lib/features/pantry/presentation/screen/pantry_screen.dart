@@ -7,6 +7,7 @@ import '../../../../core/layouts/android/float_add_button.dart';
 import '../../data/repositories/pantry_repository.dart';
 import '../widgets/small_storage_card.dart';
 import '../widgets/freezer_card.dart';
+import '../../../log/presentation/widgets/food_item_log_summary_chart.dart';
 
 class PantryScreen extends ConsumerWidget {
   const PantryScreen({super.key});
@@ -199,6 +200,10 @@ class PantryScreen extends ConsumerWidget {
                     SizedBox(
                       height: MediaQuery.of(context).padding.top +
                           kToolbarHeight,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: FoodItemLogSummaryChart(),
                     ),
                     if (pantryItems.isNotEmpty) ...[
                       const Padding(

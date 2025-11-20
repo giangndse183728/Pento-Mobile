@@ -55,3 +55,31 @@ Map<String, dynamic> _$$PaginatedFoodItemLogsImplToJson(
   'hasNext': instance.hasNext,
   'items': instance.items,
 };
+
+_$FoodItemLogSummaryImpl _$$FoodItemLogSummaryImplFromJson(
+  Map<String, dynamic> json,
+) => _$FoodItemLogSummaryImpl(
+  totalIntakeByWeight: (json['totalIntakeByWeight'] as num).toDouble(),
+  totalIntakeByVolume: (json['totalIntakeByVolume'] as num).toDouble(),
+  totalConsumptionByWeight: (json['totalConsumptionByWeight'] as num)
+      .toDouble(),
+  totalConsumptionByVolume: (json['totalConsumptionByVolume'] as num)
+      .toDouble(),
+  totalDiscardByWeight: (json['totalDiscardByWeight'] as num).toDouble(),
+  totalDiscardByVolume: (json['totalDiscardByVolume'] as num).toDouble(),
+  weightUnit: json['weightUnit'] as String,
+  volumeUnit: json['volumeUnit'] as String,
+);
+
+Map<String, dynamic> _$$FoodItemLogSummaryImplToJson(
+  _$FoodItemLogSummaryImpl instance,
+) => <String, dynamic>{
+  'totalIntakeByWeight': instance.totalIntakeByWeight,
+  'totalIntakeByVolume': instance.totalIntakeByVolume,
+  'totalConsumptionByWeight': instance.totalConsumptionByWeight,
+  'totalConsumptionByVolume': instance.totalConsumptionByVolume,
+  'totalDiscardByWeight': instance.totalDiscardByWeight,
+  'totalDiscardByVolume': instance.totalDiscardByVolume,
+  'weightUnit': instance.weightUnit,
+  'volumeUnit': instance.volumeUnit,
+};
