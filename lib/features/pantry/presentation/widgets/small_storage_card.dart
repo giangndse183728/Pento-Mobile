@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../pantry/data/models/storage_models.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/constants/app_images.dart';
 
 class SmallStorageCard extends StatelessWidget {
   const SmallStorageCard({
@@ -18,9 +19,9 @@ class SmallStorageCard extends StatelessWidget {
   String? get _iconAssetPath {
     switch (storage.type) {
       case StorageType.pantry:
-        return 'assets/image/foodbox.png';
+        return AppImages.pantryyy;
       case StorageType.fridge:
-        return 'assets/image/fridge.png';
+        return AppImages.fridge;
       case StorageType.freezer:
         return null; // Not used here
     }

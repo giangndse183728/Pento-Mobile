@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../pantry/data/models/storage_models.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/constants/app_images.dart';
 import 'type_badge.dart';
 
 class FreezerCard extends StatelessWidget {
@@ -77,8 +78,7 @@ class FreezerCard extends StatelessWidget {
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Center(
-                      child: Image.asset(
-                        'assets/image/snowflake.png',
+                      child: Image.asset(AppImages.freezer,               
                         width: 40,
                         height: 40,
                         fit: BoxFit.contain,
