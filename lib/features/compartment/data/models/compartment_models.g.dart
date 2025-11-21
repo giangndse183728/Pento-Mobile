@@ -85,6 +85,12 @@ _$CompartmentItemDetailImpl _$$CompartmentItemDetailImplFromJson(
       ? null
       : FoodItemUser.fromJson(json['lastModifiedBy'] as Map<String, dynamic>),
   version: (json['version'] as num?)?.toInt() ?? 1,
+  typicalPantryShelfLifeDays: (json['typicalPantryShelfLifeDays'] as num?)
+      ?.toInt(),
+  typicalShelfLifeDays: (json['typicalShelfLifeDays'] as num?)?.toInt(),
+  typicalFreezerShelfLifeDays: (json['typicalFreezerShelfLifeDays'] as num?)
+      ?.toInt(),
+  brand: json['brand'] as String?,
 );
 
 Map<String, dynamic> _$$CompartmentItemDetailImplToJson(
@@ -108,6 +114,10 @@ Map<String, dynamic> _$$CompartmentItemDetailImplToJson(
   'addedBy': instance.addedBy,
   'lastModifiedBy': instance.lastModifiedBy,
   'version': instance.version,
+  'typicalPantryShelfLifeDays': instance.typicalPantryShelfLifeDays,
+  'typicalShelfLifeDays': instance.typicalShelfLifeDays,
+  'typicalFreezerShelfLifeDays': instance.typicalFreezerShelfLifeDays,
+  'brand': instance.brand,
 };
 
 _$FoodItemUserImpl _$$FoodItemUserImplFromJson(Map<String, dynamic> json) =>
