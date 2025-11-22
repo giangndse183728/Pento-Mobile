@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../data/models/storage_models.dart';
 import '../providers/pantry_provider.dart';
@@ -194,7 +195,7 @@ class PantryScreen extends ConsumerWidget {
             return Stack(
               children: [
                 ListView(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.only(bottom: 24.h),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     SizedBox(

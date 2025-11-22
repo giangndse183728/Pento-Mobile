@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../data/models/food_reference.dart';
 
@@ -122,7 +123,9 @@ class _SelectedFoodReferenceDisplayState
                       Text(
                         'Product Details',
                         style: AppTextStyles.inputHint.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'MomoTrustDisplay',
+                          color: Colors.black54,
                         ),
                       ),
                       Icon(
@@ -149,13 +152,16 @@ class _SelectedFoodReferenceDisplayState
                           Text(
                             'Category: ',
                             style: AppTextStyles.inputHint.copyWith(
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'MomoTrustDisplay',
                             ),
                           ),
                           Expanded(
                             child: Text(
                               widget.foodReference.foodGroup!,
-                              style: AppTextStyles.inputHint,
+                              style: AppTextStyles.inputHint.copyWith(
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ],
@@ -166,7 +172,8 @@ class _SelectedFoodReferenceDisplayState
                     Text(
                       'Typical Shelf Life:',
                       style: AppTextStyles.inputHint.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'MomoTrustDisplay',
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -174,7 +181,7 @@ class _SelectedFoodReferenceDisplayState
                       children: [
                         Expanded(
                           child: ShelfLifeItem(
-                            icon: Icons.kitchen,
+                            iconAsset: AppImages.pantryyy,
                             label: 'Pantry',
                             days: widget.foodReference.typicalShelfLifeDaysPantry,
                           ),
@@ -182,7 +189,7 @@ class _SelectedFoodReferenceDisplayState
                         SizedBox(width: 8.w),
                         Expanded(
                           child: ShelfLifeItem(
-                            icon: Icons.kitchen,
+                            iconAsset: AppImages.fridge,
                             label: 'Fridge',
                             days: widget.foodReference.typicalShelfLifeDaysFridge,
                           ),
@@ -190,7 +197,7 @@ class _SelectedFoodReferenceDisplayState
                         SizedBox(width: 8.w),
                         Expanded(
                           child: ShelfLifeItem(
-                            icon: Icons.ac_unit,
+                            iconAsset: AppImages.freezer,
                             label: 'Freezer',
                             days:
                                 widget.foodReference.typicalShelfLifeDaysFreezer,
@@ -242,12 +249,12 @@ class _SelectedFoodReferenceDisplayState
 class ShelfLifeItem extends StatelessWidget {
   const ShelfLifeItem({
     super.key,
-    required this.icon,
+    required this.iconAsset,
     required this.label,
     required this.days,
   });
 
-  final IconData icon;
+  final String iconAsset;
   final String label;
   final int days;
 
@@ -262,15 +269,17 @@ class ShelfLifeItem extends StatelessWidget {
         color: AppColors.iceberg,
         borderRadius: BorderRadius.circular(6.r),
         border: Border.all(
-          color: AppColors.powderBlue.withValues(alpha: 0.3),
+          color: Colors.black38,
         ),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 16.sp,
-            color: AppColors.blueGray,
+          Image.asset(
+            iconAsset,
+            width: 18.w,
+            height: 18.w,
+            fit: BoxFit.contain,
+         
           ),
           SizedBox(height: 4.h),
           Text(
