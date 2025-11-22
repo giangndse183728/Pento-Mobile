@@ -72,3 +72,19 @@ extension RecipeExtension on Recipe {
       : (totalTimes ?? 0);
 }
 
+@freezed
+class PaginatedRecipes with _$PaginatedRecipes {
+  const factory PaginatedRecipes({
+    @Default([]) List<Recipe> items,
+    @Default(1) int currentPage,
+    @Default(1) int totalPages,
+    @Default(12) int pageSize,
+    @Default(0) int totalCount,
+    @Default(false) bool hasPrevious,
+    @Default(false) bool hasNext,
+  }) = _PaginatedRecipes;
+
+  factory PaginatedRecipes.fromJson(Map<String, dynamic> json) =>
+      _$PaginatedRecipesFromJson(json);
+}
+

@@ -34,6 +34,10 @@ class RecipeCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppColors.powderBlue.withValues(alpha: 0.3),
+            width: 1,
+          ),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -55,37 +59,37 @@ class RecipeCard extends StatelessWidget {
                     topLeft: Radius.circular(16.r),
                     topRight: Radius.circular(16.r),
                   ),
-                  child: recipe.imageUrl != null
-                      ? Image.network(
-                          recipe.imageUrl!,
-                          height: 120.h,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 120.h,
-                              width: double.infinity,
-                              color: AppColors.iceberg,
-                              child: Icon(
-                                Icons.restaurant,
-                                size: 40.w,
-                                color: AppColors.blueGray.withValues(
-                                  alpha: 0.5,
+                  child: AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: recipe.imageUrl != null
+                        ? Image.network(
+                            recipe.imageUrl!,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: double.infinity,
+                                color: AppColors.iceberg,
+                                child: Icon(
+                                  Icons.restaurant,
+                                  size: 40.w,
+                                  color: AppColors.blueGray.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        )
-                      : Container(
-                          height: 120.h,
-                          width: double.infinity,
-                          color: AppColors.iceberg,
-                          child: Icon(
-                            Icons.restaurant,
-                            size: 40.w,
-                            color: AppColors.blueGray.withValues(alpha: 0.5),
+                              );
+                            },
+                          )
+                        : Container(
+                            width: double.infinity,
+                            color: AppColors.iceberg,
+                            child: Icon(
+                              Icons.restaurant,
+                              size: 40.w,
+                              color: AppColors.blueGray.withValues(alpha: 0.5),
+                            ),
                           ),
-                        ),
+                  ),
                 ),
                 // Difficulty tag
                 Positioned(
@@ -126,7 +130,7 @@ class RecipeCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                           height: 1.2,

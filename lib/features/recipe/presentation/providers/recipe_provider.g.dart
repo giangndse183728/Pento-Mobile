@@ -6,22 +6,21 @@ part of 'recipe_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$recipesHash() => r'0ec88c144565d98f9df7b79dd8388cdb685b807a';
+String _$recipesHash() => r'ad57cd0585df0bc934f6bee7f450462794d01c46';
 
 /// See also [Recipes].
 @ProviderFor(Recipes)
-final recipesProvider =
-    AutoDisposeAsyncNotifierProvider<Recipes, List<Recipe>>.internal(
-      Recipes.new,
-      name: r'recipesProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$recipesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final recipesProvider = AsyncNotifierProvider<Recipes, RecipeState>.internal(
+  Recipes.new,
+  name: r'recipesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$recipesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-typedef _$Recipes = AutoDisposeAsyncNotifier<List<Recipe>>;
+typedef _$Recipes = AsyncNotifier<RecipeState>;
 String _$recipeDetailNotifierHash() =>
     r'e7541fa5e320b378427bdd46aed808a4a2f312cf';
 
