@@ -6,16 +6,23 @@ import '../../constants/app_colors.dart';
 import '../../routing/app_routes.dart';
 
 class FloatingAddButton extends StatefulWidget {
-  const FloatingAddButton({super.key, this.onActionSelected, this.items});
+  const FloatingAddButton({
+    super.key,
+    this.onActionSelected,
+    this.items,
+    this.icon,
+  });
 
   final ValueChanged<int>? onActionSelected;
   final List<FabMenuItem>? items;
+  final IconData? icon;
 
   // Default positioned helper to align with bottom navbar center-Y
   static Widget defaultPositioned({
     Key? key,
     List<FabMenuItem>? items,
     ValueChanged<int>? onActionSelected,
+    IconData? icon,
     double right = 0,
     double bottom = 3,
   }) {
@@ -29,6 +36,7 @@ class FloatingAddButton extends StatefulWidget {
             key: key,
             items: items,
             onActionSelected: onActionSelected,
+            icon: icon,
           ),
         );
       },
@@ -151,6 +159,22 @@ class _FloatingAddButtonState extends State<FloatingAddButton> with SingleTicker
     _showMenu();
   }
 
+  IconData _getFabIcon() {
+    // Use provided icon if given
+    if (widget.icon != null) {
+      return widget.icon!;
+    }
+    
+    // If single item, use that item's icon
+    final items = _resolvedItems(context);
+    if (items.length == 1) {
+      return items.first.icon;
+    }
+    
+    // Default to plus icon
+    return Icons.add;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -207,7 +231,10 @@ class _FloatingAddButtonState extends State<FloatingAddButton> with SingleTicker
                         curve: Curves.easeOutBack,
                       ),
                     ),
-                    child: const Icon(Icons.add, color: Colors.black87),
+                    child: Icon(
+                      _getFabIcon(),
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
               ),
