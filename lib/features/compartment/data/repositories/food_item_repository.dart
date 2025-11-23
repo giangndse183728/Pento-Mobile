@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../../core/network/network_service.dart';
 import '../models/compartment_models.dart';
@@ -166,6 +167,53 @@ class FoodItemRepository {
     await _network.patch<void>(
       path,
       data: payload,
+      onSuccess: (_) => null,
+    );
+  }
+
+  /// Update food item image by downloading from URL and uploading as multipart
+  Future<void> updateFoodItemImage({
+    required String foodItemId,
+    required String imageUrl,
+  }) async {
+    final path = ApiEndpoints.updateFoodItemImage.replaceFirst(
+      '{id}',
+      foodItemId,
+    );
+
+    // Download image from external URL using plain Dio (no base URL, no interceptors)
+    final downloadDio = Dio(
+      BaseOptions(
+        responseType: ResponseType.bytes,
+        followRedirects: true,
+        maxRedirects: 5,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+    
+    final response = await downloadDio.get<List<int>>(imageUrl);
+
+    // Get file extension from URL or default to jpg
+    final uri = Uri.parse(imageUrl);
+    final extension = uri.path.split('.').last.toLowerCase();
+    final fileName = 'image.${extension.isNotEmpty && extension.length <= 4 ? extension : 'jpg'}';
+
+    // Create multipart file from bytes
+    final multipartFile = MultipartFile.fromBytes(
+      response.data!,
+      filename: fileName,
+    );
+
+    // Create form data
+    final formData = FormData.fromMap({
+      'file': multipartFile,
+    });
+
+    // Upload using PUT request
+    await _network.put<void>(
+      path,
+      data: formData,
       onSuccess: (_) => null,
     );
   }

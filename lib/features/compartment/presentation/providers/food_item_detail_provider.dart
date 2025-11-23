@@ -176,5 +176,18 @@ class FoodItemDetail extends _$FoodItemDetail {
       rethrow;
     }
   }
+
+  Future<void> updateImage(String imageUrl) async {
+    try {
+      await _repository.updateFoodItemImage(
+        foodItemId: _foodItemId,
+        imageUrl: imageUrl,
+      );
+      // Refresh to get updated image
+      await refresh();
+    } catch (error) {
+      rethrow;
+    }
+  }
 }
 
