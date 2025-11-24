@@ -172,7 +172,7 @@ class FoodItemRepository {
   }
 
   /// Update food item image by downloading from URL and uploading as multipart
-  Future<void> updateFoodItemImage({
+  Future<String> updateFoodItemImage({
     required String foodItemId,
     required String imageUrl,
   }) async {
@@ -211,11 +211,24 @@ class FoodItemRepository {
     });
 
     // Upload using PUT request
-    await _network.put<void>(
+    final uploadedUrl = await _network.put<String>(
       path,
       data: formData,
-      onSuccess: (_) => null,
+      onSuccess: (data) {
+        if (data is String && data.isNotEmpty) {
+          return data;
+        }
+        if (data is Map<String, dynamic>) {
+          final url = data['imageUrl'] ?? data['url'] ?? data['data'];
+          if (url is String && url.isNotEmpty) {
+            return url;
+          }
+        }
+        throw Exception('Invalid upload response');
+      },
     );
+
+    return uploadedUrl;
   }
 }
 
