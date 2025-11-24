@@ -10,6 +10,8 @@ class ApiEndpoints {
   // Image Search (local API)
   static const String imageSearch = '/image-search';
 
+  static const String chatbot = '/chatbot';
+
   // Authentication
   static const String signIn = '/users/mobile-sign-in';
   static const String signUp = '/users/register';
