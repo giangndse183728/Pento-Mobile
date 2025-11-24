@@ -11,6 +11,7 @@ import '../../data/repositories/pantry_repository.dart';
 import '../widgets/small_storage_card.dart';
 import '../widgets/freezer_card.dart';
 import '../../../log/presentation/widgets/food_item_log_summary_chart.dart';
+import '../widgets/add_storage_card.dart';
 
 class PantryScreen extends ConsumerWidget {
   const PantryScreen({super.key});
@@ -21,9 +22,9 @@ class PantryScreen extends ConsumerWidget {
     Future<void> refreshStorages() =>
         ref.read(pantryProvider.notifier).refresh();
 
-    Future<void> onAddStorage() async {
+    Future<void> onAddStorage([StorageType initialType = StorageType.pantry]) async {
       final nameCtrl = TextEditingController();
-      StorageType selected = StorageType.pantry;
+      StorageType selected = initialType;
       final repo = PantryRepository();
       final ok = await showDialog<bool>(
         context: context,
@@ -91,6 +92,35 @@ class PantryScreen extends ConsumerWidget {
         }
       }
     }
+
+    String labelForType(StorageType type) {
+      switch (type) {
+        case StorageType.pantry:
+          return 'Add Pantry';
+        case StorageType.fridge:
+          return 'Add Fridge';
+        case StorageType.freezer:
+          return 'Add Freezer';
+      }
+    }
+
+    Widget buildTile({
+      required int index,
+      required List<Storage> storages,
+      required StorageType type,
+    }) {
+      if (index >= storages.length) {
+        return AddStorageCard(
+          label: labelForType(type),
+          onTap: () => onAddStorage(type),
+        );
+      }
+      return SmallStorageCard(
+        storage: storages[index],
+      );
+    }
+
+    int totalItemsFor(List<Storage> storages) => storages.length + 1;
 
     return AppScaffold(
       title: 'Pantry',
@@ -229,8 +259,8 @@ class PantryScreen extends ConsumerWidget {
                         height: 120,
                         child: Builder(
                           builder: (context) {
-                            final pageCount =
-                                (pantryItems.length / 2).ceil();
+                            final totalItems = totalItemsFor(pantryItems);
+                            final pageCount = (totalItems / 2).ceil();
                             return PageView.builder(
                               controller:
                                   PageController(viewportFraction: 0.92),
@@ -243,26 +273,39 @@ class PantryScreen extends ConsumerWidget {
                               itemBuilder: (context, pageIndex) {
                                 final start = pageIndex * 2;
                                 final end =
-                                    (start + 2).clamp(0, pantryItems.length);
-                                final pageItems =
-                                    pantryItems.sublist(start, end);
+                                    (start + 2).clamp(0, totalItems);
+                                if (start >= pantryItems.length &&
+                                    end - start == 1) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: AddStorageCard(
+                                      label: labelForType(StorageType.pantry),
+                                      onTap: () => onAddStorage(
+                                        StorageType.pantry,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final first = buildTile(
+                                  index: start,
+                                  storages: pantryItems,
+                                  type: StorageType.pantry,
+                                );
+                                final bool hasSecond = end - start > 1;
+                                final Widget second = hasSecond
+                                    ? buildTile(
+                                        index: start + 1,
+                                        storages: pantryItems,
+                                        type: StorageType.pantry,
+                                      )
+                                    : const SizedBox.shrink();
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 16),
                                   child: Row(
                                     children: [
-                                      Expanded(
-                                        child: SmallStorageCard(
-                                          storage: pageItems[0],
-                                        ),
-                                      ),
+                                      Expanded(child: first),
                                       const SizedBox(width: 12),
-                                      Expanded(
-                                        child: pageItems.length > 1
-                                            ? SmallStorageCard(
-                                                storage: pageItems[1],
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
+                                      Expanded(child: second),
                                     ],
                                   ),
                                 );
@@ -289,8 +332,8 @@ class PantryScreen extends ConsumerWidget {
                         height: 120,
                         child: Builder(
                           builder: (context) {
-                            final pageCount =
-                                (fridgeItems.length / 2).ceil();
+                            final totalItems = totalItemsFor(fridgeItems);
+                            final pageCount = (totalItems / 2).ceil();
                             return PageView.builder(
                               controller:
                                   PageController(viewportFraction: 0.92),
@@ -303,26 +346,39 @@ class PantryScreen extends ConsumerWidget {
                               itemBuilder: (context, pageIndex) {
                                 final start = pageIndex * 2;
                                 final end =
-                                    (start + 2).clamp(0, fridgeItems.length);
-                                final pageItems =
-                                    fridgeItems.sublist(start, end);
+                                    (start + 2).clamp(0, totalItems);
+                                if (start >= fridgeItems.length &&
+                                    end - start == 1) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: AddStorageCard(
+                                      label: labelForType(StorageType.fridge),
+                                      onTap: () => onAddStorage(
+                                        StorageType.fridge,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final first = buildTile(
+                                  index: start,
+                                  storages: fridgeItems,
+                                  type: StorageType.fridge,
+                                );
+                                final bool hasSecond = end - start > 1;
+                                final Widget second = hasSecond
+                                    ? buildTile(
+                                        index: start + 1,
+                                        storages: fridgeItems,
+                                        type: StorageType.fridge,
+                                      )
+                                    : const SizedBox.shrink();
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 16),
                                   child: Row(
                                     children: [
-                                      Expanded(
-                                        child: SmallStorageCard(
-                                          storage: pageItems[0],
-                                        ),
-                                      ),
+                                      Expanded(child: first),
                                       const SizedBox(width: 12),
-                                      Expanded(
-                                        child: pageItems.length > 1
-                                            ? SmallStorageCard(
-                                                storage: pageItems[1],
-                                              )
-                                            : const SizedBox.shrink(),
-                                      ),
+                                      Expanded(child: second),
                                     ],
                                   ),
                                 );
@@ -338,7 +394,8 @@ class PantryScreen extends ConsumerWidget {
                         height: 120,
                         child: Builder(
                           builder: (context) {
-                            final pageCount = freezer.length;
+                            final totalItems = freezer.length + 1;
+                            final pageCount = totalItems;
                             return PageView.builder(
                               controller:
                                   PageController(viewportFraction: 0.9),
@@ -349,6 +406,17 @@ class PantryScreen extends ConsumerWidget {
                                 pageCount,
                               ),
                               itemBuilder: (context, index) {
+                                if (index >= freezer.length) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: AddStorageCard(
+                                      label: labelForType(StorageType.freezer),
+                                      onTap: () => onAddStorage(
+                                        StorageType.freezer,
+                                      ),
+                                    ),
+                                  );
+                                }
                                 final storage = freezer[index];
                                 return Padding(
                                   padding: const EdgeInsets.only(left: 16),
