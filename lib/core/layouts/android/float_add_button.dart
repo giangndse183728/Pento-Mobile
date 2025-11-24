@@ -261,6 +261,11 @@ extension on _FloatingAddButtonState {
     // Default items (backward compatible)
     return [
       FabMenuItem(
+        label: 'Chatbot',
+        icon: Icons.smart_toy_outlined,
+        onTap: () => context.push(AppRoutes.chatbot),
+      ),
+      FabMenuItem(
         label: 'Form',
         icon: Icons.description,
         onTap: () => context.go(AppRoutes.inputform),

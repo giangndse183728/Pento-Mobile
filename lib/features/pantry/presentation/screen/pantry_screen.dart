@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../data/models/storage_models.dart';
 import '../providers/pantry_provider.dart';
 import '../../../../core/layouts/android/float_add_button.dart';
@@ -166,6 +168,11 @@ class PantryScreen extends ConsumerWidget {
                         label: 'Add Storage',
                         icon: Icons.add_circle,
                         onTap: onAddStorage,
+                      ),
+                      FabMenuItem(
+                        label: 'Chatbot',
+                        icon: Icons.smart_toy_outlined,
+                        onTap: () => context.push(AppRoutes.chatbot),
                       ),
                     ],
                   ),
@@ -378,15 +385,7 @@ class PantryScreen extends ConsumerWidget {
                     const SizedBox(height: 80),
                   ],
                 ),
-                FloatingAddButton.defaultPositioned(
-                  items: [
-                    FabMenuItem(
-                      label: 'Add Storage',
-                      icon: Icons.add_circle,
-                      onTap: onAddStorage,
-                    ),
-                  ],
-                ),
+         
               ],
             );
           },
