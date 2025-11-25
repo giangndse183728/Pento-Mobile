@@ -1164,3 +1164,316 @@ abstract class _RecipeDirection implements RecipeDirection {
   _$$RecipeDirectionImplCopyWith<_$RecipeDirectionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+PaginatedRecipes _$PaginatedRecipesFromJson(Map<String, dynamic> json) {
+  return _PaginatedRecipes.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PaginatedRecipes {
+  List<Recipe> get items => throw _privateConstructorUsedError;
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  int get pageSize => throw _privateConstructorUsedError;
+  int get totalCount => throw _privateConstructorUsedError;
+  bool get hasPrevious => throw _privateConstructorUsedError;
+  bool get hasNext => throw _privateConstructorUsedError;
+
+  /// Serializes this PaginatedRecipes to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PaginatedRecipes
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaginatedRecipesCopyWith<PaginatedRecipes> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaginatedRecipesCopyWith<$Res> {
+  factory $PaginatedRecipesCopyWith(
+    PaginatedRecipes value,
+    $Res Function(PaginatedRecipes) then,
+  ) = _$PaginatedRecipesCopyWithImpl<$Res, PaginatedRecipes>;
+  @useResult
+  $Res call({
+    List<Recipe> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class _$PaginatedRecipesCopyWithImpl<$Res, $Val extends PaginatedRecipes>
+    implements $PaginatedRecipesCopyWith<$Res> {
+  _$PaginatedRecipesCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PaginatedRecipes
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<Recipe>,
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pageSize: null == pageSize
+                ? _value.pageSize
+                : pageSize // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCount: null == totalCount
+                ? _value.totalCount
+                : totalCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasPrevious: null == hasPrevious
+                ? _value.hasPrevious
+                : hasPrevious // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasNext: null == hasNext
+                ? _value.hasNext
+                : hasNext // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PaginatedRecipesImplCopyWith<$Res>
+    implements $PaginatedRecipesCopyWith<$Res> {
+  factory _$$PaginatedRecipesImplCopyWith(
+    _$PaginatedRecipesImpl value,
+    $Res Function(_$PaginatedRecipesImpl) then,
+  ) = __$$PaginatedRecipesImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    List<Recipe> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class __$$PaginatedRecipesImplCopyWithImpl<$Res>
+    extends _$PaginatedRecipesCopyWithImpl<$Res, _$PaginatedRecipesImpl>
+    implements _$$PaginatedRecipesImplCopyWith<$Res> {
+  __$$PaginatedRecipesImplCopyWithImpl(
+    _$PaginatedRecipesImpl _value,
+    $Res Function(_$PaginatedRecipesImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PaginatedRecipes
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _$PaginatedRecipesImpl(
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<Recipe>,
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pageSize: null == pageSize
+            ? _value.pageSize
+            : pageSize // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCount: null == totalCount
+            ? _value.totalCount
+            : totalCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasPrevious: null == hasPrevious
+            ? _value.hasPrevious
+            : hasPrevious // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasNext: null == hasNext
+            ? _value.hasNext
+            : hasNext // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PaginatedRecipesImpl implements _PaginatedRecipes {
+  const _$PaginatedRecipesImpl({
+    final List<Recipe> items = const [],
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.pageSize = 12,
+    this.totalCount = 0,
+    this.hasPrevious = false,
+    this.hasNext = false,
+  }) : _items = items;
+
+  factory _$PaginatedRecipesImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PaginatedRecipesImplFromJson(json);
+
+  final List<Recipe> _items;
+  @override
+  @JsonKey()
+  List<Recipe> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  @JsonKey()
+  final int currentPage;
+  @override
+  @JsonKey()
+  final int totalPages;
+  @override
+  @JsonKey()
+  final int pageSize;
+  @override
+  @JsonKey()
+  final int totalCount;
+  @override
+  @JsonKey()
+  final bool hasPrevious;
+  @override
+  @JsonKey()
+  final bool hasNext;
+
+  @override
+  String toString() {
+    return 'PaginatedRecipes(items: $items, currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaginatedRecipesImpl &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.pageSize, pageSize) ||
+                other.pageSize == pageSize) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.hasPrevious, hasPrevious) ||
+                other.hasPrevious == hasPrevious) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_items),
+    currentPage,
+    totalPages,
+    pageSize,
+    totalCount,
+    hasPrevious,
+    hasNext,
+  );
+
+  /// Create a copy of PaginatedRecipes
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaginatedRecipesImplCopyWith<_$PaginatedRecipesImpl> get copyWith =>
+      __$$PaginatedRecipesImplCopyWithImpl<_$PaginatedRecipesImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PaginatedRecipesImplToJson(this);
+  }
+}
+
+abstract class _PaginatedRecipes implements PaginatedRecipes {
+  const factory _PaginatedRecipes({
+    final List<Recipe> items,
+    final int currentPage,
+    final int totalPages,
+    final int pageSize,
+    final int totalCount,
+    final bool hasPrevious,
+    final bool hasNext,
+  }) = _$PaginatedRecipesImpl;
+
+  factory _PaginatedRecipes.fromJson(Map<String, dynamic> json) =
+      _$PaginatedRecipesImpl.fromJson;
+
+  @override
+  List<Recipe> get items;
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  int get pageSize;
+  @override
+  int get totalCount;
+  @override
+  bool get hasPrevious;
+  @override
+  bool get hasNext;
+
+  /// Create a copy of PaginatedRecipes
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaginatedRecipesImplCopyWith<_$PaginatedRecipesImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

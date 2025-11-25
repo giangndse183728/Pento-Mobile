@@ -56,18 +56,9 @@ class AuthRepository {
     return (response: response, session: session);
   }
 
-  /// Logout user
   Future<void> logout() async {
-    try {
-      await _networkService.post(
-        ApiEndpoints.logout,
-        onSuccess: (_) => null,
-      );
-    } catch (e) {
-      // Continue with local logout even if API call fails
-    } finally {
-      await _storage.clearAll();
-    }
+    _tokenProvider.clearTokens();
+    await _storage.clearAll();
   }
 
   /// Check if user is logged in

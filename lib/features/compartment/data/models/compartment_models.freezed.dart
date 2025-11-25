@@ -933,6 +933,10 @@ mixin _$CompartmentItemDetail {
   FoodItemUser? get addedBy => throw _privateConstructorUsedError;
   FoodItemUser? get lastModifiedBy => throw _privateConstructorUsedError;
   int get version => throw _privateConstructorUsedError;
+  int? get typicalPantryShelfLifeDays => throw _privateConstructorUsedError;
+  int? get typicalShelfLifeDays => throw _privateConstructorUsedError;
+  int? get typicalFreezerShelfLifeDays => throw _privateConstructorUsedError;
+  String? get brand => throw _privateConstructorUsedError;
 
   /// Serializes this CompartmentItemDetail to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -970,6 +974,10 @@ abstract class $CompartmentItemDetailCopyWith<$Res> {
     FoodItemUser? addedBy,
     FoodItemUser? lastModifiedBy,
     int version,
+    int? typicalPantryShelfLifeDays,
+    int? typicalShelfLifeDays,
+    int? typicalFreezerShelfLifeDays,
+    String? brand,
   });
 
   $FoodItemUserCopyWith<$Res>? get addedBy;
@@ -1012,6 +1020,10 @@ class _$CompartmentItemDetailCopyWithImpl<
     Object? addedBy = freezed,
     Object? lastModifiedBy = freezed,
     Object? version = null,
+    Object? typicalPantryShelfLifeDays = freezed,
+    Object? typicalShelfLifeDays = freezed,
+    Object? typicalFreezerShelfLifeDays = freezed,
+    Object? brand = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1087,6 +1099,22 @@ class _$CompartmentItemDetailCopyWithImpl<
                 ? _value.version
                 : version // ignore: cast_nullable_to_non_nullable
                       as int,
+            typicalPantryShelfLifeDays: freezed == typicalPantryShelfLifeDays
+                ? _value.typicalPantryShelfLifeDays
+                : typicalPantryShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            typicalShelfLifeDays: freezed == typicalShelfLifeDays
+                ? _value.typicalShelfLifeDays
+                : typicalShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            typicalFreezerShelfLifeDays: freezed == typicalFreezerShelfLifeDays
+                ? _value.typicalFreezerShelfLifeDays
+                : typicalFreezerShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            brand: freezed == brand
+                ? _value.brand
+                : brand // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1149,6 +1177,10 @@ abstract class _$$CompartmentItemDetailImplCopyWith<$Res>
     FoodItemUser? addedBy,
     FoodItemUser? lastModifiedBy,
     int version,
+    int? typicalPantryShelfLifeDays,
+    int? typicalShelfLifeDays,
+    int? typicalFreezerShelfLifeDays,
+    String? brand,
   });
 
   @override
@@ -1190,6 +1222,10 @@ class __$$CompartmentItemDetailImplCopyWithImpl<$Res>
     Object? addedBy = freezed,
     Object? lastModifiedBy = freezed,
     Object? version = null,
+    Object? typicalPantryShelfLifeDays = freezed,
+    Object? typicalShelfLifeDays = freezed,
+    Object? typicalFreezerShelfLifeDays = freezed,
+    Object? brand = freezed,
   }) {
     return _then(
       _$CompartmentItemDetailImpl(
@@ -1265,6 +1301,22 @@ class __$$CompartmentItemDetailImplCopyWithImpl<$Res>
             ? _value.version
             : version // ignore: cast_nullable_to_non_nullable
                   as int,
+        typicalPantryShelfLifeDays: freezed == typicalPantryShelfLifeDays
+            ? _value.typicalPantryShelfLifeDays
+            : typicalPantryShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        typicalShelfLifeDays: freezed == typicalShelfLifeDays
+            ? _value.typicalShelfLifeDays
+            : typicalShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        typicalFreezerShelfLifeDays: freezed == typicalFreezerShelfLifeDays
+            ? _value.typicalFreezerShelfLifeDays
+            : typicalFreezerShelfLifeDays // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        brand: freezed == brand
+            ? _value.brand
+            : brand // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1292,6 +1344,10 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
     this.addedBy,
     this.lastModifiedBy,
     this.version = 1,
+    this.typicalPantryShelfLifeDays,
+    this.typicalShelfLifeDays,
+    this.typicalFreezerShelfLifeDays,
+    this.brand,
   });
 
   factory _$CompartmentItemDetailImpl.fromJson(Map<String, dynamic> json) =>
@@ -1336,10 +1392,18 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
   @override
   @JsonKey()
   final int version;
+  @override
+  final int? typicalPantryShelfLifeDays;
+  @override
+  final int? typicalShelfLifeDays;
+  @override
+  final int? typicalFreezerShelfLifeDays;
+  @override
+  final String? brand;
 
   @override
   String toString() {
-    return 'CompartmentItemDetail(id: $id, foodReferenceName: $foodReferenceName, storageName: $storageName, storageType: $storageType, compartmentName: $compartmentName, name: $name, foodGroup: $foodGroup, imageUrl: $imageUrl, quantity: $quantity, unitAbbreviation: $unitAbbreviation, expirationDateUtc: $expirationDateUtc, notes: $notes, sourceItemId: $sourceItemId, addedAt: $addedAt, lastModifiedAt: $lastModifiedAt, addedBy: $addedBy, lastModifiedBy: $lastModifiedBy, version: $version)';
+    return 'CompartmentItemDetail(id: $id, foodReferenceName: $foodReferenceName, storageName: $storageName, storageType: $storageType, compartmentName: $compartmentName, name: $name, foodGroup: $foodGroup, imageUrl: $imageUrl, quantity: $quantity, unitAbbreviation: $unitAbbreviation, expirationDateUtc: $expirationDateUtc, notes: $notes, sourceItemId: $sourceItemId, addedAt: $addedAt, lastModifiedAt: $lastModifiedAt, addedBy: $addedBy, lastModifiedBy: $lastModifiedBy, version: $version, typicalPantryShelfLifeDays: $typicalPantryShelfLifeDays, typicalShelfLifeDays: $typicalShelfLifeDays, typicalFreezerShelfLifeDays: $typicalFreezerShelfLifeDays, brand: $brand)';
   }
 
   @override
@@ -1376,12 +1440,27 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
             (identical(other.addedBy, addedBy) || other.addedBy == addedBy) &&
             (identical(other.lastModifiedBy, lastModifiedBy) ||
                 other.lastModifiedBy == lastModifiedBy) &&
-            (identical(other.version, version) || other.version == version));
+            (identical(other.version, version) || other.version == version) &&
+            (identical(
+                  other.typicalPantryShelfLifeDays,
+                  typicalPantryShelfLifeDays,
+                ) ||
+                other.typicalPantryShelfLifeDays ==
+                    typicalPantryShelfLifeDays) &&
+            (identical(other.typicalShelfLifeDays, typicalShelfLifeDays) ||
+                other.typicalShelfLifeDays == typicalShelfLifeDays) &&
+            (identical(
+                  other.typicalFreezerShelfLifeDays,
+                  typicalFreezerShelfLifeDays,
+                ) ||
+                other.typicalFreezerShelfLifeDays ==
+                    typicalFreezerShelfLifeDays) &&
+            (identical(other.brand, brand) || other.brand == brand));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     foodReferenceName,
@@ -1401,7 +1480,11 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
     addedBy,
     lastModifiedBy,
     version,
-  );
+    typicalPantryShelfLifeDays,
+    typicalShelfLifeDays,
+    typicalFreezerShelfLifeDays,
+    brand,
+  ]);
 
   /// Create a copy of CompartmentItemDetail
   /// with the given fields replaced by the non-null parameter values.
@@ -1441,6 +1524,10 @@ abstract class _CompartmentItemDetail implements CompartmentItemDetail {
     final FoodItemUser? addedBy,
     final FoodItemUser? lastModifiedBy,
     final int version,
+    final int? typicalPantryShelfLifeDays,
+    final int? typicalShelfLifeDays,
+    final int? typicalFreezerShelfLifeDays,
+    final String? brand,
   }) = _$CompartmentItemDetailImpl;
 
   factory _CompartmentItemDetail.fromJson(Map<String, dynamic> json) =
@@ -1482,6 +1569,14 @@ abstract class _CompartmentItemDetail implements CompartmentItemDetail {
   FoodItemUser? get lastModifiedBy;
   @override
   int get version;
+  @override
+  int? get typicalPantryShelfLifeDays;
+  @override
+  int? get typicalShelfLifeDays;
+  @override
+  int? get typicalFreezerShelfLifeDays;
+  @override
+  String? get brand;
 
   /// Create a copy of CompartmentItemDetail
   /// with the given fields replaced by the non-null parameter values.

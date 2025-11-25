@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../constants/app_colors.dart';
 import '../bottom_nav_items.dart';
 import '../../routing/app_routes.dart';
+import 'float_add_button.dart';
 
 class LiquidGlassBottomNavLayout extends StatefulWidget {
   const LiquidGlassBottomNavLayout({
@@ -105,10 +106,9 @@ class _LiquidGlassBottomNavLayoutState
             child: SafeArea(
               top: false,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
+                  Expanded(
                     child: ClipRect(
                       clipBehavior: Clip.hardEdge,
                       child: AnimatedSwitcher(
@@ -160,6 +160,16 @@ class _LiquidGlassBottomNavLayoutState
                   ),
                       ),
                     ),
+                  ),
+                  SizedBox(width: 16.w),
+                  FloatingAddButton(
+                    items: [
+                      FabMenuItem(
+                        label: 'Chatbot',
+                        icon: Icons.smart_toy_outlined,
+                        onTap: () => context.push(AppRoutes.chatbot),
+                      ),
+                    ],
                   ),
                 ],
               ),

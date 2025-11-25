@@ -167,6 +167,10 @@ class CompartmentItemDetail with _$CompartmentItemDetail {
     FoodItemUser? addedBy,
     FoodItemUser? lastModifiedBy,
     @Default(1) int version,
+    int? typicalPantryShelfLifeDays,
+    int? typicalShelfLifeDays,
+    int? typicalFreezerShelfLifeDays,
+    String? brand,
   }) = _CompartmentItemDetail;
 
   factory CompartmentItemDetail.fromJson(Map<String, dynamic> json) =>

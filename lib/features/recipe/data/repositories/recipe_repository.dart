@@ -5,17 +5,29 @@ import '../models/recipe_model.dart';
 class RecipeRepository {
   final NetworkService _network = NetworkService.instance;
 
-  Future<List<Recipe>> getRecipes() async {
-    final list = await _network.get<List<Recipe>>(
-      ApiEndpoints.getRecipe,
+  static const int defaultPageSize = 12;
+
+  Future<PaginatedRecipes> getRecipes({
+    int pageNumber = 1,
+    int pageSize = defaultPageSize,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+
+    final result = await _network.get<PaginatedRecipes>(
+      '${ApiEndpoints.getRecipe}?$queryString',
       onSuccess: (data) {
-        final items = (data as List<dynamic>? ?? []);
-        return items
-            .map((e) => Recipe.fromJson(e as Map<String, dynamic>))
-            .toList();
+        return PaginatedRecipes.fromJson(data as Map<String, dynamic>);
       },
     );
-    return list;
+
+    return result;
   }
 
   Future<Recipe> getRecipeById(String recipeId) async {

@@ -5,11 +5,18 @@ class ApiEndpoints {
   static const String baseUrl =
       'https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io';
 
+  static const String baseUrlLocal = 'http://10.0.2.2:3000/api';
+
+  // Image Search (local API)
+  static const String imageSearch = '/image-search';
+
+  static const String chatbot = '/chatbot';
+
   // Authentication
   static const String signIn = '/users/mobile-sign-in';
   static const String signUp = '/users/register';
   static const String refreshToken = '/users/mobile-refresh';
-  static const String logout = '/users/logout';
+  static const String logout = '/users/sign-out';
 
   // User
   static const String profile = '/users/profile';
@@ -43,6 +50,7 @@ class ApiEndpoints {
   static const String updateFoodItem = '/food-items/{foodItemId}';
   static const String discardFoodItem = '/food-items/{foodItemId}/discard';
   static const String consumeFoodItem = '/food-items/{foodItemId}/consumption';
+  static const String updateFoodItemImage = '/food-items/{id}/image';
   
   //Food Reference
   static const String getFoodReference = '/food-references';
@@ -59,5 +67,19 @@ class ApiEndpoints {
   static const String getSummaryFoodItemLogs = '/food-item-logs/summary';
   static const String getFoodItemLogs = '/food-item-logs';
 
-}
+  //Grocery List
+  static const String getGroceryList = '/grocery-lists/current-house';
+  static const String createGroceryList = '/grocery-lists';
+  static const String updateGroceryList = '/grocery-lists/{id}';
+  static const String deleteGroceryList = '/grocery-lists/{id}';
 
+  //Grocery List Item
+  static const String getGroceryListItem = '/grocery-list-items/{id}';
+  static const String createGroceryListItem = '/grocery-list-items';
+  static const String updateGroceryListItem = '/grocery-list-items/{id}';
+  static const String deleteGroceryListItem = '/grocery-list-items/{id}';
+
+  //Meal Plan
+  static const String getMealPlan = '/meal-plans/current-house';
+  static const String createMealPlan = '/meal-plans';
+}

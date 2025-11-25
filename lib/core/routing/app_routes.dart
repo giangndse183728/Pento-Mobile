@@ -24,6 +24,8 @@ class AppRoutes {
   static const String foodItemDetail = '/compartment/food-item/:id';
   static const String recipeDetail = '/recipe/:id';
   static const String foodItemLogs = '/food-item-logs';
+  static const String grocery = '/grocery';
+  static const String chatbot = '/chatbot';
   
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';

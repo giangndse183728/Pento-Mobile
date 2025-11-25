@@ -79,6 +79,30 @@ class FoodItemDetail extends _$FoodItemDetail {
     }
   }
 
+  void _updateItemImageInCompartments({
+    required String? compartmentId,
+    String? imageUrl,
+  }) {
+    if (compartmentId == null || compartmentId.isEmpty) return;
+
+    try {
+      final itemsState = ref.read(compartmentItemsProvider(compartmentId));
+      itemsState.whenData((state) {
+        final hasItem = state.items.any((item) => item.id == _foodItemId);
+        if (hasItem) {
+          ref
+              .read(compartmentItemsProvider(compartmentId).notifier)
+              .updateItemImageOptimistically(
+                foodItemId: _foodItemId,
+                imageUrl: imageUrl,
+              );
+        }
+      });
+    } catch (_) {
+      // Silently fail
+    }
+  }
+
   Future<void> consumeItem({
     required int quantity,
     required String unitId,
@@ -173,6 +197,46 @@ class FoodItemDetail extends _$FoodItemDetail {
       await refresh();
     } catch (error) {
       state = previousState;
+      rethrow;
+    }
+  }
+
+  Future<void> updateImage(String imageUrl) async {
+    final currentDetail = state.valueOrNull;
+    if (currentDetail == null) return;
+
+    final previousState = state;
+    final previousImageUrl = currentDetail.imageUrl;
+    final optimisticDetail = currentDetail.copyWith(imageUrl: imageUrl);
+
+    // Optimistic update using the selected image URL so UI updates immediately
+    state = AsyncValue.data(optimisticDetail);
+    _updateItemImageInCompartments(
+      compartmentId: _compartmentId,
+      imageUrl: imageUrl,
+    );
+
+    try {
+      final uploadedUrl = await _repository.updateFoodItemImage(
+        foodItemId: _foodItemId,
+        imageUrl: imageUrl,
+      );
+
+      if (uploadedUrl != imageUrl) {
+        state = AsyncValue.data(
+          (state.value ?? optimisticDetail).copyWith(imageUrl: uploadedUrl),
+        );
+        _updateItemImageInCompartments(
+          compartmentId: _compartmentId,
+          imageUrl: uploadedUrl,
+        );
+      }
+    } catch (error) {
+      state = previousState;
+      _updateItemImageInCompartments(
+        compartmentId: _compartmentId,
+        imageUrl: previousImageUrl,
+      );
       rethrow;
     }
   }

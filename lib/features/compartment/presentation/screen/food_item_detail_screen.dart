@@ -1,16 +1,21 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/widgets/image_search_bottom_sheet.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
+import '../../../../core/utils/toast_helper.dart';
+import '../../../../core/exceptions/network_exception.dart';
 import '../../data/models/compartment_models.dart';
 import '../providers/food_item_detail_provider.dart';
 import '../widgets/edit_food_item_dialog.dart';
 import '../widgets/food_item_action_buttons.dart';
+import '../widgets/food_item_detail_widgets.dart';
 
 class FoodItemDetailScreen extends ConsumerWidget {
   const FoodItemDetailScreen({
@@ -44,6 +49,41 @@ class FoodItemDetailScreen extends ConsumerWidget {
       );
     }
 
+    void _showImageSearchDialog(
+      BuildContext context,
+      CompartmentItemDetail detail,
+      WidgetRef ref,
+    ) async {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => ImageSearchBottomSheet(
+          initialQuery: detail.name,
+          onImageSelected: (image) async {
+            try {
+              await ref
+                  .read(foodItemDetailProvider(foodItemId).notifier)
+                  .updateImage(image.link);
+              if (context.mounted) {
+                ToastHelper.showSuccess(
+                  context,
+                  'Image updated successfully',
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                final message = e is NetworkException
+                    ? e.message
+                    : 'Failed to update image. Please try again.';
+                ToastHelper.showError(context, message);
+              }
+            }
+          },
+        ),
+      );
+    }
+
     return AppScaffold(
       title: 'Food Item Details',
       showBackButton: true,
@@ -54,9 +94,44 @@ class FoodItemDetailScreen extends ConsumerWidget {
       transparentAppBar: true,
       actions: detailAsync.maybeWhen(
         data: (detail) => [
-          CircleIconButton(
-            icon: Icons.edit_rounded,
-            onTap: () => showEditDialog(detail),
+          PopupMenuButton<String>(
+            offset: Offset(0, 50.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            onSelected: (value) {
+              if (value == 'edit') {
+                showEditDialog(detail);
+              } else if (value == 'upload_image') {
+                _showImageSearchDialog(context, detail, ref);
+              }
+            },
+            child: CircleIconButton(
+              icon: Icons.more_horiz,
+              iconColor: Colors.black87,
+            ),
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: AppColors.blueGray, size: 20.sp),
+                    SizedBox(width: 12.w),
+                    Text('Edit food item'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'upload_image',
+                child: Row(
+                  children: [
+                    Icon(Icons.image, color: AppColors.blueGray, size: 20.sp),
+                    SizedBox(width: 12.w),
+                    Text('Upload new image'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
         orElse: () => null,
@@ -136,6 +211,13 @@ class _DetailBody extends StatelessWidget {
     return '$year-$month-$day';
   }
 
+  String _formatShelfLifeDays(int? days) {
+    if (days == null || days <= 0) {
+      return 'N/A';
+    }
+    return '$days days';
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -144,7 +226,7 @@ class _DetailBody extends StatelessWidget {
         children: [
           // Image Section - Full width, no padding
           AspectRatio(
-            aspectRatio: 3/4,
+            aspectRatio: 4 / 5,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -159,36 +241,69 @@ class _DetailBody extends StatelessWidget {
                     offset: Offset(0, 6.h),
                   ),
                 ],
-                image: detail.imageUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(detail.imageUrl!),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32.r),
+                  bottomRight: Radius.circular(32.r),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (detail.imageUrl != null)
+                      Image.network(
+                        detail.imageUrl!,
                         fit: BoxFit.cover,
                       )
-                    : null,
-                gradient: detail.imageUrl == null
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.iceberg,
-                          AppColors.babyBlue.withValues(alpha: 0.4),
-                        ],
-                      )
-                    : null,
+                    else
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.iceberg,
+                              AppColors.babyBlue.withValues(alpha: 0.4),
+                            ],
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.restaurant_rounded,
+                          size: 80.sp,
+                          color: AppColors.blueGray.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 16.h,
+                      left: 16.w,
+                      right: 16.w,
+                      child: ImageInfoCard(
+                        name: detail.name,
+                        expiration: _formatDate(detail.expirationDateUtc),
+                        isExpiringSoon:
+                            _isExpiringSoon(detail.expirationDateUtc),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: detail.imageUrl == null
-                  ? Icon(
-                      Icons.restaurant_rounded,
-                      size: 80.sp,
-                      color: AppColors.blueGray.withValues(alpha: 0.6),
-                    )
-                  : null,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+              top: 20.h,
+              left: 16.w,
+              right: 16.w,
+            ),
+            child: QuantityHighlight(
+              quantity: detail.quantity,
+              unit: detail.unitAbbreviation,
             ),
           ),
           // Content with padding
           Padding(
             padding: EdgeInsets.only(
-              top: 24.h,
+              top: 20.h,
               left: 16.w,
               right: 16.w,
               bottom: 24.h,
@@ -196,18 +311,20 @@ class _DetailBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Name Section
-          Center(
-            child: Text(
-              detail.name,
-              style: AppTextStyles.sectionHeader().copyWith(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(height: 28.h),
+                // Shelf life quick stats
+                ShelfLifeSummary(
+                  pantryLife: _formatShelfLifeDays(
+                    detail.typicalPantryShelfLifeDays,
+                  ),
+                  fridgeLife: _formatShelfLifeDays(
+                    detail.typicalShelfLifeDays,
+                  ),
+                  freezerLife: _formatShelfLifeDays(
+                    detail.typicalFreezerShelfLifeDays,
+                  ),
+                ),
+
+          SizedBox(height: 32.h),
 
           // Main Info Card
           Container(
@@ -229,35 +346,30 @@ class _DetailBody extends StatelessWidget {
             padding: EdgeInsets.all(20.w),
             child: Column(
               children: [
-                _InfoRow(
+                if (detail.brand != null && detail.brand!.isNotEmpty) ...[
+                  InfoRow(
+                    label: 'Brand',
+                    value: detail.brand!,
+                    icon: Icons.sell_rounded,
+                  ),
+                  DetailDivider(),
+                ],
+                InfoRow(
                   label: 'Food group',
                   value: detail.foodGroup ?? 'N/A',
                   icon: Icons.category_rounded,
                 ),
-                _Divider(),
-                _InfoRow(
-                  label: 'Storage',
-                  value: detail.storageName ?? 'N/A',
-                  icon: Icons.kitchen_rounded,
-                ),
-                _Divider(),
-                _InfoRow(
-                  label: 'Compartment',
-                  value: detail.compartmentName ?? 'N/A',
-                  icon: Icons.inventory_2_rounded,
-                ),
-                _Divider(),
-                _InfoRow(
-                  label: 'Quantity',
-                  value: '${detail.quantity} ${detail.unitAbbreviation}',
-                  icon: Icons.scale_rounded,
-                ),
-                _Divider(),
-                _InfoRow(
+                DetailDivider(),
+                InfoRow(
                   label: 'Expiration',
                   value: _formatDate(detail.expirationDateUtc),
                   icon: Icons.event_rounded,
                   isExpiring: _isExpiringSoon(detail.expirationDateUtc),
+                ),
+                DetailDivider(),
+                StorageCompartmentRow(
+                  storageName: detail.storageName,
+                  compartmentName: detail.compartmentName,
                 ),
               ],
             ),
@@ -350,9 +462,9 @@ class _DetailBody extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16.h),
-                _UserTile(user: detail.addedBy),
+                UserTile(user: detail.addedBy),
                 SizedBox(height: 16.h),
-                _InfoRow(
+                InfoRow(
                   label: 'Added at',
                   value: _formatDate(detail.addedAt),
                   icon: Icons.access_time_rounded,
@@ -402,10 +514,10 @@ class _DetailBody extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 16.h),
-                  _UserTile(user: detail.lastModifiedBy),
+                  UserTile(user: detail.lastModifiedBy),
                   if (detail.lastModifiedAt != null) ...[
                     SizedBox(height: 16.h),
-                    _InfoRow(
+                    InfoRow(
                       label: 'Last modified',
                       value: _formatDate(detail.lastModifiedAt),
                       icon: Icons.access_time_rounded,
@@ -436,169 +548,3 @@ class _DetailBody extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.icon,
-    this.isExpiring = false,
-  });
-
-  final String label;
-  final String value;
-  final IconData? icon;
-  final bool isExpiring;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        if (icon != null) ...[
-          Icon(
-            icon,
-            size: 22.sp,
-            color: isExpiring
-                ? Colors.red.shade400
-                : AppColors.babyBlue.withValues(alpha: 0.7),
-          ),
-          SizedBox(width: 14.w),
-        ],
-        Expanded(
-          flex: 2,
-          child: Text(
-            label,
-            style: AppTextStyles.inputLabel.copyWith(
-              fontSize: 14.sp,
-            ),
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          flex: 3,
-          child: Text(
-            value,
-            style: AppTextStyles.inputHint.copyWith(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
-              color: isExpiring ? Colors.red.shade400 : Colors.black87,
-            ),
-            textAlign: TextAlign.end,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _UserTile extends StatelessWidget {
-  const _UserTile({this.user});
-
-  final FoodItemUser? user;
-
-  @override
-  Widget build(BuildContext context) {
-    if (user == null) {
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: AppColors.iceberg.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Text('N/A', style: AppTextStyles.inputHint),
-      );
-    }
-    final value = user!;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: AppColors.babyBlue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.babyBlue.withValues(alpha: 0.25),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 6.r,
-                  offset: Offset(0, 3.h),
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 26.r,
-              backgroundColor: AppColors.babyBlue,
-              backgroundImage: value.avatarUrl != null
-                  ? NetworkImage(value.avatarUrl!)
-                  : null,
-              child: value.avatarUrl == null
-                  ? Text(
-                      _initials(value),
-                      style: AppTextStyles.inputLabel.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18.sp,
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-          SizedBox(width: 14.w),
-          Expanded(
-            child: Text(
-              _fullName(value),
-              style: AppTextStyles.inputHint.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 16.sp,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _fullName(FoodItemUser user) {
-    final parts = [
-      user.firstName,
-      user.lastName,
-    ].whereType<String>().where((value) => value.isNotEmpty).toList();
-    if (parts.isEmpty) {
-      return 'Unknown';
-    }
-    return parts.join(' ');
-  }
-
-  String _initials(FoodItemUser user) {
-    final firstName = user.firstName;
-    final lastName = user.lastName;
-    final first = (firstName != null && firstName.isNotEmpty)
-        ? firstName[0]
-        : '';
-    final last =
-        (lastName != null && lastName.isNotEmpty) ? lastName[0] : '';
-    final combined = '$first$last'.trim();
-    return combined.isEmpty ? '?' : combined.toUpperCase();
-  }
-}
-
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      child: Divider(
-        height: 1,
-        thickness: 1,
-        color: AppColors.iceberg.withValues(alpha: 0.6),
-      ),
-    );
-  }
-}

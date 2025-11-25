@@ -20,6 +20,7 @@ class RecipeScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: 'Recipes',
+      padding: EdgeInsets.zero,
       body: RefreshIndicator(
         onRefresh: refreshRecipes,
         child: asyncRecipes.when(
@@ -57,56 +58,102 @@ class RecipeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          data: (recipes) {
-            if (recipes.isEmpty) {
+          data: (recipeState) {
+            if (recipeState.recipes.isEmpty) {
               return ListView(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
                 children: const [
-                  SizedBox(height: 160),
                   Center(child: Text('No recipes found')),
                 ],
               );
             }
 
-            return CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).padding.top +
-                        kToolbarHeight,
-                  ),
-                ),
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12.w,
-                      mainAxisSpacing: 12.h,
-                      childAspectRatio: 0.8,
+            return NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.axis != Axis.vertical) {
+                  return false;
+                }
+                final data = asyncRecipes.valueOrNull;
+                if (data == null ||
+                    data.isLoadingMore ||
+                    !data.hasNext) {
+                  return false;
+                }
+
+                final threshold =
+                    notification.metrics.maxScrollExtent - 120;
+                if (notification.metrics.pixels >= threshold &&
+                    notification.metrics.maxScrollExtent > 0) {
+                  ref.read(recipesProvider.notifier).loadNextPage();
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).padding.top +
+                          kToolbarHeight + 16.h,
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final recipe = recipes[index];
-                        return RecipeCard(
-                          recipe: recipe,
-                          onTap: () {
-                            context.push(
-                              AppRoutes.recipeDetailRoute(recipe.unifiedId),
-                            );
-                          },
-                        );
-                      },
-                      childCount: recipes.length,
+                  ),  
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.w,
+                        mainAxisSpacing: 12.h,
+                        childAspectRatio: 0.7,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final recipe = recipeState.recipes[index];
+                          return RecipeCard(
+                            recipe: recipe,
+                            onTap: () {
+                              context.push(
+                                AppRoutes.recipeDetailRoute(
+                                  recipe.unifiedId,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        childCount: recipeState.recipes.length,
+                      ),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: SizedBox(height: 120.h),
-                ),
-              ],
+                  if (recipeState.isLoadingMore) ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (recipeState.loadMoreError != null) ...[
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Center(
+                          child: Text(
+                            'Failed to load more recipes. Pull to refresh.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 120.h),
+                  ),
+                ],
+              ),
             );
           },
         ),

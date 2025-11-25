@@ -17,6 +17,9 @@ class ApiClient {
   Future<void> Function()? onRefreshTokenFailed;
 
   Dio get dio => _dio;
+  
+  late final Dio _localDio;
+  Dio get localDio => _localDio;
 
   void initialize({
     Future<void> Function(String newAccessToken)? onTokenRefreshed,
@@ -46,6 +49,24 @@ class ApiClient {
     // Add interceptors
     _dio.interceptors.add(LoggingInterceptor());
     _dio.interceptors.add(AuthInterceptor());
+    
+    // Initialize local Dio for local API calls
+    _localDio = Dio(
+      BaseOptions(
+        baseUrl: ApiEndpoints.baseUrlLocal,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        validateStatus: (status) {
+          return status != null && status < 500;
+        },
+      ),
+    );
+    _localDio.interceptors.add(LoggingInterceptor());
   }
 
   // GET request
