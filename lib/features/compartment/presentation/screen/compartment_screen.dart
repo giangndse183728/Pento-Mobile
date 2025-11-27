@@ -10,6 +10,8 @@ import '../../../../core/layouts/app_scaffold.dart';
 import '../providers/compartment_provider.dart';
 import '../widgets/add_compartment_tile.dart';
 import '../widgets/compartment_column.dart';
+import '../widgets/compartment_filter_card.dart';
+import '../../../../core/constants/app_enum.dart';
 import '../../data/models/compartment_models.dart';
 
 class CompartmentScreen extends ConsumerStatefulWidget {
@@ -20,15 +22,35 @@ class CompartmentScreen extends ConsumerStatefulWidget {
 }
 
 class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
+  static const List<String> _foodGroups = [
+    'Meat',
+    'Seafood',
+    'FruitsVegetables',
+    'Dairy',
+    'CerealGrainsPasta',
+    'LegumesNutsSeeds',
+    'FatsOils',
+    'Confectionery',
+    'Beverages',
+    'Condiments',
+    'MixedDishes',
+  ];
+
+  final TextEditingController _searchCtrl = TextEditingController();
   PageController? _pageController;
   ScrollController? _scrollController;
   int _currentNormalViewIndex = 0;
   List<Compartment> _compartments = [];
   bool _isScrollingToPosition = false;
   bool _shouldScrollToPosition = false;
+  String _searchQuery = '';
+  String? _selectedFoodGroup;
+  FoodItemStatusFilter _statusFilter = FoodItemStatusFilter.all;
+  QuantitySortOption _quantitySort = QuantitySortOption.none;
 
   @override
   void dispose() {
+    _searchCtrl.dispose();
     _pageController?.dispose();
     _scrollController?.dispose();
     super.dispose();
@@ -144,8 +166,12 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
     List<Compartment> compartments,
     String storageId,
     CompartmentListState compartmentState,
-    void Function() requestNextPage,
-  ) {
+    void Function() requestNextPage, {
+    required String searchQuery,
+    required String? foodGroupFilter,
+    required FoodItemStatusFilter statusFilter,
+    required QuantitySortOption quantitySort,
+  }) {
     // Initialize scroll controller and scroll to saved position
     if (_scrollController == null) {
       _scrollController = ScrollController();
@@ -256,6 +282,10 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
                 subtitle: c.notes,
                 width: 220.w,
                 scale: 0.7,
+                searchQuery: searchQuery,
+                foodGroupFilter: foodGroupFilter,
+                statusFilter: statusFilter,
+                quantitySort: quantitySort,
               ),
               SizedBox(width: 12.w),
             ],
@@ -285,6 +315,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -388,47 +419,90 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
               top: MediaQuery.of(context).padding.top + kToolbarHeight,
               bottom: 24.h,
             ),
-            child: Stack(
+            child: Column(
               children: [
-                // Normal view (zoomed out)
-                IgnorePointer(
-                  ignoring: boardUi.isZoomed,
-                  child: AnimatedOpacity(
-                    opacity: boardUi.isZoomed ? 0.0 : 1.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: AnimatedScale(
-                      scale: boardUi.isZoomed ? 0.85 : 1.0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      child: _buildNormalView(
-                        context,
-                        compartments,
-                        storageId,
-                        compartmentState,
-                        requestNextPage,
-                      ),
-                    ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: CompartmentFilterCard(
+                    isZoomed: boardUi.isZoomed,
+                    searchController: _searchCtrl,
+                    searchQuery: _searchQuery,
+                    onSearchChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                    foodGroups: _foodGroups,
+                    selectedFoodGroup: _selectedFoodGroup,
+                    onFoodGroupChanged: (value) {
+                      setState(() {
+                        _selectedFoodGroup = value;
+                      });
+                    },
+                    statusFilter: _statusFilter,
+                    onStatusChanged: (value) {
+                      setState(() {
+                        _statusFilter = value;
+                      });
+                    },
+                    quantitySort: _quantitySort,
+                    onQuantityChanged: (value) {
+                      setState(() {
+                        _quantitySort = value;
+                      });
+                    },
                   ),
                 ),
-                // Zoomed view (carousel)
-                IgnorePointer(
-                  ignoring: !boardUi.isZoomed,
-                  child: AnimatedOpacity(
-                    opacity: boardUi.isZoomed ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: AnimatedScale(
-                      scale: boardUi.isZoomed ? 1.0 : 0.85,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      child: _buildZoomedView(
-                        context,
-                        compartments,
-                        storageId,
-                        handlePageChanged,
+                if (!boardUi.isZoomed) SizedBox(height: 16.h),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      // Normal view (zoomed out)
+                      IgnorePointer(
+                        ignoring: boardUi.isZoomed,
+                        child: AnimatedOpacity(
+                          opacity: boardUi.isZoomed ? 0.0 : 1.0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: AnimatedScale(
+                            scale: boardUi.isZoomed ? 0.85 : 1.0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            child: _buildNormalView(
+                              context,
+                              compartments,
+                              storageId,
+                              compartmentState,
+                              requestNextPage,
+                              searchQuery: _searchQuery,
+                              foodGroupFilter: _selectedFoodGroup,
+                              statusFilter: _statusFilter,
+                              quantitySort: _quantitySort,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      // Zoomed view (carousel)
+                      IgnorePointer(
+                        ignoring: !boardUi.isZoomed,
+                        child: AnimatedOpacity(
+                          opacity: boardUi.isZoomed ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: AnimatedScale(
+                            scale: boardUi.isZoomed ? 1.0 : 0.85,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            child: _buildZoomedView(
+                              context,
+                              compartments,
+                              storageId,
+                              handlePageChanged,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

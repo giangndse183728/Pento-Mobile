@@ -7,8 +7,10 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/compartment_provider.dart';
+import '../../data/models/compartment_models.dart';
 import 'edit_compartment_dialog.dart';
 import 'food_item_card.dart';
+import '../../../../core/constants/app_enum.dart';
 
 class CompartmentColumn extends ConsumerWidget {
   const CompartmentColumn({
@@ -19,6 +21,10 @@ class CompartmentColumn extends ConsumerWidget {
     required this.subtitle,
     required this.width,
     this.scale = 1.1,
+    this.searchQuery = '',
+    this.foodGroupFilter,
+    this.statusFilter = FoodItemStatusFilter.all,
+    this.quantitySort = QuantitySortOption.none,
   });
 
   final String compartmentId;
@@ -27,6 +33,10 @@ class CompartmentColumn extends ConsumerWidget {
   final String subtitle;
   final double width;
   final double scale;
+  final String searchQuery;
+  final String? foodGroupFilter;
+  final FoodItemStatusFilter statusFilter;
+  final QuantitySortOption quantitySort;
 
   Future<void> _navigateToAddFood(BuildContext context) async {
     final result = await context.push<bool>(
@@ -371,7 +381,16 @@ class CompartmentColumn extends ConsumerWidget {
                               ),
                               data: (itemsState) {
                                 final items = itemsState.items;
-                                if (items.isEmpty && !itemsState.isLoadingMore) {
+                                final filteredItems = _applyCompartmentFilters(
+                                  items,
+                                  searchQuery: searchQuery,
+                                  foodGroupFilter: foodGroupFilter,
+                                  statusFilter: statusFilter,
+                                  quantitySort: quantitySort,
+                                );
+
+                                if (items.isEmpty &&
+                                    !itemsState.isLoadingMore) {
                                   return Container(
                                     decoration: BoxDecoration(
                                       color: Colors.white,
@@ -391,6 +410,33 @@ class CompartmentColumn extends ConsumerWidget {
                                                   .socialDivider.fontSize! *
                                               scale,
                                         ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                if (filteredItems.isEmpty) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius:
+                                          BorderRadius.circular(12.r * scale),
+                                      border: Border.all(
+                                        color: AppColors.babyBlue.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'No items match the filters',
+                                        style: AppTextStyles.socialDivider
+                                            .copyWith(
+                                          fontSize: AppTextStyles
+                                                  .socialDivider.fontSize! *
+                                              scale,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
                                   );
@@ -424,10 +470,10 @@ class CompartmentColumn extends ConsumerWidget {
                                     child: ListView.builder(
                                       padding: EdgeInsets.all(8.w * scale),
                                       itemCount:
-                                          items.length +
+                                          filteredItems.length +
                                           (itemsState.isLoadingMore ? 1 : 0),
                                       itemBuilder: (context, index) {
-                                        if (index >= items.length) {
+                                        if (index >= filteredItems.length) {
                                           return Padding(
                                             padding: EdgeInsets.symmetric(
                                               vertical: 8.h * scale,
@@ -437,7 +483,7 @@ class CompartmentColumn extends ConsumerWidget {
                                             ),
                                           );
                                         }
-                                        final item = items[index];
+                                        final item = filteredItems[index];
                                         return FoodItemCard(
                                           item: item,
                                           scale: scale,
@@ -611,5 +657,80 @@ class _PopupMenuButtonWithCircleIconState
       ),
     );
   }
+}
+
+List<CompartmentItem> _applyCompartmentFilters(
+  List<CompartmentItem> items, {
+  required String searchQuery,
+  String? foodGroupFilter,
+  required FoodItemStatusFilter statusFilter,
+  required QuantitySortOption quantitySort,
+}) {
+  final query = searchQuery.trim().toLowerCase();
+  final normalizedGroup = foodGroupFilter?.trim().toLowerCase();
+
+  final filtered = items.where((item) {
+    if (query.isNotEmpty &&
+        !item.name.toLowerCase().contains(query)) {
+      return false;
+    }
+
+    if (normalizedGroup != null &&
+        normalizedGroup.isNotEmpty) {
+      final itemGroup = item.foodGroup?.toLowerCase();
+      if (itemGroup != normalizedGroup) {
+        return false;
+      }
+    }
+
+    final itemStatus = _statusForItem(item);
+    if (statusFilter != FoodItemStatusFilter.all &&
+        itemStatus != statusFilter) {
+      return false;
+    }
+
+    return true;
+  }).toList();
+
+  switch (quantitySort) {
+    case QuantitySortOption.highest:
+      filtered.sort(
+        (a, b) => b.quantity.compareTo(a.quantity),
+      );
+      break;
+    case QuantitySortOption.lowest:
+      filtered.sort(
+        (a, b) => a.quantity.compareTo(b.quantity),
+      );
+      break;
+    case QuantitySortOption.none:
+      break;
+  }
+
+  return filtered;
+}
+
+FoodItemStatusFilter _statusForItem(CompartmentItem item) {
+  final expiration = item.expirationDateUtc;
+  if (expiration == null) {
+    return FoodItemStatusFilter.available;
+  }
+
+  final now = DateTime.now().toUtc();
+  final today = DateTime.utc(now.year, now.month, now.day);
+  final normalizedExpiration = DateTime.utc(
+    expiration.year,
+    expiration.month,
+    expiration.day,
+  );
+  final daysUntil = normalizedExpiration.difference(today).inDays;
+
+  if (daysUntil <= 0) {
+    return FoodItemStatusFilter.expired;
+  }
+  if (daysUntil <= 3) {
+    return FoodItemStatusFilter.expiringSoon;
+  }
+  return FoodItemStatusFilter.available;
 }
 
