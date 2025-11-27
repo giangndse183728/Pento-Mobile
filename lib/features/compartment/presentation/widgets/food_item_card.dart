@@ -5,6 +5,12 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../data/models/compartment_models.dart';
 
+enum _ExpirationStatus {
+  safe,
+  expiringSoon,
+  expired,
+}
+
 class FoodItemCard extends StatelessWidget {
   const FoodItemCard({
     super.key,
@@ -17,6 +23,22 @@ class FoodItemCard extends StatelessWidget {
   final double scale;
   final String? compartmentId;
 
+  _ExpirationStatus _expirationStatus() {
+    final expiration = item.expirationDateUtc;
+    if (expiration == null) return _ExpirationStatus.safe;
+    final now = DateTime.now().toUtc();
+    final today = DateTime.utc(now.year, now.month, now.day);
+    final normalizedExpiration = DateTime.utc(
+      expiration.year,
+      expiration.month,
+      expiration.day,
+    );
+    final daysUntil = normalizedExpiration.difference(today).inDays;
+    if (daysUntil <= 0) return _ExpirationStatus.expired;
+    if (daysUntil <= 3) return _ExpirationStatus.expiringSoon;
+    return _ExpirationStatus.safe;
+  }
+
   String _formatDate(DateTime? date) {
     if (date == null) return 'No expiration';
     final year = date.year.toString().padLeft(4, '0');
@@ -27,6 +49,26 @@ class FoodItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final expirationStatus = _expirationStatus();
+    Color? highlightColor;
+    if (expirationStatus == _ExpirationStatus.expired) {
+      highlightColor = AppColors.dangerRed;
+    } else if (expirationStatus == _ExpirationStatus.expiringSoon) {
+      highlightColor = AppColors.warningSun;
+    }
+    final borderColor = AppColors.powderBlue.withValues(alpha: 0.3);
+    Color chipTextColor = AppColors.blueGray;
+    Color chipBackground = AppColors.iceberg.withValues(alpha: 0.3);
+    if (highlightColor != null) {
+      if (highlightColor == AppColors.warningSun) {
+        chipTextColor = Colors.black;
+        chipBackground = AppColors.warningSun.withValues(alpha: 0.5);
+      } else {
+        chipTextColor = highlightColor;
+        chipBackground = highlightColor.withValues(alpha: 0.2);
+      }
+    }
+
     final cardContent = Material(
       color: Colors.transparent,
       child: InkWell(
@@ -44,70 +86,94 @@ class FoodItemCard extends StatelessWidget {
             color: AppColors.iceberg.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12.r * scale),
             border: Border.all(
-              color: AppColors.powderBlue.withValues(alpha: 0.3),
+              color: borderColor,
               width: 1,
             ),
           ),
+          clipBehavior: Clip.antiAlias,
           child: SizedBox(
             height: 72.w * scale,
             child: Stack(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    item.imageUrl != null
-                        ? Container(
-                            width: 72.w * scale,
-                            height: 72.w * scale,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r * scale),
-                              image: DecorationImage(
-                                image: NetworkImage(item.imageUrl!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
-                        : Container(
-                            width: 72.w * scale,
-                            height: 72.w * scale,
-                            decoration: BoxDecoration(
-                              color: AppColors.babyBlue.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(8.r * scale),
-                            ),
-                            child: Icon(
-                              Icons.food_bank,
-                              size: 20.sp * scale,
-                              color: AppColors.blueGray,
-                            ),
+                if (highlightColor != null)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 4.w * scale,
+                        decoration: BoxDecoration(
+                          color: highlightColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12.r * scale),
+                            bottomLeft: Radius.circular(12.r * scale),
                           ),
-                    SizedBox(width: 12.w * scale),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            item.name,
-                            style: TextStyle(
-                              fontSize: 14.sp * scale,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: 4.h * scale),
-                          Text(
-                            '${item.quantity} ${item.unitAbbreviation}',
-                            style: TextStyle(
-                              fontSize: 12.sp * scale,
-                              color: AppColors.blueGray,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
+                Padding(
+                  padding: EdgeInsets.only(left: 12.w * scale),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      item.imageUrl != null
+                          ? Container(
+                              width: 72.w * scale,
+                              height: 72.w * scale,
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(8.r * scale),
+                                image: DecorationImage(
+                                  image: NetworkImage(item.imageUrl!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              width: 72.w * scale,
+                              height: 72.w * scale,
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.babyBlue.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(8.r * scale),
+                              ),
+                              child: Icon(
+                                Icons.food_bank,
+                                size: 20.sp * scale,
+                                color: AppColors.blueGray,
+                              ),
+                            ),
+                      SizedBox(width: 12.w * scale),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                fontSize: 14.sp * scale,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 4.h * scale),
+                            Text(
+                              '${item.quantity} ${item.unitAbbreviation}',
+                              style: TextStyle(
+                                fontSize: 12.sp * scale,
+                                color: AppColors.blueGray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 if (item.expirationDateUtc != null)
                   Positioned(
@@ -121,10 +187,10 @@ class FoodItemCard extends StatelessWidget {
                         _formatDate(item.expirationDateUtc),
                         style: TextStyle(
                           fontSize: 11.sp * scale,
-                          color: AppColors.blueGray,
+                          color: chipTextColor,
                         ),
                       ),
-                      backgroundColor: AppColors.iceberg.withValues(alpha: 0.3),
+                      backgroundColor: chipBackground,
                       padding: EdgeInsets.symmetric(
                         horizontal: 1.w * scale,
                         vertical: 1.h * scale,
