@@ -14,11 +14,13 @@ class ImageInfoCard extends StatelessWidget {
     required this.name,
     required this.expiration,
     required this.isExpiringSoon,
+    this.onPlanMeal,
   });
 
   final String name;
   final String expiration;
   final bool isExpiringSoon;
+  final VoidCallback? onPlanMeal;
 
   @override
   Widget build(BuildContext context) {
@@ -39,40 +41,72 @@ class ImageInfoCard extends StatelessWidget {
             ),
             color: Colors.black.withValues(alpha: 0.35),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.sectionHeader().copyWith(
-                  fontSize: 20.sp,
-                  color: Colors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.sectionHeader().copyWith(
+                        fontSize: 20.sp,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.event_rounded,
+                          size: 16.w,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                        SizedBox(width: 6.w),
+                        Expanded(
+                          child: Text(
+                            'Expires $expiration',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: isExpiringSoon
+                                  ? Colors.orangeAccent
+                                  : Colors.white.withValues(alpha: 0.9),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 8.h),
-              Row(
-                children: [
-                  Icon(
-                    Icons.event_rounded,
-                    size: 16.w,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                  SizedBox(width: 6.w),
-                  Text(
-                    'Expires $expiration',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isExpiringSoon
-                          ? Colors.orangeAccent
-                          : Colors.white.withValues(alpha: 0.9),
+              if (onPlanMeal != null) ...[
+                SizedBox(width: 12.w),
+                ElevatedButton.icon(
+                  onPressed: onPlanMeal,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.blueGray,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 10.h,
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    elevation: 0,
                   ),
-                ],
-              ),
+                  icon: Icon(
+                    Icons.event_available_rounded,
+                    size: 18.sp,
+                  ),
+                  label: const Text('Plan'),
+                ),
+              ],
             ],
           ),
         ),
