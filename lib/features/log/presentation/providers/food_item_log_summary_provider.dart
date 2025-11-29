@@ -7,7 +7,7 @@ import '../../data/repositories/food_item_log_repository.dart';
 
 part 'food_item_log_summary_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class FoodItemLogSummaryData extends _$FoodItemLogSummaryData {
   late final FoodItemLogRepository _repository;
 
