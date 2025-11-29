@@ -5,18 +5,20 @@ class ApiEndpoints {
   static const String baseUrl =
       'https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io';
 
-  static const String baseUrlLocal = 'http://10.0.2.2:3000/api';
+  static const String baseUrlNest = 'https://pento-service.onrender.com/api/v1';
+
+  static const String baseUrlLocal = 'http://10.0.2.2:8000/api/v1';
 
   // Image Search (local API)
   static const String imageSearch = '/image-search';
 
-  static const String chatbot = '/chatbot';
+  static const String chatbot = '/chatbot/chat';
 
   // Authentication
-  static const String signIn = '/users/mobile-sign-in';
-  static const String signUp = '/users/register';
-  static const String refreshToken = '/users/mobile-refresh';
-  static const String logout = '/users/sign-out';
+  static const String signIn = '/auth/mobile-sign-in';
+  static const String signUp = '/auth/register';
+  static const String refreshToken = '/auth/mobile-refresh';
+  static const String logout = '/auth/sign-out';
 
   // User
   static const String profile = '/users/profile';
@@ -69,17 +71,34 @@ class ApiEndpoints {
 
   //Grocery List
   static const String getGroceryList = '/grocery-lists/current-house';
+  static const String getGroceryListItem = '/grocery-lists/{id}';
   static const String createGroceryList = '/grocery-lists';
   static const String updateGroceryList = '/grocery-lists/{id}';
   static const String deleteGroceryList = '/grocery-lists/{id}';
 
   //Grocery List Item
-  static const String getGroceryListItem = '/grocery-list-items/{id}';
   static const String createGroceryListItem = '/grocery-list-items';
   static const String updateGroceryListItem = '/grocery-list-items/{id}';
   static const String deleteGroceryListItem = '/grocery-list-items/{id}';
+  static const String createGroceryListItemBulk = '/grocery-list-items/detail';
 
   //Meal Plan
-  static const String getMealPlan = '/meal-plans/current-house';
+  static const String getMealPlan = '/meal-plans';
   static const String createMealPlan = '/meal-plans';
+
+  //Reservation
+  static const String createMealReservation = '/meal-plan-reservations';
+  static const String getMealReservation = '/meal-plans/from-recipe';
+
+  //Subscription
+  static const String getSubscription = '/subscriptions';
+
+  //Payment
+  static const String getPayment = '/payments/{paymentId}';
+  static const String createPayment = '/payments';
+
+
+
+
+
 }

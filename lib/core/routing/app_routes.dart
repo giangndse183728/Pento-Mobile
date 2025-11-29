@@ -26,9 +26,12 @@ class AppRoutes {
   static const String foodItemLogs = '/food-item-logs';
   static const String grocery = '/grocery';
   static const String chatbot = '/chatbot';
+  static const String subscription = '/subscription';
+  static const String paymentQr = '/payment-qr';
   
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';
 
   static String recipeDetailRoute(String id) => '/recipe/$id';
+  
 }

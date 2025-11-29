@@ -22,6 +22,8 @@ import '../../features/recipe/presentation/screen/recipe_detail_screen.dart';
 import '../../features/log/presentation/screen/food_item_logs_screen.dart';
 import '../../features/grocery/presentation/screen/grocery_screen.dart';
 import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
+import '../../features/subscription/presentation/screen/subscription_screen.dart';
+import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -36,23 +38,19 @@ GoRouter createAppRouter(ProviderContainer container) {
       final storage = SecureStorageService.instance;
       final currentLocation = state.matchedLocation;
 
-      // If accessing onboarding, allow it
       if (currentLocation == AppRoutes.onboarding) {
-        return null; // No redirect needed
+        return null;
       }
 
-      // If accessing auth route, check if user already has valid refresh token
       if (currentLocation == AppRoutes.auth) {
         final refreshToken = await storage.getRefreshToken();
         if (refreshToken != null &&
             refreshToken.isNotEmpty &&
             !JwtUtils.isTokenExpired(refreshToken)) {
-          // Valid refresh token exists, ensure it's in TokenProvider and fetch profile
           final tokenProvider = TokenProvider.instance;
           if (tokenProvider.refreshToken == null) {
             tokenProvider.setTokens(refreshToken: refreshToken);
           }
-          // Trigger profile fetch to get name, email, avatarUrl
           final userSession = container.read(userSessionNotifierProvider);
           if (userSession == null || userSession.name == null) {
             try {
@@ -63,31 +61,24 @@ GoRouter createAppRouter(ProviderContainer container) {
           }
           return AppRoutes.pantry;
         }
-        // No valid refresh token, allow access to auth screen
         return null;
       }
 
-      // For protected routes, check refresh token
       final refreshToken = await storage.getRefreshToken();
 
       if (refreshToken == null || refreshToken.isEmpty) {
-        // No refresh token, redirect to auth
         return AppRoutes.auth;
       }
 
-      // Check if refresh token is expired
       if (JwtUtils.isTokenExpired(refreshToken)) {
-        // Refresh token expired, redirect to auth
         return AppRoutes.auth;
       }
 
-      // Refresh token is valid, ensure it's in TokenProvider and fetch profile if needed
       final tokenProvider = TokenProvider.instance;
       if (tokenProvider.refreshToken == null) {
         tokenProvider.setTokens(refreshToken: refreshToken);
       }
       
-      // Trigger profile fetch to get name, email, avatarUrl if session is empty or missing profile data
       final userSession = container.read(userSessionNotifierProvider);
       if (userSession == null || userSession.name == null) {
         try {
@@ -97,17 +88,15 @@ GoRouter createAppRouter(ProviderContainer container) {
         }
       }
       
-      // Check household route access based on householdId
       if (currentLocation == AppRoutes.household ||
           currentLocation == AppRoutes.joinHousehold ||
           currentLocation == AppRoutes.createHousehold) {
-        // If householdId is not null, redirect away from household routes
         if (userSession?.householdId != null) {
           return AppRoutes.pantry;
         }
       }
 
-      return null; // No redirect needed
+      return null;
     },
     routes: [
     GoRoute(
@@ -243,6 +232,26 @@ child: const FoodItemLogsScreen(),
       path: AppRoutes.chatbot,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const ChatbotScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.subscription,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const SubscriptionScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.paymentQr,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PaymentQrScreen(
+            qrCode: extra?['qrCode'] ?? '',
+            paymentId: extra?['paymentId'] ?? '',
+            planName: extra?['planName'],
+            price: extra?['price'],
+          );
+        },
       ),
     ),
 
