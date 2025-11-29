@@ -12,12 +12,20 @@ import '../widgets/grocery_list_card.dart';
 import '../widgets/add_grocery_dialog.dart';
 import '../widgets/add_grocery_item_sheet.dart';
 import '../widgets/grocery_items_list.dart';
+import '../widgets/bulk_add_food_dialog.dart';
 
-class GroceryScreen extends ConsumerWidget {
+class GroceryScreen extends ConsumerStatefulWidget {
   const GroceryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroceryScreen> createState() => _GroceryScreenState();
+}
+
+class _GroceryScreenState extends ConsumerState<GroceryScreen> {
+  final Map<String, Set<String>> _selectedItems = {};
+
+  @override
+  Widget build(BuildContext context) {
     final groceryAsync = ref.watch(groceryProvider);
     final topSpacing = MediaQuery.of(context).padding.top + kToolbarHeight;
 
@@ -78,13 +86,29 @@ class GroceryScreen extends ConsumerWidget {
                       final detailAsync =
                           ref.watch(groceryListItemsProvider(groceryList.id));
 
+                      final selectedItemsForList = _selectedItems[groceryList.id] ?? {};
                       final body = detailAsync.when(
-                        data: (detail) => GroceryItemsList(
-                          items: detail.items,
-                          onEdit: (item) => _showEditItemSheet(context, item),
-                          onDelete: (item) =>
-                              _confirmDeleteItem(context, ref, item),
-                        ),
+                        data: (detail) {
+                          final sortedItems = _sortItemsByPriority(detail.items);
+                          return GroceryItemsList(
+                            items: sortedItems,
+                            onEdit: (item) => _showEditItemSheet(context, item),
+                            onDelete: (item) =>
+                                _confirmDeleteItem(context, ref, item),
+                            selectedItems: selectedItemsForList,
+                            onSelectionChanged: (item) {
+                              setState(() {
+                                final set = _selectedItems[groceryList.id] ?? <String>{};
+                                if (set.contains(item.id)) {
+                                  set.remove(item.id);
+                                } else {
+                                  set.add(item.id);
+                                }
+                                _selectedItems[groceryList.id] = set;
+                              });
+                            },
+                          );
+                        },
                         loading: () => const GroceryItemsLoading(),
                         error: (error, stack) => GroceryItemsError(
                           onRetry: () => ref
@@ -95,6 +119,16 @@ class GroceryScreen extends ConsumerWidget {
                         ),
                       );
 
+                      final detailValue = detailAsync.valueOrNull;
+                      final sortedItemsForSelection = detailValue != null
+                          ? _sortItemsByPriority(detailValue.items)
+                          : <GroceryListItem>[];
+                      final isAllSelected = sortedItemsForSelection.isNotEmpty &&
+                          sortedItemsForSelection.every(
+                            (item) => selectedItemsForList.contains(item.id),
+                          );
+                      final hasSelectedItems = selectedItemsForList.isNotEmpty;
+                      
                       return Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: 16.w,
@@ -119,6 +153,31 @@ class GroceryScreen extends ConsumerWidget {
                               groceryList.name,
                             );
                           },
+                          onBulkAdd: hasSelectedItems
+                              ? () => _showBulkAddDialog(
+                                    context,
+                                    ref,
+                                    groceryList.id,
+                                    selectedItemsForList,
+                                  )
+                              : null,
+                          isAllSelected: detailValue != null &&
+                              detailValue.items.isNotEmpty
+                              ? isAllSelected
+                              : null,
+                          onSelectAll: sortedItemsForSelection.isNotEmpty
+                              ? () {
+                                  setState(() {
+                                    if (isAllSelected) {
+                                      _selectedItems[groceryList.id] = <String>{};
+                                    } else {
+                                      _selectedItems[groceryList.id] = sortedItemsForSelection
+                                          .map((item) => item.id)
+                                          .toSet();
+                                    }
+                                  });
+                                }
+                              : null,
                         ),
                       );
                     },
@@ -359,5 +418,48 @@ class GroceryScreen extends ConsumerWidget {
       return item.foodRefName!;
     }
     return 'Unnamed item';
+  }
+
+  List<GroceryListItem> _sortItemsByPriority(List<GroceryListItem> items) {
+    final priorityOrder = {'High': 0, 'Medium': 1, 'Low': 2};
+    
+    return List<GroceryListItem>.from(items)
+      ..sort((a, b) {
+        final priorityA = a.priority ?? 'High';
+        final priorityB = b.priority ?? 'High';
+        
+        final orderA = priorityOrder[priorityA] ?? 1;
+        final orderB = priorityOrder[priorityB] ?? 1;
+        
+        return orderA.compareTo(orderB);
+      });
+  }
+
+  Future<void> _showBulkAddDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String listId,
+    Set<String> selectedItemIds,
+  ) async {
+    final detailAsync = ref.read(groceryListItemsProvider(listId));
+    final detail = detailAsync.valueOrNull;
+    if (detail == null) return;
+
+    final selectedItems = detail.items
+        .where((item) => selectedItemIds.contains(item.id))
+        .toList();
+
+    if (selectedItems.isEmpty) return;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => BulkAddFoodDialog(items: selectedItems),
+    );
+
+    if (result == true && mounted) {
+      setState(() {
+        _selectedItems[listId] = <String>{};
+      });
+    }
   }
 }

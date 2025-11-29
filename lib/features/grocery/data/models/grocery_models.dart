@@ -38,7 +38,7 @@ class GroceryListItem with _$GroceryListItem {
     required String listId,
     String? foodRefId,
     String? foodRefName,
-    String? foodRefImageUrl,
+    String? imageUrl,
     String? customName,
     @Default(0) double quantity,
     String? unitId,

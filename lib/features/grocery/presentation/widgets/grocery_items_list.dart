@@ -12,11 +12,15 @@ class GroceryItemsList extends StatelessWidget {
     required this.items,
     required this.onEdit,
     required this.onDelete,
+    this.selectedItems = const {},
+    this.onSelectionChanged,
   });
 
   final List<GroceryListItem> items;
   final ValueChanged<GroceryListItem> onEdit;
   final ValueChanged<GroceryListItem> onDelete;
+  final Set<String> selectedItems;
+  final ValueChanged<GroceryListItem>? onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +69,10 @@ class GroceryItemsList extends StatelessWidget {
               item: item,
               onEdit: () => onEdit(item),
               onDelete: () => onDelete(item),
+              isSelected: selectedItems.contains(item.id),
+              onSelectionChanged: onSelectionChanged != null
+                  ? () => onSelectionChanged!(item)
+                  : null,
             ),
           )
           .toList(),
@@ -138,11 +146,15 @@ class _GroceryItemRow extends StatelessWidget {
     required this.item,
     required this.onEdit,
     required this.onDelete,
+    this.isSelected = false,
+    this.onSelectionChanged,
   });
 
   final GroceryListItem item;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool isSelected;
+  final VoidCallback? onSelectionChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -178,18 +190,55 @@ class _GroceryItemRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (onSelectionChanged != null)
+              Padding(
+                padding: EdgeInsets.only(right: 8.w),
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: (_) => onSelectionChanged!(),
+                  activeColor: AppColors.blueGray,
+                ),
+              ),
             Container(
-              width: 40.w,
-              height: 40.h,
+              width: 50.w,
+              height: 50.h,
               decoration: BoxDecoration(
                 color: AppColors.blueGray,
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Icon(
-                Icons.checklist_rtl_outlined,
-                color: AppColors.iceberg,
-                size: 20.sp,
-              ),
+              child: item.imageUrl != null &&
+                      item.imageUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(10.r),
+                      child: Image.network(
+                        item.imageUrl!,
+                        width: 50.w,
+                        height: 50.h,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.checklist_rtl_outlined,
+                          color: AppColors.iceberg,
+                          size: 20.sp,
+                        ),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : Icon(
+                      Icons.checklist_rtl_outlined,
+                      color: AppColors.iceberg,
+                      size: 20.sp,
+                    ),
             ),
             SizedBox(width: 10.w),
             Expanded(

@@ -535,7 +535,7 @@ mixin _$GroceryListItem {
   String get listId => throw _privateConstructorUsedError;
   String? get foodRefId => throw _privateConstructorUsedError;
   String? get foodRefName => throw _privateConstructorUsedError;
-  String? get foodRefImageUrl => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
   String? get customName => throw _privateConstructorUsedError;
   double get quantity => throw _privateConstructorUsedError;
   String? get unitId => throw _privateConstructorUsedError;
@@ -568,7 +568,7 @@ abstract class $GroceryListItemCopyWith<$Res> {
     String listId,
     String? foodRefId,
     String? foodRefName,
-    String? foodRefImageUrl,
+    String? imageUrl,
     String? customName,
     double quantity,
     String? unitId,
@@ -600,7 +600,7 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
     Object? listId = null,
     Object? foodRefId = freezed,
     Object? foodRefName = freezed,
-    Object? foodRefImageUrl = freezed,
+    Object? imageUrl = freezed,
     Object? customName = freezed,
     Object? quantity = null,
     Object? unitId = freezed,
@@ -629,9 +629,9 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
                 ? _value.foodRefName
                 : foodRefName // ignore: cast_nullable_to_non_nullable
                       as String?,
-            foodRefImageUrl: freezed == foodRefImageUrl
-                ? _value.foodRefImageUrl
-                : foodRefImageUrl // ignore: cast_nullable_to_non_nullable
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             customName: freezed == customName
                 ? _value.customName
@@ -689,7 +689,7 @@ abstract class _$$GroceryListItemImplCopyWith<$Res>
     String listId,
     String? foodRefId,
     String? foodRefName,
-    String? foodRefImageUrl,
+    String? imageUrl,
     String? customName,
     double quantity,
     String? unitId,
@@ -720,7 +720,7 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
     Object? listId = null,
     Object? foodRefId = freezed,
     Object? foodRefName = freezed,
-    Object? foodRefImageUrl = freezed,
+    Object? imageUrl = freezed,
     Object? customName = freezed,
     Object? quantity = null,
     Object? unitId = freezed,
@@ -749,9 +749,9 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
             ? _value.foodRefName
             : foodRefName // ignore: cast_nullable_to_non_nullable
                   as String?,
-        foodRefImageUrl: freezed == foodRefImageUrl
-            ? _value.foodRefImageUrl
-            : foodRefImageUrl // ignore: cast_nullable_to_non_nullable
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         customName: freezed == customName
             ? _value.customName
@@ -802,7 +802,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     required this.listId,
     this.foodRefId,
     this.foodRefName,
-    this.foodRefImageUrl,
+    this.imageUrl,
     this.customName,
     this.quantity = 0,
     this.unitId,
@@ -826,7 +826,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
   @override
   final String? foodRefName;
   @override
-  final String? foodRefImageUrl;
+  final String? imageUrl;
   @override
   final String? customName;
   @override
@@ -849,7 +849,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
 
   @override
   String toString() {
-    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, foodRefImageUrl: $foodRefImageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, priority: $priority, notes: $notes, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, imageUrl: $imageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, priority: $priority, notes: $notes, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -863,8 +863,8 @@ class _$GroceryListItemImpl implements _GroceryListItem {
                 other.foodRefId == foodRefId) &&
             (identical(other.foodRefName, foodRefName) ||
                 other.foodRefName == foodRefName) &&
-            (identical(other.foodRefImageUrl, foodRefImageUrl) ||
-                other.foodRefImageUrl == foodRefImageUrl) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
             (identical(other.customName, customName) ||
                 other.customName == customName) &&
             (identical(other.quantity, quantity) ||
@@ -891,7 +891,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     listId,
     foodRefId,
     foodRefName,
-    foodRefImageUrl,
+    imageUrl,
     customName,
     quantity,
     unitId,
@@ -926,7 +926,7 @@ abstract class _GroceryListItem implements GroceryListItem {
     required final String listId,
     final String? foodRefId,
     final String? foodRefName,
-    final String? foodRefImageUrl,
+    final String? imageUrl,
     final String? customName,
     final double quantity,
     final String? unitId,
@@ -950,7 +950,7 @@ abstract class _GroceryListItem implements GroceryListItem {
   @override
   String? get foodRefName;
   @override
-  String? get foodRefImageUrl;
+  String? get imageUrl;
   @override
   String? get customName;
   @override

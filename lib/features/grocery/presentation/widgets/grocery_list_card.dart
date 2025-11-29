@@ -13,6 +13,9 @@ class GroceryListCard extends StatelessWidget {
   final VoidCallback onAddItem;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback? onBulkAdd;
+  final bool? isAllSelected;
+  final VoidCallback? onSelectAll;
 
   const GroceryListCard({
     super.key,
@@ -21,6 +24,9 @@ class GroceryListCard extends StatelessWidget {
     required this.onAddItem,
     required this.onEdit,
     required this.onDelete,
+    this.onBulkAdd,
+    this.isAllSelected,
+    this.onSelectAll,
   });
 
   @override
@@ -171,11 +177,62 @@ class GroceryListCard extends StatelessWidget {
                     ),
                 SizedBox(height: 16.h),
                 _TicketDivider(),
+                if (onSelectAll != null) ...[
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isAllSelected ?? false,
+                        onChanged: (_) => onSelectAll!(),
+                        activeColor: AppColors.blueGray,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Select All',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 SizedBox(height: 12.h),
-                body,
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 240.h,
+                  ),
+                  child: SingleChildScrollView(
+                    child: body,
+                  ),
+                ),
                 SizedBox(height: 12.h),
                 _TicketDivider(),
                 SizedBox(height: 8.h),
+                if (onBulkAdd != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: onBulkAdd,
+                        icon: const Icon(Icons.add_shopping_cart),
+                        label: const Text('Add Selected to Pantry'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.blueGray,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 Align(
                   alignment: Alignment.center,
                   child: TextButton.icon(
@@ -251,7 +308,7 @@ class _TicketClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     const notchRadius = 12.0;
-    final notchCenter = size.height * 0.3;
+    final notchCenter = size.height * 0.17;
     final path = Path()
       ..moveTo(0, 0)
       ..lineTo(size.width, 0)

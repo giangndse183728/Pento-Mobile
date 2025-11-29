@@ -22,6 +22,7 @@ class AppTextFormField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.inputFormatters,
+    this.onTap,
   });
 
   final TextEditingController? controller;
@@ -40,6 +41,7 @@ class AppTextFormField extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final List<TextInputFormatter>? inputFormatters;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +93,7 @@ class AppTextFormField extends StatelessWidget {
       enabled: enabled,
       readOnly: readOnly,
       inputFormatters: inputFormatters,
+      onTap: onTap,
     );
   }
 }

@@ -36,7 +36,7 @@ class _AddGroceryListItemSheetState
 
   FoodReference? _selectedReference;
   Unit? _selectedUnit;
-  String _priority = 'Medium';
+  String _priority = 'High';
   bool _isSubmitting = false;
 
   @override
@@ -319,7 +319,7 @@ class _EditGroceryListItemSheetState
               .replaceAll(RegExp(r'\.?0+$'), ''),
     );
     _notesCtrl = TextEditingController(text: widget.item.notes ?? '');
-    _priority = widget.item.priority ?? 'Medium';
+    _priority = widget.item.priority ?? 'High';
   }
 
   @override

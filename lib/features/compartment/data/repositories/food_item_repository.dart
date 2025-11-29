@@ -71,6 +71,16 @@ class FoodItemRepository {
     );
   }
 
+  Future<void> createFoodBulk({
+    required List<Map<String, dynamic>> items,
+  }) async {
+    await _network.post<void>(
+      ApiEndpoints.createFoodBulk,
+      data: items,
+      onSuccess: (_) => null,
+    );
+  }
+
   Future<CompartmentItemDetail> getFoodItemDetail(String foodItemId) async {
     final path = ApiEndpoints.getDetailFoodItem.replaceFirst(
       '{id}',
