@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -210,28 +211,22 @@ class _GroceryItemRow extends StatelessWidget {
                       item.imageUrl!.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(10.r),
-                      child: Image.network(
-                        item.imageUrl!,
+                      child: CachedNetworkImage(
+                        imageUrl: item.imageUrl!,
                         width: 50.w,
                         height: 50.h,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.blueGray,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Icon(
                           Icons.checklist_rtl_outlined,
                           color: AppColors.iceberg,
                           size: 20.sp,
                         ),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          );
-                        },
                       ),
                     )
                   : Icon(
