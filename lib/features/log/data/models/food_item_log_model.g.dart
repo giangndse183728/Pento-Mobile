@@ -59,14 +59,12 @@ Map<String, dynamic> _$$PaginatedFoodItemLogsImplToJson(
 _$FoodItemLogSummaryImpl _$$FoodItemLogSummaryImplFromJson(
   Map<String, dynamic> json,
 ) => _$FoodItemLogSummaryImpl(
-  totalIntakeByWeight: (json['totalIntakeByWeight'] as num).toDouble(),
-  totalIntakeByVolume: (json['totalIntakeByVolume'] as num).toDouble(),
-  totalConsumptionByWeight: (json['totalConsumptionByWeight'] as num)
-      .toDouble(),
-  totalConsumptionByVolume: (json['totalConsumptionByVolume'] as num)
-      .toDouble(),
-  totalDiscardByWeight: (json['totalDiscardByWeight'] as num).toDouble(),
-  totalDiscardByVolume: (json['totalDiscardByVolume'] as num).toDouble(),
+  logSummary: FoodLogSummary.fromJson(
+    json['logSummary'] as Map<String, dynamic>,
+  ),
+  foodItemSummary: FoodItemSummary.fromJson(
+    json['foodItemSummary'] as Map<String, dynamic>,
+  ),
   weightUnit: json['weightUnit'] as String,
   volumeUnit: json['volumeUnit'] as String,
 );
@@ -74,12 +72,59 @@ _$FoodItemLogSummaryImpl _$$FoodItemLogSummaryImplFromJson(
 Map<String, dynamic> _$$FoodItemLogSummaryImplToJson(
   _$FoodItemLogSummaryImpl instance,
 ) => <String, dynamic>{
-  'totalIntakeByWeight': instance.totalIntakeByWeight,
-  'totalIntakeByVolume': instance.totalIntakeByVolume,
-  'totalConsumptionByWeight': instance.totalConsumptionByWeight,
-  'totalConsumptionByVolume': instance.totalConsumptionByVolume,
-  'totalDiscardByWeight': instance.totalDiscardByWeight,
-  'totalDiscardByVolume': instance.totalDiscardByVolume,
+  'logSummary': instance.logSummary,
+  'foodItemSummary': instance.foodItemSummary,
   'weightUnit': instance.weightUnit,
   'volumeUnit': instance.volumeUnit,
+};
+
+_$FoodLogSummaryImpl _$$FoodLogSummaryImplFromJson(Map<String, dynamic> json) =>
+    _$FoodLogSummaryImpl(
+      intakeByWeight: (json['intakeByWeight'] as num).toDouble(),
+      intakeByVolume: (json['intakeByVolume'] as num).toDouble(),
+      consumptionByWeight: (json['consumptionByWeight'] as num).toDouble(),
+      consumptionByVolume: (json['consumptionByVolume'] as num).toDouble(),
+      discardByWeight: (json['discardByWeight'] as num).toDouble(),
+      discardByVolume: (json['discardByVolume'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$$FoodLogSummaryImplToJson(
+  _$FoodLogSummaryImpl instance,
+) => <String, dynamic>{
+  'intakeByWeight': instance.intakeByWeight,
+  'intakeByVolume': instance.intakeByVolume,
+  'consumptionByWeight': instance.consumptionByWeight,
+  'consumptionByVolume': instance.consumptionByVolume,
+  'discardByWeight': instance.discardByWeight,
+  'discardByVolume': instance.discardByVolume,
+};
+
+_$FoodItemSummaryImpl _$$FoodItemSummaryImplFromJson(
+  Map<String, dynamic> json,
+) => _$FoodItemSummaryImpl(
+  totalFoodItems: (json['totalFoodItems'] as num).toInt(),
+  freshCount: (json['freshCount'] as num).toInt(),
+  expiringCount: (json['expiringCount'] as num).toInt(),
+  expiredCount: (json['expiredCount'] as num).toInt(),
+  freshByWeight: (json['freshByWeight'] as num).toDouble(),
+  freshByVolume: (json['freshByVolume'] as num).toDouble(),
+  expiringByWeight: (json['expiringByWeight'] as num).toDouble(),
+  expiringByVolume: (json['expiringByVolume'] as num).toDouble(),
+  expiredByWeight: (json['expiredByWeight'] as num).toDouble(),
+  expiredByVolume: (json['expiredByVolume'] as num).toDouble(),
+);
+
+Map<String, dynamic> _$$FoodItemSummaryImplToJson(
+  _$FoodItemSummaryImpl instance,
+) => <String, dynamic>{
+  'totalFoodItems': instance.totalFoodItems,
+  'freshCount': instance.freshCount,
+  'expiringCount': instance.expiringCount,
+  'expiredCount': instance.expiredCount,
+  'freshByWeight': instance.freshByWeight,
+  'freshByVolume': instance.freshByVolume,
+  'expiringByWeight': instance.expiringByWeight,
+  'expiringByVolume': instance.expiringByVolume,
+  'expiredByWeight': instance.expiredByWeight,
+  'expiredByVolume': instance.expiredByVolume,
 };

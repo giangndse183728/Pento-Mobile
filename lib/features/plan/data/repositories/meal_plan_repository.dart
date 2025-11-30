@@ -1,0 +1,89 @@
+import '../../../../core/network/endpoints.dart';
+import '../../../../core/network/network_service.dart';
+import '../../../../core/utils/logging.dart';
+import '../models/meal_plan_models.dart';
+
+class MealPlanRepository {
+  final NetworkService _network = NetworkService.instance;
+  final _logger = AppLogger.getLogger('MealPlanRepository');
+
+  /// Get meal plans for the current household
+  /// 
+  /// [month] - Month to fetch (1-12)
+  /// [year] - Year to fetch (e.g. 2025)
+  /// [pageNumber] - Page number (default 1)
+  /// [pageSize] - Number of items per page (default 100)
+  /// [sortAsc] - Sort ascending by date (default false)
+  Future<List<MealPlanItem>> getMealPlans({
+    required int month,
+    required int year,
+    int pageNumber = 1,
+    int pageSize = 100,
+    bool sortAsc = false,
+  }) async {
+    _logger.info('Fetching meal plans for $month/$year');
+
+    return await _network.get<List<MealPlanItem>>(
+      ApiEndpoints.getMealPlan,
+      queryParameters: {
+        'month': month,
+        'year': year,
+        'pageNumber': pageNumber,
+        'pageSize': pageSize,
+        'sortAsc': sortAsc,
+      },
+      onSuccess: (data) {
+        if (data == null) return [];
+
+        final responseData = data as Map<String, dynamic>;
+        final response = PaginatedMealPlanResponse.fromJson(responseData);
+        
+        _logger.info('Fetched ${response.items.length} meal plans');
+        return response.items;
+      },
+    );
+  }
+
+  /// Get meal plans for a specific date
+  Future<List<MealPlanItem>> getMealPlansForDate({
+    required DateTime date,
+    int pageNumber = 1,
+    int pageSize = 100,
+  }) async {
+    final dateString =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    
+    _logger.info('Fetching meal plans for date: $dateString');
+
+    return await _network.get<List<MealPlanItem>>(
+      ApiEndpoints.getMealPlan,
+      queryParameters: {
+        'date': dateString,
+        'pageNumber': pageNumber,
+        'pageSize': pageSize,
+        'sortAsc': false,
+      },
+      onSuccess: (data) {
+        if (data == null) return [];
+
+        final responseData = data as Map<String, dynamic>;
+        final response = PaginatedMealPlanResponse.fromJson(responseData);
+        
+        _logger.info('Fetched ${response.items.length} meal plans for $dateString');
+        return response.items;
+      },
+    );
+  }
+
+  Future<void> createMealReservation({
+    required MealReservationPayload payload,
+  }) async {
+    _logger.info('Creating meal reservation for ${payload.foodItemId}');
+    await _network.post<void>(
+      ApiEndpoints.createMealReservation,
+      data: payload.toJson(),
+      onSuccess: (_) => null,
+    );
+  }
+}
+

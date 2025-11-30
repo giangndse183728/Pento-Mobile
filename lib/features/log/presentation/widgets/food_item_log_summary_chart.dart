@@ -8,6 +8,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../providers/food_item_log_summary_provider.dart';
+import 'food_item_summary_grid.dart';
 
 enum MeasurementType { weight, volume }
 
@@ -24,15 +25,17 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
     return summaryAsync.when(
       data: (summary) {
         final isWeight = measurementType.value == MeasurementType.weight;
+        final logSummary = summary.logSummary;
+        final foodSummary = summary.foodItemSummary;
         final totalIntake = isWeight
-            ? summary.totalIntakeByWeight
-            : summary.totalIntakeByVolume;
+            ? logSummary.intakeByWeight
+            : logSummary.intakeByVolume;
         final totalConsumption = isWeight
-            ? summary.totalConsumptionByWeight
-            : summary.totalConsumptionByVolume;
+            ? logSummary.consumptionByWeight
+            : logSummary.consumptionByVolume;
         final totalDiscard = isWeight
-            ? summary.totalDiscardByWeight
-            : summary.totalDiscardByVolume;
+            ? logSummary.discardByWeight
+            : logSummary.discardByVolume;
         final unit = isWeight ? summary.weightUnit : summary.volumeUnit;
 
         final total = totalIntake + totalConsumption + totalDiscard;
@@ -67,14 +70,24 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
               if (total == 0)
                 _buildEmptyState()
               else
-                _buildChartWithLegend(
-                  totalIntake,
-                  totalConsumption,
-                  totalDiscard,
-                  unit,
-                  total,
-                  isTooltipVisible,
-                  tooltipText,
+                Column(
+                  children: [
+                    FoodItemSummaryGrid(
+                      summary: foodSummary,
+                      weightUnit: summary.weightUnit,
+                      volumeUnit: summary.volumeUnit,
+                    ),
+                    SizedBox(height: 24.h),
+                    _buildChartWithLegend(
+                      totalIntake,
+                      totalConsumption,
+                      totalDiscard,
+                      unit,
+                      total,
+                      isTooltipVisible,
+                      tooltipText,
+                    ),
+                  ],
                 ),
             ],
           ),
@@ -483,5 +496,6 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
       ),
     );
   }
+
 }
 

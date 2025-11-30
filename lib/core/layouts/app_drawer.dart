@@ -146,7 +146,7 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     iconOutline: Icons.workspace_premium_outlined,
                     title: 'Subscription',
-                    route: null,
+                    route: AppRoutes.subscription,
                     onTap: () => onMenuItemSelected('subscription'),
                   ),
                   SizedBox(height: 20.h),

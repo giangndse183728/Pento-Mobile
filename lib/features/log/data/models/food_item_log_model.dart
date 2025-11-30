@@ -40,17 +40,47 @@ class PaginatedFoodItemLogs with _$PaginatedFoodItemLogs {
 @freezed
 class FoodItemLogSummary with _$FoodItemLogSummary {
   const factory FoodItemLogSummary({
-    required double totalIntakeByWeight,
-    required double totalIntakeByVolume,
-    required double totalConsumptionByWeight,
-    required double totalConsumptionByVolume,
-    required double totalDiscardByWeight,
-    required double totalDiscardByVolume,
+    required FoodLogSummary logSummary,
+    required FoodItemSummary foodItemSummary,
     required String weightUnit,
     required String volumeUnit,
   }) = _FoodItemLogSummary;
 
   factory FoodItemLogSummary.fromJson(Map<String, dynamic> json) =>
       _$FoodItemLogSummaryFromJson(json);
+}
+
+@freezed
+class FoodLogSummary with _$FoodLogSummary {
+  const factory FoodLogSummary({
+    required double intakeByWeight,
+    required double intakeByVolume,
+    required double consumptionByWeight,
+    required double consumptionByVolume,
+    required double discardByWeight,
+    required double discardByVolume,
+  }) = _FoodLogSummary;
+
+  factory FoodLogSummary.fromJson(Map<String, dynamic> json) =>
+      _$FoodLogSummaryFromJson(json);
+}
+
+@freezed
+class FoodItemSummary with _$FoodItemSummary {
+  const factory FoodItemSummary({
+    required int totalFoodItems,
+    required int freshCount,
+    required int expiringCount,
+    required int expiredCount,
+    required double freshByWeight,
+    required double freshByVolume,
+    required double expiringByWeight,
+    required double expiringByVolume,
+    required double expiredByWeight,
+    required double expiredByVolume,
+  }) = _FoodItemSummary;
+
+  factory FoodItemSummary.fromJson(Map<String, dynamic> json) =>
+      _$FoodItemSummaryFromJson(json);
 }
 

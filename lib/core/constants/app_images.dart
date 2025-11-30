@@ -27,6 +27,37 @@ class AppImages {
   static const String intakeBadge = "assets/icon/cart.png" ;
   static const String consumptionBadge = servings;
   static const String discardBadge = "assets/icon/no-food.png";
+
+  // Reference icons
+  static const String meat = "assets/icon/meat.png";
+  static const String seafood = "assets/icon/seafood.png";
+  static const String dairy = "assets/icon/milk.png";
+  static const String fruits = "assets/icon/fruit.png";
+  static const String grains = "assets/icon/grain.png";
+  static const String nuts = "assets/icon/nut.png";
+  static const String oils = "assets/icon/oil.png";
+  static const String condiments = "assets/icon/condiment.png";
+  static const String mixed = "assets/icon/mixed.png";
+  static const String confectionery = "assets/icon/confectionery.png";
+  static const String beverages = "assets/icon/beverage.png";
+  
+  // Meal type icons
+  static const String breakfast = "assets/icon/sun.png";
+  static const String lunch = "assets/icon/lunch.png";
+  static const String dinner = "assets/icon/full-moon.png";
+  static const String snack = "assets/icon/snack.png";
+
+  // Grocery icons
+  static const String grocery = "assets/icon/shopping.png";
+
+  // Subscription icons
+  static const String subscription = "assets/icon/credit-card.png";
+  static const String checkCircle = "assets/icon/padlock.png";
+
+  // Food scan icons
+  static const String foodScan = "assets/icon/camera.png";
+  static const String receiptScan = "assets/icon/invoice.png";
+  static const String search = "assets/icon/search.png";
 }
 
 

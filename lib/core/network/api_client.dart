@@ -18,8 +18,8 @@ class ApiClient {
 
   Dio get dio => _dio;
   
-  late final Dio _localDio;
-  Dio get localDio => _localDio;
+  late final Dio _nestDio;
+  Dio get nestDio => _nestDio;
 
   void initialize({
     Future<void> Function(String newAccessToken)? onTokenRefreshed,
@@ -50,13 +50,13 @@ class ApiClient {
     _dio.interceptors.add(LoggingInterceptor());
     _dio.interceptors.add(AuthInterceptor());
     
-    // Initialize local Dio for local API calls
-    _localDio = Dio(
+    // Initialize Nest Dio for Nest API calls
+    _nestDio = Dio(
       BaseOptions(
-        baseUrl: ApiEndpoints.baseUrlLocal,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
+        baseUrl: ApiEndpoints.baseUrlNest,
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+        sendTimeout: const Duration(seconds: 60),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -66,7 +66,8 @@ class ApiClient {
         },
       ),
     );
-    _localDio.interceptors.add(LoggingInterceptor());
+    _nestDio.interceptors.add(LoggingInterceptor());
+    _nestDio.interceptors.add(AuthInterceptor());
   }
 
   // GET request

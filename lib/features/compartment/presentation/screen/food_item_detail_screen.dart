@@ -16,6 +16,7 @@ import '../providers/food_item_detail_provider.dart';
 import '../widgets/edit_food_item_dialog.dart';
 import '../widgets/food_item_action_buttons.dart';
 import '../widgets/food_item_detail_widgets.dart';
+import '../../../plan/presentation/widgets/create_meal_reservation_sheet.dart';
 
 class FoodItemDetailScreen extends ConsumerWidget {
   const FoodItemDetailScreen({
@@ -45,6 +46,20 @@ class FoodItemDetailScreen extends ConsumerWidget {
         builder: (context) => EditFoodItemDialog(
           foodItemId: foodItemId,
           detail: detail,
+        ),
+      );
+    }
+
+    void _showMealReservationSheet(CompartmentItemDetail detail) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => CreateMealReservationSheet(
+          foodItemId: foodItemId,
+          foodName: detail.name,
+          defaultUnitAbbreviation: detail.unitAbbreviation,
+          availableQuantity: detail.quantity,
         ),
       );
     }
@@ -190,16 +205,23 @@ class FoodItemDetailScreen extends ConsumerWidget {
             ),
           ),
         ),
-        data: (detail) => _DetailBody(detail: detail),
+        data: (detail) => _DetailBody(
+          detail: detail,
+          onPlanMeal: () => _showMealReservationSheet(detail),
+        ),
       ),
     );
   }
 }
 
 class _DetailBody extends StatelessWidget {
-  const _DetailBody({required this.detail});
+  const _DetailBody({
+    required this.detail,
+    required this.onPlanMeal,
+  });
 
   final CompartmentItemDetail detail;
+  final VoidCallback onPlanMeal;
 
   String _formatDate(DateTime? date) {
     if (date == null) {
@@ -282,6 +304,7 @@ class _DetailBody extends StatelessWidget {
                         expiration: _formatDate(detail.expirationDateUtc),
                         isExpiringSoon:
                             _isExpiringSoon(detail.expirationDateUtc),
+                        onPlanMeal: onPlanMeal,
                       ),
                     ),
                   ],
@@ -531,6 +554,26 @@ class _DetailBody extends StatelessWidget {
           // Action Buttons
           SizedBox(height: 32.h),
           FoodItemActionButtons(detail: detail),
+          SizedBox(height: 16.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onPlanMeal,
+              icon: Icon(
+                Icons.event_available_rounded,
+                size: 20.sp,
+              ),
+              label: const Text('Plan meal reservation'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.babyBlue,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+              ),
+            ),
+          ),
           SizedBox(height: 32.h),
               ],
             ),
