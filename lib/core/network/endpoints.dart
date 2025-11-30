@@ -9,10 +9,11 @@ class ApiEndpoints {
 
   static const String baseUrlLocal = 'http://10.0.2.2:8000/api/v1';
 
-  // Image Search (local API)
-  static const String imageSearch = '/image-search';
-
-  static const String chatbot = '/chatbot/chat';
+  // Image Search (Nest API)
+  static const String imageSearch = '$baseUrlNest/image-search';
+  static const String scanImage = '$baseUrlNest/scan-food';
+  static const String scanBillImage = '$baseUrlNest/scan-food/bill';
+  static const String chatbot = '$baseUrlNest/chatbot/chat';
 
   // Authentication
   static const String signIn = '/auth/mobile-sign-in';
@@ -48,6 +49,7 @@ class ApiEndpoints {
 
   //Food
   static const String createFood = '/food-items';
+  static const String createFoodBulk = '/food-items/bulk';
   static const String getDetailFoodItem = '/food-items/{id}';
   static const String updateFoodItem = '/food-items/{foodItemId}';
   static const String discardFoodItem = '/food-items/{foodItemId}/discard';

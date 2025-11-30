@@ -24,6 +24,9 @@ import '../../features/grocery/presentation/screen/grocery_screen.dart';
 import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
 import '../../features/subscription/presentation/screen/subscription_screen.dart';
 import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
+import '../../features/food_scan/presentation/screen/food_scan_screen.dart';
+import '../../features/food_scan/presentation/screen/food_scan_results_screen.dart';
+import '../../features/food_scan/data/models/scanned_food_reference.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -250,6 +253,46 @@ child: const FoodItemLogsScreen(),
             paymentId: extra?['paymentId'] ?? '',
             planName: extra?['planName'],
             price: extra?['price'],
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.foodScanCamera,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final compartmentId =
+              state.uri.queryParameters['compartmentId'] ?? '';
+          return FoodScanScreen(
+            compartmentId: compartmentId,
+            scanType: ScanType.food,
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.foodScanBill,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final compartmentId =
+              state.uri.queryParameters['compartmentId'] ?? '';
+          return FoodScanScreen(
+            compartmentId: compartmentId,
+            scanType: ScanType.bill,
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.foodScanResults,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final compartmentId =
+              state.uri.queryParameters['compartmentId'] ?? '';
+          final scanResponse = state.extra as ScanFoodResponse?;
+          return FoodScanResultsScreen(
+            compartmentId: compartmentId,
+            scanResponse: scanResponse,
           );
         },
       ),
