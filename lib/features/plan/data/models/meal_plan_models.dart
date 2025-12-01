@@ -176,3 +176,63 @@ class MealReservationPayload {
     return '$year-$month-$day';
   }
 }
+
+/// Recipe reservation payload
+class RecipeReservationPayload {
+  RecipeReservationPayload({
+    required this.recipeId,
+    required this.mealType,
+    required this.scheduledDate,
+    required this.servings,
+  });
+
+  final String recipeId;
+  final MealType mealType;
+  final DateTime scheduledDate;
+  final int servings;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'recipeId': recipeId,
+      'mealType': mealType.apiValue,
+      'scheduledDate': _formatDate(scheduledDate),
+      'servings': servings,
+    };
+  }
+
+  String _formatDate(DateTime date) {
+    final year = date.year.toString().padLeft(4, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+}
+
+/// Missing ingredient from recipe reservation response
+@freezed
+class MissingIngredient with _$MissingIngredient {
+  const factory MissingIngredient({
+    required String ingredientId,
+    required String foodRefId,
+    required String name,
+    required double requiredQuantity,
+    required String unitId,
+    required String unitAbbreviation,
+  }) = _MissingIngredient;
+
+  factory MissingIngredient.fromJson(Map<String, dynamic> json) =>
+      _$MissingIngredientFromJson(json);
+}
+
+/// Recipe reservation response
+@freezed
+class RecipeReservationResponse with _$RecipeReservationResponse {
+  const factory RecipeReservationResponse({
+    required String mealPlanId,
+    @Default([]) List<dynamic> reservations,
+    @Default([]) List<MissingIngredient> missing,
+  }) = _RecipeReservationResponse;
+
+  factory RecipeReservationResponse.fromJson(Map<String, dynamic> json) =>
+      _$RecipeReservationResponseFromJson(json);
+}

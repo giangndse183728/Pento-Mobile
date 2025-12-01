@@ -56,10 +56,18 @@ class MealPlanScreen extends HookConsumerWidget {
                 children: [
                   SizedBox(height: topSpacing),
                   Container(
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: AppColors.blueGray,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    padding: EdgeInsets.all(6.w),
                     child: TableCalendar<MealPlanItem>(
                       rowHeight: 72.h,
-                      daysOfWeekHeight: 16.h,
+                      daysOfWeekHeight: 14.h,
                       
                       firstDay: DateTime.now().subtract(
                         const Duration(days: 365),
@@ -99,6 +107,11 @@ class MealPlanScreen extends HookConsumerWidget {
                         outsideDaysVisible: false,
                       ),
                       headerStyle: const HeaderStyle(
+                        titleTextStyle: TextStyle(
+                          fontFamily: 'MomoTrustDisplay',
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.blueGray,
+                        ),
                         formatButtonVisible: false,
                         titleCentered: true,
                       ),
@@ -132,8 +145,8 @@ class MealPlanScreen extends HookConsumerWidget {
                                       ),
                                       child: Image.asset(
                                         _getMealTypeIcon(type),
-                                        width: 11.w,
-                                        height: 11.h,
+                                        width: 10.w,
+                                        height: 10.h,
                                       ),
                                     ),
                                   )

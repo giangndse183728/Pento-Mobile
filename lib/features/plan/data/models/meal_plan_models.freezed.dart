@@ -1377,3 +1377,519 @@ abstract class _MealPlanFoodItem implements MealPlanFoodItem {
   _$$MealPlanFoodItemImplCopyWith<_$MealPlanFoodItemImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+MissingIngredient _$MissingIngredientFromJson(Map<String, dynamic> json) {
+  return _MissingIngredient.fromJson(json);
+}
+
+/// @nodoc
+mixin _$MissingIngredient {
+  String get ingredientId => throw _privateConstructorUsedError;
+  String get foodRefId => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  double get requiredQuantity => throw _privateConstructorUsedError;
+  String get unitId => throw _privateConstructorUsedError;
+  String get unitAbbreviation => throw _privateConstructorUsedError;
+
+  /// Serializes this MissingIngredient to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of MissingIngredient
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MissingIngredientCopyWith<MissingIngredient> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MissingIngredientCopyWith<$Res> {
+  factory $MissingIngredientCopyWith(
+    MissingIngredient value,
+    $Res Function(MissingIngredient) then,
+  ) = _$MissingIngredientCopyWithImpl<$Res, MissingIngredient>;
+  @useResult
+  $Res call({
+    String ingredientId,
+    String foodRefId,
+    String name,
+    double requiredQuantity,
+    String unitId,
+    String unitAbbreviation,
+  });
+}
+
+/// @nodoc
+class _$MissingIngredientCopyWithImpl<$Res, $Val extends MissingIngredient>
+    implements $MissingIngredientCopyWith<$Res> {
+  _$MissingIngredientCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of MissingIngredient
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? ingredientId = null,
+    Object? foodRefId = null,
+    Object? name = null,
+    Object? requiredQuantity = null,
+    Object? unitId = null,
+    Object? unitAbbreviation = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            ingredientId: null == ingredientId
+                ? _value.ingredientId
+                : ingredientId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            foodRefId: null == foodRefId
+                ? _value.foodRefId
+                : foodRefId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            requiredQuantity: null == requiredQuantity
+                ? _value.requiredQuantity
+                : requiredQuantity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            unitId: null == unitId
+                ? _value.unitId
+                : unitId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            unitAbbreviation: null == unitAbbreviation
+                ? _value.unitAbbreviation
+                : unitAbbreviation // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$MissingIngredientImplCopyWith<$Res>
+    implements $MissingIngredientCopyWith<$Res> {
+  factory _$$MissingIngredientImplCopyWith(
+    _$MissingIngredientImpl value,
+    $Res Function(_$MissingIngredientImpl) then,
+  ) = __$$MissingIngredientImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String ingredientId,
+    String foodRefId,
+    String name,
+    double requiredQuantity,
+    String unitId,
+    String unitAbbreviation,
+  });
+}
+
+/// @nodoc
+class __$$MissingIngredientImplCopyWithImpl<$Res>
+    extends _$MissingIngredientCopyWithImpl<$Res, _$MissingIngredientImpl>
+    implements _$$MissingIngredientImplCopyWith<$Res> {
+  __$$MissingIngredientImplCopyWithImpl(
+    _$MissingIngredientImpl _value,
+    $Res Function(_$MissingIngredientImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of MissingIngredient
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? ingredientId = null,
+    Object? foodRefId = null,
+    Object? name = null,
+    Object? requiredQuantity = null,
+    Object? unitId = null,
+    Object? unitAbbreviation = null,
+  }) {
+    return _then(
+      _$MissingIngredientImpl(
+        ingredientId: null == ingredientId
+            ? _value.ingredientId
+            : ingredientId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        foodRefId: null == foodRefId
+            ? _value.foodRefId
+            : foodRefId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        requiredQuantity: null == requiredQuantity
+            ? _value.requiredQuantity
+            : requiredQuantity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        unitId: null == unitId
+            ? _value.unitId
+            : unitId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        unitAbbreviation: null == unitAbbreviation
+            ? _value.unitAbbreviation
+            : unitAbbreviation // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MissingIngredientImpl implements _MissingIngredient {
+  const _$MissingIngredientImpl({
+    required this.ingredientId,
+    required this.foodRefId,
+    required this.name,
+    required this.requiredQuantity,
+    required this.unitId,
+    required this.unitAbbreviation,
+  });
+
+  factory _$MissingIngredientImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MissingIngredientImplFromJson(json);
+
+  @override
+  final String ingredientId;
+  @override
+  final String foodRefId;
+  @override
+  final String name;
+  @override
+  final double requiredQuantity;
+  @override
+  final String unitId;
+  @override
+  final String unitAbbreviation;
+
+  @override
+  String toString() {
+    return 'MissingIngredient(ingredientId: $ingredientId, foodRefId: $foodRefId, name: $name, requiredQuantity: $requiredQuantity, unitId: $unitId, unitAbbreviation: $unitAbbreviation)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MissingIngredientImpl &&
+            (identical(other.ingredientId, ingredientId) ||
+                other.ingredientId == ingredientId) &&
+            (identical(other.foodRefId, foodRefId) ||
+                other.foodRefId == foodRefId) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.requiredQuantity, requiredQuantity) ||
+                other.requiredQuantity == requiredQuantity) &&
+            (identical(other.unitId, unitId) || other.unitId == unitId) &&
+            (identical(other.unitAbbreviation, unitAbbreviation) ||
+                other.unitAbbreviation == unitAbbreviation));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    ingredientId,
+    foodRefId,
+    name,
+    requiredQuantity,
+    unitId,
+    unitAbbreviation,
+  );
+
+  /// Create a copy of MissingIngredient
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MissingIngredientImplCopyWith<_$MissingIngredientImpl> get copyWith =>
+      __$$MissingIngredientImplCopyWithImpl<_$MissingIngredientImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MissingIngredientImplToJson(this);
+  }
+}
+
+abstract class _MissingIngredient implements MissingIngredient {
+  const factory _MissingIngredient({
+    required final String ingredientId,
+    required final String foodRefId,
+    required final String name,
+    required final double requiredQuantity,
+    required final String unitId,
+    required final String unitAbbreviation,
+  }) = _$MissingIngredientImpl;
+
+  factory _MissingIngredient.fromJson(Map<String, dynamic> json) =
+      _$MissingIngredientImpl.fromJson;
+
+  @override
+  String get ingredientId;
+  @override
+  String get foodRefId;
+  @override
+  String get name;
+  @override
+  double get requiredQuantity;
+  @override
+  String get unitId;
+  @override
+  String get unitAbbreviation;
+
+  /// Create a copy of MissingIngredient
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MissingIngredientImplCopyWith<_$MissingIngredientImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+RecipeReservationResponse _$RecipeReservationResponseFromJson(
+  Map<String, dynamic> json,
+) {
+  return _RecipeReservationResponse.fromJson(json);
+}
+
+/// @nodoc
+mixin _$RecipeReservationResponse {
+  String get mealPlanId => throw _privateConstructorUsedError;
+  List<dynamic> get reservations => throw _privateConstructorUsedError;
+  List<MissingIngredient> get missing => throw _privateConstructorUsedError;
+
+  /// Serializes this RecipeReservationResponse to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of RecipeReservationResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $RecipeReservationResponseCopyWith<RecipeReservationResponse> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RecipeReservationResponseCopyWith<$Res> {
+  factory $RecipeReservationResponseCopyWith(
+    RecipeReservationResponse value,
+    $Res Function(RecipeReservationResponse) then,
+  ) = _$RecipeReservationResponseCopyWithImpl<$Res, RecipeReservationResponse>;
+  @useResult
+  $Res call({
+    String mealPlanId,
+    List<dynamic> reservations,
+    List<MissingIngredient> missing,
+  });
+}
+
+/// @nodoc
+class _$RecipeReservationResponseCopyWithImpl<
+  $Res,
+  $Val extends RecipeReservationResponse
+>
+    implements $RecipeReservationResponseCopyWith<$Res> {
+  _$RecipeReservationResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of RecipeReservationResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? mealPlanId = null,
+    Object? reservations = null,
+    Object? missing = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            mealPlanId: null == mealPlanId
+                ? _value.mealPlanId
+                : mealPlanId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            reservations: null == reservations
+                ? _value.reservations
+                : reservations // ignore: cast_nullable_to_non_nullable
+                      as List<dynamic>,
+            missing: null == missing
+                ? _value.missing
+                : missing // ignore: cast_nullable_to_non_nullable
+                      as List<MissingIngredient>,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$RecipeReservationResponseImplCopyWith<$Res>
+    implements $RecipeReservationResponseCopyWith<$Res> {
+  factory _$$RecipeReservationResponseImplCopyWith(
+    _$RecipeReservationResponseImpl value,
+    $Res Function(_$RecipeReservationResponseImpl) then,
+  ) = __$$RecipeReservationResponseImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String mealPlanId,
+    List<dynamic> reservations,
+    List<MissingIngredient> missing,
+  });
+}
+
+/// @nodoc
+class __$$RecipeReservationResponseImplCopyWithImpl<$Res>
+    extends
+        _$RecipeReservationResponseCopyWithImpl<
+          $Res,
+          _$RecipeReservationResponseImpl
+        >
+    implements _$$RecipeReservationResponseImplCopyWith<$Res> {
+  __$$RecipeReservationResponseImplCopyWithImpl(
+    _$RecipeReservationResponseImpl _value,
+    $Res Function(_$RecipeReservationResponseImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of RecipeReservationResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? mealPlanId = null,
+    Object? reservations = null,
+    Object? missing = null,
+  }) {
+    return _then(
+      _$RecipeReservationResponseImpl(
+        mealPlanId: null == mealPlanId
+            ? _value.mealPlanId
+            : mealPlanId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        reservations: null == reservations
+            ? _value._reservations
+            : reservations // ignore: cast_nullable_to_non_nullable
+                  as List<dynamic>,
+        missing: null == missing
+            ? _value._missing
+            : missing // ignore: cast_nullable_to_non_nullable
+                  as List<MissingIngredient>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$RecipeReservationResponseImpl implements _RecipeReservationResponse {
+  const _$RecipeReservationResponseImpl({
+    required this.mealPlanId,
+    final List<dynamic> reservations = const [],
+    final List<MissingIngredient> missing = const [],
+  }) : _reservations = reservations,
+       _missing = missing;
+
+  factory _$RecipeReservationResponseImpl.fromJson(Map<String, dynamic> json) =>
+      _$$RecipeReservationResponseImplFromJson(json);
+
+  @override
+  final String mealPlanId;
+  final List<dynamic> _reservations;
+  @override
+  @JsonKey()
+  List<dynamic> get reservations {
+    if (_reservations is EqualUnmodifiableListView) return _reservations;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_reservations);
+  }
+
+  final List<MissingIngredient> _missing;
+  @override
+  @JsonKey()
+  List<MissingIngredient> get missing {
+    if (_missing is EqualUnmodifiableListView) return _missing;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_missing);
+  }
+
+  @override
+  String toString() {
+    return 'RecipeReservationResponse(mealPlanId: $mealPlanId, reservations: $reservations, missing: $missing)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RecipeReservationResponseImpl &&
+            (identical(other.mealPlanId, mealPlanId) ||
+                other.mealPlanId == mealPlanId) &&
+            const DeepCollectionEquality().equals(
+              other._reservations,
+              _reservations,
+            ) &&
+            const DeepCollectionEquality().equals(other._missing, _missing));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    mealPlanId,
+    const DeepCollectionEquality().hash(_reservations),
+    const DeepCollectionEquality().hash(_missing),
+  );
+
+  /// Create a copy of RecipeReservationResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$RecipeReservationResponseImplCopyWith<_$RecipeReservationResponseImpl>
+  get copyWith =>
+      __$$RecipeReservationResponseImplCopyWithImpl<
+        _$RecipeReservationResponseImpl
+      >(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$RecipeReservationResponseImplToJson(this);
+  }
+}
+
+abstract class _RecipeReservationResponse implements RecipeReservationResponse {
+  const factory _RecipeReservationResponse({
+    required final String mealPlanId,
+    final List<dynamic> reservations,
+    final List<MissingIngredient> missing,
+  }) = _$RecipeReservationResponseImpl;
+
+  factory _RecipeReservationResponse.fromJson(Map<String, dynamic> json) =
+      _$RecipeReservationResponseImpl.fromJson;
+
+  @override
+  String get mealPlanId;
+  @override
+  List<dynamic> get reservations;
+  @override
+  List<MissingIngredient> get missing;
+
+  /// Create a copy of RecipeReservationResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$RecipeReservationResponseImplCopyWith<_$RecipeReservationResponseImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}

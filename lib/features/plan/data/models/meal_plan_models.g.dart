@@ -126,3 +126,45 @@ Map<String, dynamic> _$$MealPlanFoodItemImplToJson(
   'unitAbbreviation': instance.unitAbbreviation,
   'expirationDate': instance.expirationDate,
 };
+
+_$MissingIngredientImpl _$$MissingIngredientImplFromJson(
+  Map<String, dynamic> json,
+) => _$MissingIngredientImpl(
+  ingredientId: json['ingredientId'] as String,
+  foodRefId: json['foodRefId'] as String,
+  name: json['name'] as String,
+  requiredQuantity: (json['requiredQuantity'] as num).toDouble(),
+  unitId: json['unitId'] as String,
+  unitAbbreviation: json['unitAbbreviation'] as String,
+);
+
+Map<String, dynamic> _$$MissingIngredientImplToJson(
+  _$MissingIngredientImpl instance,
+) => <String, dynamic>{
+  'ingredientId': instance.ingredientId,
+  'foodRefId': instance.foodRefId,
+  'name': instance.name,
+  'requiredQuantity': instance.requiredQuantity,
+  'unitId': instance.unitId,
+  'unitAbbreviation': instance.unitAbbreviation,
+};
+
+_$RecipeReservationResponseImpl _$$RecipeReservationResponseImplFromJson(
+  Map<String, dynamic> json,
+) => _$RecipeReservationResponseImpl(
+  mealPlanId: json['mealPlanId'] as String,
+  reservations: json['reservations'] as List<dynamic>? ?? const [],
+  missing:
+      (json['missing'] as List<dynamic>?)
+          ?.map((e) => MissingIngredient.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$$RecipeReservationResponseImplToJson(
+  _$RecipeReservationResponseImpl instance,
+) => <String, dynamic>{
+  'mealPlanId': instance.mealPlanId,
+  'reservations': instance.reservations,
+  'missing': instance.missing,
+};
