@@ -176,3 +176,142 @@ class PaymentNotifier extends _$PaymentNotifier {
     state = const PaymentState();
   }
 }
+
+/// State for paginated payment history list
+class PaymentHistoryState {
+  final List<Payment> items;
+  final int currentPage;
+  final int totalPages;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final String? status;
+
+  const PaymentHistoryState({
+    this.items = const [],
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.fromDate,
+    this.toDate,
+    this.status,
+  });
+
+  bool get hasMore => currentPage < totalPages;
+
+  PaymentHistoryState copyWith({
+    List<Payment>? items,
+    int? currentPage,
+    int? totalPages,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? error,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? status,
+  }) {
+    return PaymentHistoryState(
+      items: items ?? this.items,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      error: error,
+      fromDate: fromDate ?? this.fromDate,
+      toDate: toDate ?? this.toDate,
+      status: status ?? this.status,
+    );
+  }
+}
+
+@Riverpod(keepAlive: true)
+class PaymentHistoryNotifier extends _$PaymentHistoryNotifier {
+  late final PaymentRepository _repository;
+  final _logger = AppLogger.getLogger('PaymentHistoryNotifier');
+
+  @override
+  PaymentHistoryState build() {
+    _repository = PaymentRepository();
+    return const PaymentHistoryState();
+  }
+
+  Future<void> loadPayments({
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? status,
+  }) async {
+    state = state.copyWith(
+      isLoading: true,
+      error: null,
+      fromDate: fromDate,
+      toDate: toDate,
+      status: status,
+    );
+
+    try {
+      final response = await _repository.getPayments(
+        page: 1,
+        pageSize: 10,
+        fromDate: fromDate,
+        toDate: toDate,
+        status: status,
+      );
+
+      state = state.copyWith(
+        isLoading: false,
+        items: response.items,
+        currentPage: response.currentPage,
+        totalPages: response.totalPages,
+      );
+    } catch (e) {
+      _logger.severe('Failed to load payments: $e');
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoadingMore || !state.hasMore) return;
+
+    state = state.copyWith(isLoadingMore: true, error: null);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final response = await _repository.getPayments(
+        page: nextPage,
+        pageSize: 10,
+        fromDate: state.fromDate,
+        toDate: state.toDate,
+        status: state.status,
+      );
+
+      state = state.copyWith(
+        isLoadingMore: false,
+        items: [...state.items, ...response.items],
+        currentPage: response.currentPage,
+        totalPages: response.totalPages,
+      );
+    } catch (e) {
+      _logger.severe('Failed to load more payments: $e');
+      state = state.copyWith(
+        isLoadingMore: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  void resetFilters() {
+    loadPayments(
+      fromDate: null,
+      toDate: null,
+      status: null,
+    );
+  }
+}
+

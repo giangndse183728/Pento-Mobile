@@ -46,6 +46,30 @@ class Payment with _$Payment {
       _$PaymentFromJson(json);
 }
 
+@JsonSerializable()
+class PaginatedPaymentsResponse {
+  const PaginatedPaymentsResponse({
+    required this.currentPage,
+    required this.totalPages,
+    required this.pageSize,
+    required this.totalCount,
+    required this.hasPrevious,
+    required this.hasNext,
+    required this.items,
+  });
+
+  factory PaginatedPaymentsResponse.fromJson(Map<String, dynamic> json) =>
+      _$PaginatedPaymentsResponseFromJson(json);
+
+  final int currentPage;
+  final int totalPages;
+  final int pageSize;
+  final int totalCount;
+  final bool hasPrevious;
+  final bool hasNext;
+  final List<Payment> items;
+}
+
 /// Payment status enum for easier status checking
 enum PaymentStatus {
   pending('Pending'),

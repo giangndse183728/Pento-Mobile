@@ -52,6 +52,46 @@ class PaymentRepository {
       },
     );
   }
+
+  /// Get paginated list of payments (payment history)
+  Future<PaginatedPaymentsResponse> getPayments({
+    int page = 1,
+    int pageSize = 10,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? status,
+  }) async {
+    _logger.info(
+      'Fetching payments page=$page pageSize=$pageSize '
+      'fromDate=$fromDate toDate=$toDate status=$status',
+    );
+
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'pageSize': pageSize,
+      if (fromDate != null) 'fromDate': fromDate.toIso8601String(),
+      if (toDate != null) 'toDate': toDate.toIso8601String(),
+      if (status != null && status.isNotEmpty) 'status': status,
+    };
+
+    return _network.get<PaginatedPaymentsResponse>(
+      ApiEndpoints.getPayments,
+      queryParameters: queryParams,
+      onSuccess: (data) {
+        if (data == null) {
+          throw Exception('Empty response when fetching payments');
+        }
+        final response = PaginatedPaymentsResponse.fromJson(
+          data as Map<String, dynamic>,
+        );
+        _logger.info(
+          'Fetched ${response.items.length} payments on page '
+          '${response.currentPage}/${response.totalPages}',
+        );
+        return response;
+      },
+    );
+  }
 }
 
 

@@ -71,3 +71,31 @@ Map<String, dynamic> _$$PaymentImplToJson(_$PaymentImpl instance) =>
       'cancelledAt': instance.cancelledAt?.toIso8601String(),
       'cancellationReason': instance.cancellationReason,
     };
+
+PaginatedPaymentsResponse _$PaginatedPaymentsResponseFromJson(
+  Map<String, dynamic> json,
+) =>
+    PaginatedPaymentsResponse(
+      currentPage: (json['currentPage'] as num).toInt(),
+      totalPages: (json['totalPages'] as num).toInt(),
+      pageSize: (json['pageSize'] as num).toInt(),
+      totalCount: (json['totalCount'] as num).toInt(),
+      hasPrevious: json['hasPrevious'] as bool,
+      hasNext: json['hasNext'] as bool,
+      items: (json['items'] as List<dynamic>)
+          .map((e) => Payment.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$PaginatedPaymentsResponseToJson(
+  PaginatedPaymentsResponse instance,
+) =>
+    <String, dynamic>{
+      'currentPage': instance.currentPage,
+      'totalPages': instance.totalPages,
+      'pageSize': instance.pageSize,
+      'totalCount': instance.totalCount,
+      'hasPrevious': instance.hasPrevious,
+      'hasNext': instance.hasNext,
+      'items': instance.items.map((e) => e.toJson()).toList(),
+    };
