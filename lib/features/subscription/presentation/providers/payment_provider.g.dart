@@ -22,22 +22,21 @@ final paymentNotifierProvider =
     );
 
 typedef _$PaymentNotifier = Notifier<PaymentState>;
-
 String _$paymentHistoryNotifierHash() =>
-    r'c3a4a4f61fca6b505f0d18f06cf4f75a94aa66f2';
+    r'66e4ef7f8729b4076ec4f20c40c6b2368af1d8b6';
 
 /// See also [PaymentHistoryNotifier].
 @ProviderFor(PaymentHistoryNotifier)
 final paymentHistoryNotifierProvider =
     NotifierProvider<PaymentHistoryNotifier, PaymentHistoryState>.internal(
-  PaymentHistoryNotifier.new,
-  name: r'paymentHistoryNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$paymentHistoryNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      PaymentHistoryNotifier.new,
+      name: r'paymentHistoryNotifierProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$paymentHistoryNotifierHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$PaymentHistoryNotifier = Notifier<PaymentHistoryState>;
 // ignore_for_file: type=lint
