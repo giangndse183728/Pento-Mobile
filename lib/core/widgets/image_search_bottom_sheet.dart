@@ -48,10 +48,10 @@ class _ImageSearchBottomSheetState extends State<ImageSearchBottomSheet> {
     });
 
     try {
-      final response = await ApiClient.instance.nestDio.post(
+      final response = await ApiClient.instance.nestDio.get(
         ApiEndpoints.imageSearch,
-        data: {
-          'query': query,
+        queryParameters: {
+          'q': query,
           'num': 9, // Request 9 images for 3x3 grid
         },
       );
@@ -63,24 +63,11 @@ class _ImageSearchBottomSheetState extends State<ImageSearchBottomSheet> {
       final dynamic data = response.data;
       List<ImageSearchResult> results = [];
 
-      if (data is List) {
-        results = data
-            .whereType<Map<String, dynamic>>()
-            .map((json) => ImageSearchResult.fromJson(json))
-            .toList();
-      } else if (data is Map && data.containsKey('results')) {
-        // Handle if response is wrapped in an object with 'results' key
-        final images = data['results'] as List<dynamic>;
+      if (data is Map && data['data'] is List) {
+        final images = data['data'] as List<dynamic>;
         results = images
             .whereType<Map<String, dynamic>>()
-            .map((json) => ImageSearchResult.fromJson(json))
-            .toList();
-      } else if (data is Map && data.containsKey('images')) {
-        // Handle if response is wrapped in an object with 'images' key
-        final images = data['images'] as List<dynamic>;
-        results = images
-            .whereType<Map<String, dynamic>>()
-            .map((json) => ImageSearchResult.fromJson(json))
+            .map(ImageSearchResult.fromJson)
             .toList();
       }
 
@@ -253,7 +240,7 @@ class _ImageSearchBottomSheetState extends State<ImageSearchBottomSheet> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10.r),
                                     child: Image.network(
-                                      image.link,
+                                      image.imageUrl,
                                       fit: BoxFit.cover,
                                       loadingBuilder:
                                           (context, child, loadingProgress) {
@@ -303,17 +290,17 @@ class _ImageSearchBottomSheetState extends State<ImageSearchBottomSheet> {
 
 class ImageSearchResult {
   final String title;
-  final String link;
+  final String imageUrl;
 
   ImageSearchResult({
     required this.title,
-    required this.link,
+    required this.imageUrl,
   });
 
   factory ImageSearchResult.fromJson(Map<String, dynamic> json) {
     return ImageSearchResult(
       title: (json['title'] ?? '') as String,
-      link: (json['link'] ?? '') as String,
+      imageUrl: (json['imageUrl'] ?? '') as String,
     );
   }
 }
