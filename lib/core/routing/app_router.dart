@@ -24,6 +24,7 @@ import '../../features/grocery/presentation/screen/grocery_screen.dart';
 import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
 import '../../features/subscription/presentation/screen/subscription_screen.dart';
 import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
+import '../../features/subscription/presentation/screen/payment_history_screen.dart';
 import '../../features/food_scan/presentation/screen/food_scan_screen.dart';
 import '../../features/food_scan/presentation/screen/food_scan_results_screen.dart';
 import '../../features/food_scan/data/models/scanned_food_reference.dart';
@@ -241,6 +242,12 @@ child: const FoodItemLogsScreen(),
       path: AppRoutes.subscription,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const SubscriptionScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.paymentHistory,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const PaymentHistoryScreen(),
       ),
     ),
     GoRoute(
