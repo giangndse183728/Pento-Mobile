@@ -1,0 +1,455 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_typography.dart';
+import '../../../../core/layouts/app_scaffold.dart';
+import '../../data/models/chat_message.dart';
+import '../providers/chatbot_provider.dart';
+
+const _assistantAvatarPath = 'assets/image/logo2.PNG';
+
+class ChatbotScreen extends ConsumerStatefulWidget {
+  const ChatbotScreen({super.key});
+
+  @override
+  ConsumerState<ChatbotScreen> createState() => _ChatbotScreenState();
+}
+
+class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
+  late final TextEditingController _messageController;
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController = TextEditingController();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<ChatbotState>(
+      chatbotViewModelProvider,
+      (previous, next) {
+        final prevLength = previous?.messages.length ?? 0;
+        if (next.messages.length > prevLength) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollToBottom();
+          });
+        }
+        final error = next.errorMessage;
+        if (error != null && error != previous?.errorMessage) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+        }
+      },
+    );
+
+    final state = ref.watch(chatbotViewModelProvider);
+
+    return AppScaffold(
+      title: 'Chatbot',
+      showAvatarButton: false,
+      showNotificationButton: false,
+      forcePillMode: true,
+      body: Column(
+        children: [
+          Expanded(
+            child: state.messages.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + kToolbarHeight,
+                      bottom: 16.h,
+                    ),
+                    itemCount: state.messages.length + (state.isSending ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index >= state.messages.length) {
+                        return const _AssistantTypingBubble();
+                      }
+                      final message = state.messages[index];
+                      return _MessageBubble(message: message);
+                    },
+                  ),
+          ),
+          _ChatInputBar(
+            controller: _messageController,
+            isSending: state.isSending,
+            onSend: _handleSend,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 100.w,
+              height: 100.w,
+              child: ClipOval(
+                child: Image.asset(
+                  _assistantAvatarPath,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Say hello to your kitchen assistant.',
+              style: AppTextStyles.sectionHeader(),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Ask for cooking tips, leftover ideas, or anything food '
+              'related.',
+              style: TextStyle(
+                color: AppColors.blueGray,
+                fontSize: 14.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleSend() {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) {
+      return;
+    }
+    _messageController.clear();
+    ref.read(chatbotViewModelProvider.notifier).sendMessage(message);
+  }
+
+  void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent + 80.h,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final isUser = message.role == ChatRole.user;
+    final bubbleColor = isUser
+        ? AppColors.blueGray.withValues(alpha: 0.15)
+        : Colors.white;
+    final textColor = isUser ? Colors.black87 : AppColors.blueGray;
+
+    final bubble = Container(
+      constraints: BoxConstraints(maxWidth: 280.w),
+      margin: EdgeInsets.only(
+        top: 8.h,
+        bottom: 8.h,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 12.h,
+      ),
+      decoration: BoxDecoration(
+        color: bubbleColor,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: AppColors.powderBlue.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.content,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: textColor,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            _formatTimestamp(message.createdAt),
+            style: TextStyle(
+              fontSize: 11.sp,
+              color: textColor.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (isUser) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: bubble,
+      );
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _AssistantAvatar(),
+          SizedBox(width: 8.w),
+          bubble,
+        ],
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final time = TimeOfDay.fromDateTime(timestamp);
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
+  }
+}
+
+class _ChatInputBar extends StatelessWidget {
+  const _ChatInputBar({
+    required this.controller,
+    required this.isSending,
+    required this.onSend,
+  });
+
+  final TextEditingController controller;
+  final bool isSending;
+  final VoidCallback onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        12.h,
+        16.w,
+        bottomPadding + 12.h,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.iceberg,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.powderBlue.withValues(alpha: 0.6),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              minLines: 1,
+              maxLines: 4,
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => onSend(),
+              decoration: InputDecoration(
+                hintText: 'Ask anything about your pantry...',
+                hintStyle: AppTextStyles.inputHint,
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                  borderSide: BorderSide(
+                    color: AppColors.babyBlue,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                  borderSide: BorderSide(
+                    color: AppColors.babyBlue,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                  borderSide: BorderSide(
+                    color: AppColors.blueGray,
+                    width: 1.6,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          SizedBox(
+            height: 48.h,
+            width: 48.h,
+            child: ElevatedButton(
+              onPressed: isSending ? null : onSend,
+              style: ElevatedButton.styleFrom(
+                shape: const CircleBorder(),
+                backgroundColor: AppColors.blueGray,
+                padding: EdgeInsets.zero,
+              ),
+              child: isSending
+                  ? SizedBox(
+                      width: 18.w,
+                      height: 18.w,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AssistantTypingBubble extends StatelessWidget {
+  const _AssistantTypingBubble();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _AssistantAvatar(),
+          SizedBox(width: 12.w),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 12.h,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18.r),
+              border: Border.all(
+                color: AppColors.powderBlue.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _TypingDot(delay: 0),
+                SizedBox(width: 4.w),
+                _TypingDot(delay: 150),
+                SizedBox(width: 4.w),
+                _TypingDot(delay: 300),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AssistantAvatar extends StatelessWidget {
+  const _AssistantAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 18.r,
+      backgroundColor: Colors.white,
+      child: ClipOval(
+        child: Image.asset(
+          _assistantAvatarPath,
+          width: 48.w,
+          height: 48.h,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+}
+
+class _TypingDot extends StatefulWidget {
+  const _TypingDot({required this.delay});
+
+  final int delay;
+
+  @override
+  State<_TypingDot> createState() => _TypingDotState();
+}
+
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+
+    _animation = Tween<double>(begin: 0.3, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          widget.delay / 900,
+          1,
+          curve: Curves.easeInOut,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
+      child: Container(
+        width: 6.w,
+        height: 6.w,
+        decoration: BoxDecoration(
+          color: AppColors.blueGray,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+

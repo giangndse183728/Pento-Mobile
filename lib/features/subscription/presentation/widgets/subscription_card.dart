@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -145,7 +146,7 @@ class SubscriptionCard extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 18.h),
                   // Plans section
                   if (subscription.plans.isNotEmpty) ...[
                     const _SectionHeader(title: 'SELECT PLAN'),
@@ -269,6 +270,10 @@ class _CardChip extends StatelessWidget {
       height: 35.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6.r),
+        border: Border.all(
+          color: Colors.white60,
+          width: 2,
+        ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -289,47 +294,76 @@ class _CardChip extends StatelessWidget {
         ],
       ),
       child: Stack(
-        children: [
-          // Chip lines
-          Positioned(
-            left: 6.w,
-            top: 8.h,
-            right: 6.w,
-            child: Column(
-              children: List.generate(
-                4,
-                (index) => Container(
-                  height: 1.5.h,
-                  margin: EdgeInsets.only(bottom: 3.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.warningSun,
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                ),
+  children: [
+    // Horizontal bars (metal lanes)
+    Positioned.fill(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(5, (i) {
+            return Container(
+              height: 1.3.h,
+              decoration: BoxDecoration(
+                color: AppColors.warningSun.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(2.r),
               ),
-            ),
-          ),
-          // Vertical lines
-          Positioned(
-            left: 15.w,
-            top: 4.h,
-            bottom: 4.h,
-            child: Container(
-              width: 1.w,
-              color: AppColors.warningSun,
-            ),
-          ),
-          Positioned(
-            right: 15.w,
-            top: 4.h,
-            bottom: 4.h,
-            child: Container(
-              width: 1.w,
-              color: AppColors.warningSun,
-            ),
-          ),
-        ],
+            );
+          }),
+        ),
       ),
+    ),
+
+    // Vertical thick dividers (split blocks)
+    Positioned(
+      left: 10.w,
+      top: 4.h,
+      bottom: 4.h,
+      child: Container(
+        width: 2.w,
+        decoration: BoxDecoration(
+          color: AppColors.warningSun.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    ),
+
+    Positioned(
+      right: 10.w,
+      top: 4.h,
+      bottom: 4.h,
+      child: Container(
+        width: 2.w,
+        decoration: BoxDecoration(
+          color: AppColors.warningSun.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    ),
+
+    // Small inner vertical bars (chip detail)
+    Positioned(
+      left: 22.w,
+      top: 6.h,
+      bottom: 6.h,
+      child: Container(
+        width: 1.w,
+        color: AppColors.warningSun,
+      ),
+    ),
+
+    Positioned(
+      right: 22.w,
+      top: 6.h,
+      bottom: 6.h,
+      child: Container(
+        width: 1.w,
+        color: AppColors.warningSun,
+      ),
+    ),
+  ],
+),
+
     );
   }
 }
@@ -480,7 +514,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _PlanScrollableList extends StatelessWidget {
+class _PlanScrollableList extends HookWidget {
   const _PlanScrollableList({
     required this.plans,
     required this.isLoading,
@@ -499,6 +533,8 @@ class _PlanScrollableList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scrollController = useScrollController();
+
     if (plans.length <= 3) {
       return Column(
         children: plans
@@ -520,7 +556,9 @@ class _PlanScrollableList extends StatelessWidget {
       ),
       child: Scrollbar(
         thumbVisibility: true,
+        controller: scrollController,
         child: ListView.separated(
+          controller: scrollController,
           padding: EdgeInsets.zero,
           physics: const BouncingScrollPhysics(),
           itemCount: plans.length,

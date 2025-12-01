@@ -25,6 +25,7 @@ class FoodReferenceSearchSection extends ConsumerStatefulWidget {
 class _FoodReferenceSearchSectionState
     extends ConsumerState<FoodReferenceSearchSection> {
   final TextEditingController _searchCtrl = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String? _searchTerm;
   String? _selectedGroup;
 
@@ -43,15 +44,38 @@ class _FoodReferenceSearchSectionState
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 80.h) {
+      final filter = FoodReferenceFilter(
+        pageSize: 20,
+        search: _searchTerm,
+        foodGroup: _selectedGroup,
+      );
+      ref.read(foodReferencesProvider(filter).notifier).loadMore();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final filter = FoodReferenceFilter(
-      page: 1,
       pageSize: 20,
       search: _searchTerm,
       foodGroup: _selectedGroup,
@@ -173,7 +197,8 @@ class _FoodReferenceSearchSectionState
                 ],
               ),
             ),
-            data: (items) {
+            data: (state) {
+              final items = state.items;
               if (items.isEmpty) {
                 return Padding(
                   padding: EdgeInsets.all(32.h),
@@ -200,6 +225,7 @@ class _FoodReferenceSearchSectionState
                 child: SizedBox(
                   height: 280.h,
                   child: ListView.separated(
+                    controller: _scrollController,
                     itemCount: items.length,
                     separatorBuilder: (_, __) => SizedBox(height: 8.h),
                     itemBuilder: (context, index) {

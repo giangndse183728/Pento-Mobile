@@ -55,6 +55,18 @@ class CompartmentColumn extends ConsumerWidget {
     );
   }
 
+  Future<void> _navigateToFoodScanCamera(BuildContext context) async {
+    await context.push(
+      '${AppRoutes.foodScanCamera}?compartmentId=$compartmentId',
+    );
+  }
+
+  Future<void> _navigateToFoodScanBill(BuildContext context) async {
+    await context.push(
+      '${AppRoutes.foodScanBill}?compartmentId=$compartmentId',
+    );
+  }
+
   Future<void> _handleEdit(BuildContext context, WidgetRef ref) async {
     final result = await showDialog<Map<String, String>>(
       context: context,
@@ -526,9 +538,9 @@ class CompartmentColumn extends ConsumerWidget {
                               color: AppColors.blueGray,
                             ),
                             label: Text(
-                              'Add food',
+                              'Add',
                               style: TextStyle(
-                                fontSize: 14.sp * scale,
+                                fontSize: 13.sp * scale,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.blueGray,
                               ),
@@ -536,21 +548,51 @@ class CompartmentColumn extends ConsumerWidget {
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.symmetric(
                                 vertical: 6.h * scale,
+                                horizontal: 4.w * scale,
                               ),
                               foregroundColor: AppColors.blueGray,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
                         ),
-                        SizedBox(width: 4.w * scale),
+                        SizedBox(width: 2.w * scale),
                         IconButton(
                           onPressed: () => _navigateToBarcodeScanner(context),
+                          tooltip: 'Scan barcode',
                           icon: Icon(
                             Icons.qr_code_scanner,
-                            size: 20.sp * scale,
+                            size: 18.sp * scale,
                             color: AppColors.blueGray,
                           ),
                           style: IconButton.styleFrom(
-                            padding: EdgeInsets.all(8.w * scale),
+                            padding: EdgeInsets.all(6.w * scale),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _navigateToFoodScanCamera(context),
+                          tooltip: 'Scan food',
+                          icon: Icon(
+                            Icons.camera_alt,
+                            size: 18.sp * scale,
+                            color: AppColors.blueGray,
+                          ),
+                          style: IconButton.styleFrom(
+                            padding: EdgeInsets.all(6.w * scale),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _navigateToFoodScanBill(context),
+                          tooltip: 'Scan bill',
+                          icon: Icon(
+                            Icons.receipt_long,
+                            size: 18.sp * scale,
+                            color: AppColors.blueGray,
+                          ),
+                          style: IconButton.styleFrom(
+                            padding: EdgeInsets.all(6.w * scale),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/utils/quantity_formatter.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../unit/data/models/unit_model.dart';
+import '../../../unit/presentation/providers/unit_provider.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
+import '../../../unit/utils/unit_converter.dart';
 
-class ConsumeDiscardDialog extends StatefulWidget {
+class ConsumeDiscardDialog extends ConsumerStatefulWidget {
   const ConsumeDiscardDialog({
     super.key,
     required this.title,
@@ -25,19 +30,22 @@ class ConsumeDiscardDialog extends StatefulWidget {
   final Color iconColor;
   final String actionLabel;
   final Color actionColor;
-  final int maxQuantity;
+  final double maxQuantity;
   final String unitAbbreviation;
-  final Future<void> Function(int quantity, String unitId) onConfirm;
+  final Future<void> Function(double quantity, String unitId) onConfirm;
 
   @override
-  State<ConsumeDiscardDialog> createState() => _ConsumeDiscardDialogState();
+  ConsumerState<ConsumeDiscardDialog> createState() =>
+      _ConsumeDiscardDialogState();
 }
 
-class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
+class _ConsumeDiscardDialogState
+    extends ConsumerState<ConsumeDiscardDialog> {
   late final TextEditingController _quantityController;
   bool _isLoading = false;
   String? _errorText;
   String? _selectedUnitId;
+  Unit? _selectedUnit;
 
   @override
   void initState() {
@@ -60,7 +68,14 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
       return;
     }
 
-    final quantity = int.tryParse(quantityText);
+    if (_selectedUnitId == null || _selectedUnitId!.trim().isEmpty) {
+      setState(() {
+        _errorText = 'Please select a unit';
+      });
+      return;
+    }
+
+    final quantity = double.tryParse(quantityText);
     if (quantity == null || quantity <= 0) {
       setState(() {
         _errorText = 'Please enter a valid quantity';
@@ -68,16 +83,13 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
       return;
     }
 
-    if (quantity > widget.maxQuantity) {
-      setState(() {
-        _errorText = 'Max: ${widget.maxQuantity}';
-      });
-      return;
-    }
+    final convertedQuantity = _convertInputToBase(quantity);
+    print('convertedQuantity: $convertedQuantity');
+    print('widget.maxQuantity: ${widget.maxQuantity}');
 
-    if (_selectedUnitId == null || _selectedUnitId!.trim().isEmpty) {
+    if (convertedQuantity > widget.maxQuantity) {
       setState(() {
-        _errorText = 'Please select a unit';
+        _errorText = 'Max: ${formatQuantity(widget.maxQuantity)}';
       });
       return;
     }
@@ -112,9 +124,13 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
           SizedBox(height: 24.h),
           TextField(
             controller: _quantityController,
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
             inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
+              FilteringTextInputFormatter.allow(
+                RegExp(r'^\d*\.?\d{0,3}'),
+              ),
             ],
             enabled: !_isLoading,
             decoration: InputDecoration(
@@ -156,7 +172,8 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
           ),
           SizedBox(height: 8.h),
           Text(
-            'Available: ${widget.maxQuantity} ${widget.unitAbbreviation}',
+            'Available: ${formatQuantity(widget.maxQuantity)} '
+            '${widget.unitAbbreviation}',
             style: AppTextStyles.inputHint.copyWith(
               fontSize: 13.sp,
             ),
@@ -170,6 +187,7 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
             onUnitSelected: (unit) {
               setState(() {
                 _selectedUnitId = unit?.id;
+                _selectedUnit = unit;
                 if (_errorText != null && _errorText!.contains('unit')) {
                   _errorText = null;
                 }
@@ -245,6 +263,25 @@ class _ConsumeDiscardDialogState extends State<ConsumeDiscardDialog> {
         ],
       ),
     );
+  }
+
+  double _convertInputToBase(double quantity) {
+    final units = ref.read(unitsProvider).valueOrNull;
+    if (units == null || units.isEmpty) {
+      return quantity;
+    }
+    final baseUnit = UnitConverter.findByLabel(units, widget.unitAbbreviation);
+    if (baseUnit == null) {
+      return quantity;
+    }
+    final fromUnit =
+        UnitConverter.findById(units, _selectedUnitId) ?? _selectedUnit ?? baseUnit;
+    final converted = UnitConverter.convert(
+      quantity: quantity,
+      fromUnit: fromUnit,
+      toUnit: baseUnit,
+    );
+    return converted ?? quantity;
   }
 }
 

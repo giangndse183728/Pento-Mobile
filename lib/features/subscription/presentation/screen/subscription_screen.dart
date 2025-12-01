@@ -5,7 +5,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/exceptions/network_exception.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/subscription_provider.dart';
 import '../widgets/subscription_card.dart';
 
@@ -32,6 +35,13 @@ class SubscriptionScreen extends HookConsumerWidget {
       showBackButton: false,
       showAvatarButton: false,
       showNotificationButton: false,
+      
+      actions: [
+        CircleIconButton(
+          icon: Icons.history_rounded,
+          onTap: () => context.push(AppRoutes.paymentHistory),
+        ),
+      ],
       body: subscriptionAsync.when(
         data: (items) => RefreshIndicator(
           color: AppColors.blueGray,

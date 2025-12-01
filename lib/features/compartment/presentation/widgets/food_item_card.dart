@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/utils/quantity_formatter.dart';
 import '../../data/models/compartment_models.dart';
 
 enum _ExpirationStatus {
@@ -163,7 +164,8 @@ class FoodItemCard extends StatelessWidget {
                             ),
                             SizedBox(height: 4.h * scale),
                             Text(
-                              '${item.quantity} ${item.unitAbbreviation}',
+                              '${formatQuantity(item.quantity)} '
+                              '${item.unitAbbreviation}',
                               style: TextStyle(
                                 fontSize: 12.sp * scale,
                                 color: AppColors.blueGray,

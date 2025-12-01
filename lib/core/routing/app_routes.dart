@@ -28,6 +28,7 @@ class AppRoutes {
   static const String chatbot = '/chatbot';
   static const String subscription = '/subscription';
   static const String paymentQr = '/payment-qr';
+  static const String paymentHistory = '/payment-history';
   static const String foodScanCamera = '/compartment/food-scan-camera';
   static const String foodScanBill = '/compartment/food-scan-bill';
   static const String foodScanResults = '/compartment/food-scan-results';

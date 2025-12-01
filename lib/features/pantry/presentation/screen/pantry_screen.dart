@@ -240,7 +240,7 @@ class PantryScreen extends ConsumerWidget {
                           kToolbarHeight,
                     ),
                     const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      padding: EdgeInsets.fromLTRB(8, 8, 8, 16),
                       child: FoodItemLogSummaryChart(),
                     ),
                     if (pantryItems.isNotEmpty) ...[

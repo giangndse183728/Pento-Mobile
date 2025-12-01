@@ -52,3 +52,31 @@ Map<String, dynamic> _$$FoodReferenceImplToJson(_$FoodReferenceImpl instance) =>
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'isDeleted': instance.isDeleted,
     };
+
+_$PaginatedFoodReferencesImpl _$$PaginatedFoodReferencesImplFromJson(
+  Map<String, dynamic> json,
+) => _$PaginatedFoodReferencesImpl(
+  currentPage: (json['currentPage'] as num).toInt(),
+  totalPages: (json['totalPages'] as num).toInt(),
+  pageSize: (json['pageSize'] as num).toInt(),
+  totalCount: (json['totalCount'] as num).toInt(),
+  hasPrevious: json['hasPrevious'] as bool,
+  hasNext: json['hasNext'] as bool,
+  items:
+      (json['items'] as List<dynamic>?)
+          ?.map((e) => FoodReference.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <FoodReference>[],
+);
+
+Map<String, dynamic> _$$PaginatedFoodReferencesImplToJson(
+  _$PaginatedFoodReferencesImpl instance,
+) => <String, dynamic>{
+  'currentPage': instance.currentPage,
+  'totalPages': instance.totalPages,
+  'pageSize': instance.pageSize,
+  'totalCount': instance.totalCount,
+  'hasPrevious': instance.hasPrevious,
+  'hasNext': instance.hasNext,
+  'items': instance.items,
+};

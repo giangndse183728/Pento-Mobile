@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/utils/quantity_formatter.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_text_form_field.dart';
@@ -42,8 +43,9 @@ class _EditFoodItemDialogState extends ConsumerState<EditFoodItemDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.detail.name);
-    _quantityController =
-        TextEditingController(text: widget.detail.quantity.toString());
+    _quantityController = TextEditingController(
+      text: formatQuantity(widget.detail.quantity),
+    );
     _notesController = TextEditingController(text: widget.detail.notes ?? '');
     _selectedDate = widget.detail.expirationDateUtc;
     
@@ -107,7 +109,7 @@ class _EditFoodItemDialogState extends ConsumerState<EditFoodItemDialog> {
       return;
     }
 
-    final quantity = int.tryParse(_quantityController.text.trim());
+    final quantity = double.tryParse(_quantityController.text.trim());
     if (quantity == null || quantity <= 0) {
       ToastHelper.showError(context, 'Quantity must be a positive number');
       return;
@@ -202,10 +204,14 @@ class _EditFoodItemDialogState extends ConsumerState<EditFoodItemDialog> {
                     controller: _quantityController,
                     labelText: 'Quantity',
                     hintText: 'Enter quantity',
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     enabled: !_isSubmitting,
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,3}'),
+                      ),
                     ],
                   ),
                   SizedBox(height: 16.h),

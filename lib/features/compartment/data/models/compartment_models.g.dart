@@ -31,7 +31,9 @@ _$CompartmentItemImpl _$$CompartmentItemImplFromJson(
   name: json['name'] as String,
   foodGroup: json['foodGroup'] as String?,
   imageUrl: json['imageUrl'] as String?,
-  quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+  quantity: json['quantity'] == null
+      ? 0.0
+      : _quantityFromJson(json['quantity']),
   unitAbbreviation: json['unitAbbreviation'] as String? ?? '',
   expirationDateUtc: json['expirationDateUtc'] == null
       ? null
@@ -48,7 +50,7 @@ Map<String, dynamic> _$$CompartmentItemImplToJson(
   'name': instance.name,
   'foodGroup': instance.foodGroup,
   'imageUrl': instance.imageUrl,
-  'quantity': instance.quantity,
+  'quantity': _quantityToJson(instance.quantity),
   'unitAbbreviation': instance.unitAbbreviation,
   'expirationDateUtc': instance.expirationDateUtc?.toIso8601String(),
   'version': instance.version,
@@ -65,7 +67,9 @@ _$CompartmentItemDetailImpl _$$CompartmentItemDetailImplFromJson(
   name: json['name'] as String,
   foodGroup: json['foodGroup'] as String?,
   imageUrl: json['imageUrl'] as String?,
-  quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+  quantity: json['quantity'] == null
+      ? 0.0
+      : _quantityFromJson(json['quantity']),
   unitAbbreviation: json['unitAbbreviation'] as String? ?? '',
   expirationDateUtc: json['expirationDateUtc'] == null
       ? null
@@ -104,7 +108,7 @@ Map<String, dynamic> _$$CompartmentItemDetailImplToJson(
   'name': instance.name,
   'foodGroup': instance.foodGroup,
   'imageUrl': instance.imageUrl,
-  'quantity': instance.quantity,
+  'quantity': _quantityToJson(instance.quantity),
   'unitAbbreviation': instance.unitAbbreviation,
   'expirationDateUtc': instance.expirationDateUtc?.toIso8601String(),
   'notes': instance.notes,

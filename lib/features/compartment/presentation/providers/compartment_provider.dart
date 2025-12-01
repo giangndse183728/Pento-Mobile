@@ -284,7 +284,7 @@ class CompartmentItems extends _$CompartmentItems {
   Future<void> createFoodItem({
     required String foodRefId,
     required String name,
-    required int quantity,
+    required double quantity,
     String? unitId,
     DateTime? expirationDate,
     String? notes,
@@ -335,7 +335,7 @@ class CompartmentItems extends _$CompartmentItems {
 
   void updateItemQuantityOptimistically({
     required String foodItemId,
-    required int newQuantity,
+    required double newQuantity,
   }) {
     final currentState = state;
     if (currentState is! AsyncData<CompartmentItemsState>) {
@@ -357,7 +357,7 @@ class CompartmentItems extends _$CompartmentItems {
   void updateItemDetailsOptimistically({
     required String foodItemId,
     String? name,
-    int? quantity,
+    double? quantity,
     DateTime? expirationDate,
   }) {
     final currentState = state;
@@ -442,5 +442,12 @@ class CompartmentItems extends _$CompartmentItems {
       }
       rethrow;
     }
+  }
+
+  Future<void> createFoodBulk({
+    required List<Map<String, dynamic>> items,
+  }) async {
+    await _foodItemRepository.createFoodBulk(items: items);
+    await refresh();
   }
 }

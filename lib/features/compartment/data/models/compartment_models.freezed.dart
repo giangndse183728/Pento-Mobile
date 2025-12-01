@@ -538,7 +538,8 @@ mixin _$CompartmentItem {
   String? get foodGroup => throw _privateConstructorUsedError;
   @JsonKey(name: 'imageUrl')
   String? get imageUrl => throw _privateConstructorUsedError;
-  int get quantity => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  double get quantity => throw _privateConstructorUsedError;
   @JsonKey(name: 'unitAbbreviation')
   String get unitAbbreviation => throw _privateConstructorUsedError;
   @JsonKey(name: 'expirationDateUtc')
@@ -569,7 +570,8 @@ abstract class $CompartmentItemCopyWith<$Res> {
     String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'imageUrl') String? imageUrl,
-    int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    double quantity,
     @JsonKey(name: 'unitAbbreviation') String unitAbbreviation,
     @JsonKey(name: 'expirationDateUtc') DateTime? expirationDateUtc,
     int version,
@@ -631,7 +633,7 @@ class _$CompartmentItemCopyWithImpl<$Res, $Val extends CompartmentItem>
             quantity: null == quantity
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as double,
             unitAbbreviation: null == unitAbbreviation
                 ? _value.unitAbbreviation
                 : unitAbbreviation // ignore: cast_nullable_to_non_nullable
@@ -666,7 +668,8 @@ abstract class _$$CompartmentItemImplCopyWith<$Res>
     String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'imageUrl') String? imageUrl,
-    int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    double quantity,
     @JsonKey(name: 'unitAbbreviation') String unitAbbreviation,
     @JsonKey(name: 'expirationDateUtc') DateTime? expirationDateUtc,
     int version,
@@ -727,7 +730,7 @@ class __$$CompartmentItemImplCopyWithImpl<$Res>
         quantity: null == quantity
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as double,
         unitAbbreviation: null == unitAbbreviation
             ? _value.unitAbbreviation
             : unitAbbreviation // ignore: cast_nullable_to_non_nullable
@@ -755,7 +758,8 @@ class _$CompartmentItemImpl implements _CompartmentItem {
     required this.name,
     @JsonKey(name: 'foodGroup') this.foodGroup,
     @JsonKey(name: 'imageUrl') this.imageUrl,
-    this.quantity = 0,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    this.quantity = 0.0,
     @JsonKey(name: 'unitAbbreviation') this.unitAbbreviation = '',
     @JsonKey(name: 'expirationDateUtc') this.expirationDateUtc,
     this.version = 1,
@@ -781,8 +785,8 @@ class _$CompartmentItemImpl implements _CompartmentItem {
   @JsonKey(name: 'imageUrl')
   final String? imageUrl;
   @override
-  @JsonKey()
-  final int quantity;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  final double quantity;
   @override
   @JsonKey(name: 'unitAbbreviation')
   final String unitAbbreviation;
@@ -863,7 +867,8 @@ abstract class _CompartmentItem implements CompartmentItem {
     required final String name,
     @JsonKey(name: 'foodGroup') final String? foodGroup,
     @JsonKey(name: 'imageUrl') final String? imageUrl,
-    final int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    final double quantity,
     @JsonKey(name: 'unitAbbreviation') final String unitAbbreviation,
     @JsonKey(name: 'expirationDateUtc') final DateTime? expirationDateUtc,
     final int version,
@@ -889,7 +894,8 @@ abstract class _CompartmentItem implements CompartmentItem {
   @JsonKey(name: 'imageUrl')
   String? get imageUrl;
   @override
-  int get quantity;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  double get quantity;
   @override
   @JsonKey(name: 'unitAbbreviation')
   String get unitAbbreviation;
@@ -923,7 +929,8 @@ mixin _$CompartmentItemDetail {
   String get name => throw _privateConstructorUsedError;
   String? get foodGroup => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
-  int get quantity => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  double get quantity => throw _privateConstructorUsedError;
   String get unitAbbreviation => throw _privateConstructorUsedError;
   DateTime? get expirationDateUtc => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
@@ -964,7 +971,8 @@ abstract class $CompartmentItemDetailCopyWith<$Res> {
     String name,
     String? foodGroup,
     String? imageUrl,
-    int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    double quantity,
     String unitAbbreviation,
     DateTime? expirationDateUtc,
     String? notes,
@@ -1062,7 +1070,7 @@ class _$CompartmentItemDetailCopyWithImpl<
             quantity: null == quantity
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as double,
             unitAbbreviation: null == unitAbbreviation
                 ? _value.unitAbbreviation
                 : unitAbbreviation // ignore: cast_nullable_to_non_nullable
@@ -1167,7 +1175,8 @@ abstract class _$$CompartmentItemDetailImplCopyWith<$Res>
     String name,
     String? foodGroup,
     String? imageUrl,
-    int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    double quantity,
     String unitAbbreviation,
     DateTime? expirationDateUtc,
     String? notes,
@@ -1264,7 +1273,7 @@ class __$$CompartmentItemDetailImplCopyWithImpl<$Res>
         quantity: null == quantity
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as double,
         unitAbbreviation: null == unitAbbreviation
             ? _value.unitAbbreviation
             : unitAbbreviation // ignore: cast_nullable_to_non_nullable
@@ -1334,7 +1343,8 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
     required this.name,
     this.foodGroup,
     this.imageUrl,
-    this.quantity = 0,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    this.quantity = 0.0,
     this.unitAbbreviation = '',
     this.expirationDateUtc,
     this.notes,
@@ -1370,8 +1380,8 @@ class _$CompartmentItemDetailImpl implements _CompartmentItemDetail {
   @override
   final String? imageUrl;
   @override
-  @JsonKey()
-  final int quantity;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  final double quantity;
   @override
   @JsonKey()
   final String unitAbbreviation;
@@ -1514,7 +1524,8 @@ abstract class _CompartmentItemDetail implements CompartmentItemDetail {
     required final String name,
     final String? foodGroup,
     final String? imageUrl,
-    final int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    final double quantity,
     final String unitAbbreviation,
     final DateTime? expirationDateUtc,
     final String? notes,
@@ -1550,7 +1561,8 @@ abstract class _CompartmentItemDetail implements CompartmentItemDetail {
   @override
   String? get imageUrl;
   @override
-  int get quantity;
+  @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+  double get quantity;
   @override
   String get unitAbbreviation;
   @override

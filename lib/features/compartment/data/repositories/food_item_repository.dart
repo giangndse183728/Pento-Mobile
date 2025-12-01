@@ -43,7 +43,7 @@ class FoodItemRepository {
     required String foodRefId,
     required String compartmentId,
     required String name,
-    required int quantity,
+    required double quantity,
     String? unitId,
     DateTime? expirationDate,
     String? notes,
@@ -102,7 +102,7 @@ class FoodItemRepository {
     required String foodItemId,
     String? compartmentId,
     String? name,
-    int? quantity,
+    double? quantity,
     String? unitId,
     DateTime? expirationDate,
     String? notes,
@@ -141,7 +141,7 @@ class FoodItemRepository {
 
   Future<void> consumeFoodItem({
     required String foodItemId,
-    required int quantity,
+    required double quantity,
     required String unitId,
   }) async {
     final path = ApiEndpoints.consumeFoodItem.replaceFirst(
@@ -162,7 +162,7 @@ class FoodItemRepository {
 
   Future<void> discardFoodItem({
     required String foodItemId,
-    required int quantity,
+    required double quantity,
     required String unitId,
   }) async {
     final path = ApiEndpoints.discardFoodItem.replaceFirst(

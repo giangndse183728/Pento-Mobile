@@ -5,6 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/compartment_models.dart';
 import '../../data/repositories/food_item_repository.dart';
 import '../providers/compartment_provider.dart';
+import '../../../unit/presentation/providers/unit_provider.dart';
+import '../../../unit/utils/unit_converter.dart';
 
 part 'food_item_detail_provider.g.dart';
 
@@ -32,7 +34,10 @@ class FoodItemDetail extends _$FoodItemDetail {
     });
   }
 
-  void _updateItemQuantityInCompartments(int newQuantity, String? compartmentId) {
+  void _updateItemQuantityInCompartments(
+    double newQuantity,
+    String? compartmentId,
+  ) {
     if (compartmentId == null || compartmentId.isEmpty) return;
     
     try {
@@ -55,7 +60,7 @@ class FoodItemDetail extends _$FoodItemDetail {
   void _updateItemDetailsInCompartments({
     required String? compartmentId,
     String? name,
-    int? quantity,
+    double? quantity,
     DateTime? expirationDate,
   }) {
     if (compartmentId == null || compartmentId.isEmpty) return;
@@ -77,6 +82,31 @@ class FoodItemDetail extends _$FoodItemDetail {
     } catch (_) {
       // Silently fail 
     }
+  }
+
+  double _convertToDetailUnitQuantity({
+    required double quantity,
+    required String unitId,
+    required CompartmentItemDetail detail,
+  }) {
+    final units = ref.read(unitsProvider).whenOrNull(data: (value) => value);
+    if (units == null || units.isEmpty) {
+      return quantity;
+    }
+    final fromUnit = UnitConverter.findById(units, unitId);
+    final toUnit = UnitConverter.findByAbbreviation(
+      units,
+      detail.unitAbbreviation,
+    );
+    if (fromUnit == null || toUnit == null) {
+      return quantity;
+    }
+    final converted = UnitConverter.convert(
+      quantity: quantity,
+      fromUnit: fromUnit,
+      toUnit: toUnit,
+    );
+    return converted ?? quantity;
   }
 
   void _updateItemImageInCompartments({
@@ -104,14 +134,20 @@ class FoodItemDetail extends _$FoodItemDetail {
   }
 
   Future<void> consumeItem({
-    required int quantity,
+    required double quantity,
     required String unitId,
   }) async {
     final currentDetail = state.valueOrNull;
     if (currentDetail == null) return;
 
     final previousState = state;
-    final newQuantity = (currentDetail.quantity - quantity).clamp(0, double.infinity).toInt();
+    final convertedQuantity = _convertToDetailUnitQuantity(
+      quantity: quantity,
+      unitId: unitId,
+      detail: currentDetail,
+    );
+    final updatedQuantity = currentDetail.quantity - convertedQuantity;
+    final newQuantity = updatedQuantity < 0 ? 0.0 : updatedQuantity;
     
     // Optimistic update
     state = AsyncValue.data(currentDetail.copyWith(quantity: newQuantity));
@@ -131,14 +167,20 @@ class FoodItemDetail extends _$FoodItemDetail {
   }
 
   Future<void> discardItem({
-    required int quantity,
+    required double quantity,
     required String unitId,
   }) async {
     final currentDetail = state.valueOrNull;
     if (currentDetail == null) return;
 
     final previousState = state;
-    final newQuantity = (currentDetail.quantity - quantity).clamp(0, double.infinity).toInt();
+    final convertedQuantity = _convertToDetailUnitQuantity(
+      quantity: quantity,
+      unitId: unitId,
+      detail: currentDetail,
+    );
+    final updatedQuantity = currentDetail.quantity - convertedQuantity;
+    final newQuantity = updatedQuantity < 0 ? 0.0 : updatedQuantity;
     
     // Optimistic update
     state = AsyncValue.data(currentDetail.copyWith(quantity: newQuantity));
@@ -157,9 +199,29 @@ class FoodItemDetail extends _$FoodItemDetail {
     }
   }
 
+
+  void applyLocalReservation({
+    required double quantity,
+    required String unitId,
+  }) {
+    final currentDetail = state.valueOrNull;
+    if (currentDetail == null) return;
+
+    final convertedQuantity = _convertToDetailUnitQuantity(
+      quantity: quantity,
+      unitId: unitId,
+      detail: currentDetail,
+    );
+    final updatedQuantity = currentDetail.quantity - convertedQuantity;
+    final newQuantity = updatedQuantity < 0 ? 0.0 : updatedQuantity;
+
+    state = AsyncValue.data(currentDetail.copyWith(quantity: newQuantity));
+    _updateItemQuantityInCompartments(newQuantity, _compartmentId);
+  }
+
   Future<void> updateItem({
     String? name,
-    int? quantity,
+    double? quantity,
     String? unitId,
     DateTime? expirationDate,
     String? notes,

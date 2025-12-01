@@ -35,3 +35,20 @@ class FoodReference with _$FoodReference {
   factory FoodReference.fromJson(Map<String, dynamic> json) =>
       _$FoodReferenceFromJson(json);
 }
+
+@freezed
+class PaginatedFoodReferences with _$PaginatedFoodReferences {
+  const factory PaginatedFoodReferences({
+    required int currentPage,
+    required int totalPages,
+    required int pageSize,
+    required int totalCount,
+    required bool hasPrevious,
+    required bool hasNext,
+    @Default(<FoodReference>[]) List<FoodReference> items,
+  }) = _PaginatedFoodReferences;
+
+  factory PaginatedFoodReferences.fromJson(Map<String, dynamic> json) =>
+      _$PaginatedFoodReferencesFromJson(json);
+}
+

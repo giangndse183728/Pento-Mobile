@@ -148,7 +148,7 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
       return;
     }
     final quantityRaw = _quantityCtrl.text.trim();
-    final quantity = int.tryParse(quantityRaw);
+    final quantity = double.tryParse(quantityRaw);
     if (quantity == null || quantity < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Quantity must be a positive number')),
@@ -248,10 +248,14 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
                   child: AppTextFormField(
                     controller: _quantityCtrl,
                     labelText: 'Quantity',
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     prefixIcon: const Icon(Icons.numbers),
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,3}'),
+                      ),
                     ],
                   ),
                 ),

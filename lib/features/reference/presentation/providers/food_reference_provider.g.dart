@@ -150,13 +150,13 @@ class _FoodReferenceByBarcodeProviderElement
   String get barcode => (origin as FoodReferenceByBarcodeProvider).barcode;
 }
 
-String _$foodReferencesHash() => r'74f488d941d5f8d686d0080fc4579ffed64e1d5d';
+String _$foodReferencesHash() => r'd6ebb80ad531760191c7c0fb256579516f111bce';
 
 abstract class _$FoodReferences
-    extends BuildlessAutoDisposeAsyncNotifier<List<FoodReference>> {
+    extends BuildlessAutoDisposeAsyncNotifier<FoodReferenceListState> {
   late final FoodReferenceFilter filter;
 
-  FutureOr<List<FoodReference>> build(FoodReferenceFilter filter);
+  FutureOr<FoodReferenceListState> build(FoodReferenceFilter filter);
 }
 
 /// See also [FoodReferences].
@@ -164,7 +164,7 @@ abstract class _$FoodReferences
 const foodReferencesProvider = FoodReferencesFamily();
 
 /// See also [FoodReferences].
-class FoodReferencesFamily extends Family<AsyncValue<List<FoodReference>>> {
+class FoodReferencesFamily extends Family<AsyncValue<FoodReferenceListState>> {
   /// See also [FoodReferences].
   const FoodReferencesFamily();
 
@@ -200,7 +200,7 @@ class FoodReferencesProvider
     extends
         AutoDisposeAsyncNotifierProviderImpl<
           FoodReferences,
-          List<FoodReference>
+          FoodReferenceListState
         > {
   /// See also [FoodReferences].
   FoodReferencesProvider(FoodReferenceFilter filter)
@@ -230,7 +230,7 @@ class FoodReferencesProvider
   final FoodReferenceFilter filter;
 
   @override
-  FutureOr<List<FoodReference>> runNotifierBuild(
+  FutureOr<FoodReferenceListState> runNotifierBuild(
     covariant FoodReferences notifier,
   ) {
     return notifier.build(filter);
@@ -253,7 +253,10 @@ class FoodReferencesProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<FoodReferences, List<FoodReference>>
+  AutoDisposeAsyncNotifierProviderElement<
+    FoodReferences,
+    FoodReferenceListState
+  >
   createElement() {
     return _FoodReferencesProviderElement(this);
   }
@@ -275,7 +278,7 @@ class FoodReferencesProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin FoodReferencesRef
-    on AutoDisposeAsyncNotifierProviderRef<List<FoodReference>> {
+    on AutoDisposeAsyncNotifierProviderRef<FoodReferenceListState> {
   /// The parameter `filter` of this provider.
   FoodReferenceFilter get filter;
 }
@@ -284,7 +287,7 @@ class _FoodReferencesProviderElement
     extends
         AutoDisposeAsyncNotifierProviderElement<
           FoodReferences,
-          List<FoodReference>
+          FoodReferenceListState
         >
     with FoodReferencesRef {
   _FoodReferencesProviderElement(super.provider);
