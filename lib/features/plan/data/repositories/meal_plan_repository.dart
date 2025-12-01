@@ -3,6 +3,8 @@ import '../../../../core/network/network_service.dart';
 import '../../../../core/utils/logging.dart';
 import '../models/meal_plan_models.dart';
 
+export '../models/meal_plan_models.dart';
+
 class MealPlanRepository {
   final NetworkService _network = NetworkService.instance;
   final _logger = AppLogger.getLogger('MealPlanRepository');
@@ -81,6 +83,33 @@ class MealPlanRepository {
     _logger.info('Creating meal reservation for ${payload.foodItemId}');
     await _network.post<void>(
       ApiEndpoints.createMealReservation,
+      data: payload.toJson(),
+      onSuccess: (_) => null,
+    );
+  }
+
+  Future<RecipeReservationResponse> createRecipeReservation({
+    required RecipeReservationPayload payload,
+  }) async {
+    _logger.info('Creating recipe reservation for ${payload.recipeId}');
+    return await _network.post<RecipeReservationResponse>(
+      ApiEndpoints.createRecipeReservation,
+      data: payload.toJson(),
+      onSuccess: (data) {
+        if (data is! Map<String, dynamic>) {
+          throw Exception('Invalid recipe reservation response');
+        }
+        return RecipeReservationResponse.fromJson(data);
+      },
+    );
+  }
+
+  Future<void> confirmRecipeReservation({
+    required RecipeReservationPayload payload,
+  }) async {
+    _logger.info('Confirming recipe reservation for ${payload.recipeId}');
+    await _network.post<void>(
+      ApiEndpoints.confirmRecipeReservation,
       data: payload.toJson(),
       onSuccess: (_) => null,
     );

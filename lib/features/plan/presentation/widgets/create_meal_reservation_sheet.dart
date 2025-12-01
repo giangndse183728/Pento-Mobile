@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../../../core/widgets/app_text_form_field.dart';
+import '../../../../core/utils/quantity_formatter.dart';
 import '../../../unit/data/models/unit_model.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../../data/models/meal_plan_models.dart';
 import '../providers/meal_reservation_provider.dart';
+import '../../../compartment/presentation/providers/food_item_detail_provider.dart';
 
 class CreateMealReservationSheet extends ConsumerStatefulWidget {
   const CreateMealReservationSheet({
@@ -25,7 +29,7 @@ class CreateMealReservationSheet extends ConsumerStatefulWidget {
   final String foodItemId;
   final String foodName;
   final String? defaultUnitAbbreviation;
-  final int? availableQuantity;
+  final double? availableQuantity;
 
   @override
   ConsumerState<CreateMealReservationSheet> createState() =>
@@ -37,26 +41,26 @@ class _CreateMealReservationSheetState
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _quantityController;
   late final TextEditingController _servingsController;
-  late final TextEditingController _dateController;
   MealType _selectedMealType = MealType.breakfast;
   late DateTime _selectedDate;
+  late DateTime _focusedDate;
   Unit? _selectedUnit;
   String? _unitError;
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
+    final now = DateTime.now();
+    _selectedDate = now;
+    _focusedDate = now;
     _quantityController = TextEditingController(text: '1');
     _servingsController = TextEditingController(text: '1');
-    _dateController = TextEditingController(text: _formatDate(_selectedDate));
   }
 
   @override
   void dispose() {
     _quantityController.dispose();
     _servingsController.dispose();
-    _dateController.dispose();
     super.dispose();
   }
 
@@ -69,6 +73,7 @@ class _CreateMealReservationSheetState
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
         top: false,
+        bottom: false,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -115,11 +120,113 @@ class _CreateMealReservationSheetState
                   if (widget.availableQuantity != null) ...[
                     SizedBox(height: 4.h),
                     Text(
-                      'Available: ${widget.availableQuantity}',
+                      'Available: '
+                      '${formatQuantity(widget.availableQuantity!)}',
                       style: AppTextStyles.inputHint,
                     ),
                   ],
                   SizedBox(height: 20.h),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColors.blueGray.withValues(alpha: 0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: TableCalendar(
+                      rowHeight: 48.h,
+                      daysOfWeekHeight: 32.h,
+                      firstDay: DateTime.now(),
+                      lastDay: DateTime.now().add(
+                        const Duration(days: 730),
+                      ),
+                      focusedDay: _focusedDate,
+                      selectedDayPredicate: (day) =>
+                          isSameDay(_selectedDate, day),
+                      calendarFormat: CalendarFormat.week,
+                      availableCalendarFormats: const {
+                        CalendarFormat.week: 'Week',
+                      },
+                      onDaySelected: (selected, focused) {
+                        setState(() {
+                          _selectedDate = selected;
+                          _focusedDate = focused;
+                        });
+                      },
+                      onPageChanged: (focused) {
+                        setState(() {
+                          _focusedDate = focused;
+                        });
+                      },
+                      calendarStyle: CalendarStyle(
+                        todayDecoration: BoxDecoration(
+                          color: AppColors.powderBlue,
+                          shape: BoxShape.circle,
+                        ),
+                        selectedDecoration: BoxDecoration(
+                          color: AppColors.blueGray,
+                          shape: BoxShape.circle,
+                        ),
+                        outsideDaysVisible: false,
+                        defaultTextStyle: AppTextStyles.inputLabel.copyWith(
+                          fontSize: 14.sp,
+                        ),
+                        selectedTextStyle: AppTextStyles.inputLabel.copyWith(
+                          fontSize: 14.sp,
+                          color: Colors.white,
+                        ),
+                        todayTextStyle: AppTextStyles.inputLabel.copyWith(
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                      headerStyle: HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: true,
+                        titleTextStyle: AppTextStyles.inputLabel.copyWith(
+                          fontSize: 16.sp,
+                        ),
+                        leftChevronIcon: Icon(
+                          Icons.chevron_left,
+                          color: AppColors.blueGray,
+                          size: 24.sp,
+                        ),
+                        rightChevronIcon: Icon(
+                          Icons.chevron_right,
+                          color: AppColors.blueGray,
+                          size: 24.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                       Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildMealTypeChip(MealType.breakfast),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: _buildMealTypeChip(MealType.lunch),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildMealTypeChip(MealType.dinner),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: _buildMealTypeChip(MealType.snack),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
                   Row(
                     children: [
                       Expanded(
@@ -174,44 +281,13 @@ class _CreateMealReservationSheetState
                       ),
                     ),
                   ],
-                  SizedBox(height: 16.h),
-                  DropdownButtonFormField<MealType>(
-                    value: _selectedMealType,
-                    decoration: InputDecoration(
-                      labelText: 'Meal type',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                    ),
-                    items: MealType.values.map((type) {
-                      return DropdownMenuItem<MealType>(
-                        value: type,
-                        child: Text(_mealTypeLabel(type)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _selectedMealType = value);
-                    },
-                  ),
-                  SizedBox(height: 16.h),
-                  AppTextFormField(
-                    controller: _dateController,
-                    labelText: 'Scheduled date',
-                    readOnly: true,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today_rounded),
-                      onPressed: _pickDate,
-                    ),
-                    onTap: _pickDate,
-                  ),
                   SizedBox(height: 24.h),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: isLoading ? null : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.babyBlue,
+                        backgroundColor: AppColors.blueGray,
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
@@ -230,6 +306,7 @@ class _CreateMealReservationSheetState
                           : const Text('Add to meal plan'),
                     ),
                   ),
+                  SizedBox(height: 24.h),
                 ],
               ),
             ),
@@ -261,22 +338,6 @@ class _CreateMealReservationSheetState
     return null;
   }
 
-  Future<void> _pickDate() async {
-    FocusScope.of(context).unfocus();
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(now.year, now.month, now.day),
-      lastDate: DateTime(now.year + 2),
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-        _dateController.text = _formatDate(picked);
-      });
-    }
-  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
@@ -305,6 +366,15 @@ class _CreateMealReservationSheetState
 
     try {
       await notifier.createReservation(payload);
+
+      // Optimistically update food item quantity in detail + list
+      ref
+          .read(foodItemDetailProvider(widget.foodItemId).notifier)
+          .applyLocalReservation(
+            quantity: quantity,
+            unitId: _selectedUnit!.id,
+          );
+
       if (!mounted) return;
       Navigator.of(context).pop();
       ToastHelper.showSuccess(
@@ -323,13 +393,63 @@ class _CreateMealReservationSheetState
     }
   }
 
+  Widget _buildMealTypeChip(MealType type) {
+    final isSelected = _selectedMealType == type;
+    return ChoiceChip(
+      label: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            _getMealTypeIcon(type),
+            width: 16.w,
+            height: 16.h,
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            _mealTypeLabel(type),
+            style: AppTextStyles.inputLabel.copyWith(
+              fontSize: 12.sp,
+              color: isSelected ? Colors.white : AppColors.blueGray,
+            ),
+          ),
+        ],
+      ),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          setState(() => _selectedMealType = type);
+        }
+      },
+      selectedColor: AppColors.blueGray,
+      backgroundColor: AppColors.blueGray.withValues(
+        alpha: 0.1,
+      ),
+      labelStyle: AppTextStyles.inputLabel.copyWith(
+        fontSize: 12.sp,
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: 8.h,
+        horizontal: 4.w,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+    );
+  }
+
   String _mealTypeLabel(MealType type) => type.apiValue;
 
-  String _formatDate(DateTime date) {
-    final year = date.year.toString().padLeft(4, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '$year-$month-$day';
+  String _getMealTypeIcon(MealType type) {
+    switch (type) {
+      case MealType.breakfast:
+        return AppImages.breakfast;
+      case MealType.lunch:
+        return AppImages.lunch;
+      case MealType.dinner:
+        return AppImages.dinner;
+      case MealType.snack:
+        return AppImages.snack;
+    }
   }
 }
 
