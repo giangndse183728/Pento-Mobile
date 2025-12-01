@@ -48,7 +48,7 @@ class _ImageSearchBottomSheetState extends State<ImageSearchBottomSheet> {
     });
 
     try {
-      final response = await ApiClient.instance.localDio.post(
+      final response = await ApiClient.instance.nestDio.post(
         ApiEndpoints.imageSearch,
         data: {
           'query': query,

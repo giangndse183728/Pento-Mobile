@@ -6,7 +6,7 @@ part of 'food_item_detail_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$foodItemDetailHash() => r'22d4015acfb3c60b7d1b9a370b299bc1b7a4533e';
+String _$foodItemDetailHash() => r'12f0dca92f03aca20db861a49e1ea2bb825ea8b5';
 
 /// Copied from Dart SDK
 class _SystemHash {
