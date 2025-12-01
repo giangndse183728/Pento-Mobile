@@ -556,3 +556,318 @@ abstract class _FoodReference implements FoodReference {
   _$$FoodReferenceImplCopyWith<_$FoodReferenceImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+PaginatedFoodReferences _$PaginatedFoodReferencesFromJson(
+  Map<String, dynamic> json,
+) {
+  return _PaginatedFoodReferences.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PaginatedFoodReferences {
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  int get pageSize => throw _privateConstructorUsedError;
+  int get totalCount => throw _privateConstructorUsedError;
+  bool get hasPrevious => throw _privateConstructorUsedError;
+  bool get hasNext => throw _privateConstructorUsedError;
+  List<FoodReference> get items => throw _privateConstructorUsedError;
+
+  /// Serializes this PaginatedFoodReferences to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PaginatedFoodReferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaginatedFoodReferencesCopyWith<PaginatedFoodReferences> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaginatedFoodReferencesCopyWith<$Res> {
+  factory $PaginatedFoodReferencesCopyWith(
+    PaginatedFoodReferences value,
+    $Res Function(PaginatedFoodReferences) then,
+  ) = _$PaginatedFoodReferencesCopyWithImpl<$Res, PaginatedFoodReferences>;
+  @useResult
+  $Res call({
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+    List<FoodReference> items,
+  });
+}
+
+/// @nodoc
+class _$PaginatedFoodReferencesCopyWithImpl<
+  $Res,
+  $Val extends PaginatedFoodReferences
+>
+    implements $PaginatedFoodReferencesCopyWith<$Res> {
+  _$PaginatedFoodReferencesCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PaginatedFoodReferences
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+    Object? items = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pageSize: null == pageSize
+                ? _value.pageSize
+                : pageSize // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCount: null == totalCount
+                ? _value.totalCount
+                : totalCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasPrevious: null == hasPrevious
+                ? _value.hasPrevious
+                : hasPrevious // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasNext: null == hasNext
+                ? _value.hasNext
+                : hasNext // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<FoodReference>,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PaginatedFoodReferencesImplCopyWith<$Res>
+    implements $PaginatedFoodReferencesCopyWith<$Res> {
+  factory _$$PaginatedFoodReferencesImplCopyWith(
+    _$PaginatedFoodReferencesImpl value,
+    $Res Function(_$PaginatedFoodReferencesImpl) then,
+  ) = __$$PaginatedFoodReferencesImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+    List<FoodReference> items,
+  });
+}
+
+/// @nodoc
+class __$$PaginatedFoodReferencesImplCopyWithImpl<$Res>
+    extends
+        _$PaginatedFoodReferencesCopyWithImpl<
+          $Res,
+          _$PaginatedFoodReferencesImpl
+        >
+    implements _$$PaginatedFoodReferencesImplCopyWith<$Res> {
+  __$$PaginatedFoodReferencesImplCopyWithImpl(
+    _$PaginatedFoodReferencesImpl _value,
+    $Res Function(_$PaginatedFoodReferencesImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PaginatedFoodReferences
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+    Object? items = null,
+  }) {
+    return _then(
+      _$PaginatedFoodReferencesImpl(
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pageSize: null == pageSize
+            ? _value.pageSize
+            : pageSize // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCount: null == totalCount
+            ? _value.totalCount
+            : totalCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasPrevious: null == hasPrevious
+            ? _value.hasPrevious
+            : hasPrevious // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasNext: null == hasNext
+            ? _value.hasNext
+            : hasNext // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<FoodReference>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PaginatedFoodReferencesImpl implements _PaginatedFoodReferences {
+  const _$PaginatedFoodReferencesImpl({
+    required this.currentPage,
+    required this.totalPages,
+    required this.pageSize,
+    required this.totalCount,
+    required this.hasPrevious,
+    required this.hasNext,
+    final List<FoodReference> items = const <FoodReference>[],
+  }) : _items = items;
+
+  factory _$PaginatedFoodReferencesImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PaginatedFoodReferencesImplFromJson(json);
+
+  @override
+  final int currentPage;
+  @override
+  final int totalPages;
+  @override
+  final int pageSize;
+  @override
+  final int totalCount;
+  @override
+  final bool hasPrevious;
+  @override
+  final bool hasNext;
+  final List<FoodReference> _items;
+  @override
+  @JsonKey()
+  List<FoodReference> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  String toString() {
+    return 'PaginatedFoodReferences(currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext, items: $items)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaginatedFoodReferencesImpl &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.pageSize, pageSize) ||
+                other.pageSize == pageSize) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.hasPrevious, hasPrevious) ||
+                other.hasPrevious == hasPrevious) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
+            const DeepCollectionEquality().equals(other._items, _items));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    currentPage,
+    totalPages,
+    pageSize,
+    totalCount,
+    hasPrevious,
+    hasNext,
+    const DeepCollectionEquality().hash(_items),
+  );
+
+  /// Create a copy of PaginatedFoodReferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaginatedFoodReferencesImplCopyWith<_$PaginatedFoodReferencesImpl>
+  get copyWith =>
+      __$$PaginatedFoodReferencesImplCopyWithImpl<
+        _$PaginatedFoodReferencesImpl
+      >(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PaginatedFoodReferencesImplToJson(this);
+  }
+}
+
+abstract class _PaginatedFoodReferences implements PaginatedFoodReferences {
+  const factory _PaginatedFoodReferences({
+    required final int currentPage,
+    required final int totalPages,
+    required final int pageSize,
+    required final int totalCount,
+    required final bool hasPrevious,
+    required final bool hasNext,
+    final List<FoodReference> items,
+  }) = _$PaginatedFoodReferencesImpl;
+
+  factory _PaginatedFoodReferences.fromJson(Map<String, dynamic> json) =
+      _$PaginatedFoodReferencesImpl.fromJson;
+
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  int get pageSize;
+  @override
+  int get totalCount;
+  @override
+  bool get hasPrevious;
+  @override
+  bool get hasNext;
+  @override
+  List<FoodReference> get items;
+
+  /// Create a copy of PaginatedFoodReferences
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaginatedFoodReferencesImplCopyWith<_$PaginatedFoodReferencesImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}

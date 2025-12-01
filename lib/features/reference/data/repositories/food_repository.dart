@@ -5,13 +5,16 @@ import '../models/food_reference.dart';
 class FoodRepository {
   final NetworkService _network = NetworkService.instance;
 
-  Future<List<FoodReference>> getFoodReferences({
-    int page = 1,
-    int pageSize = 20,
+  Future<PaginatedFoodReferences> getFoodReferences({
+    int pageNumber = 1,
+    int pageSize = 18,
     String? search,
     String? foodGroup,
   }) async {
-    final query = <String, dynamic>{'page': page, 'pageSize': pageSize};
+    final query = <String, dynamic>{
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
     if (search != null && search.isNotEmpty) {
       query['search'] = search;
     }
@@ -19,22 +22,37 @@ class FoodRepository {
       query['foodGroup'] = foodGroup;
     }
 
-    final response = await _network.get<List<FoodReference>>(
+    final response = await _network.get<PaginatedFoodReferences>(
       ApiEndpoints.getFoodReference,
       queryParameters: query,
       onSuccess: (data) {
         if (data is Map<String, dynamic>) {
-          final items = data['items'] as List<dynamic>? ?? [];
-          return items
-              .map((e) => FoodReference.fromJson(e as Map<String, dynamic>))
-              .toList();
+          return PaginatedFoodReferences.fromJson(data);
         }
         if (data is List<dynamic>) {
-          return data
+          final items = data
               .map((e) => FoodReference.fromJson(e as Map<String, dynamic>))
               .toList();
+
+          return PaginatedFoodReferences(
+            currentPage: pageNumber,
+            totalPages: 1,
+            pageSize: items.length,
+            totalCount: items.length,
+            hasPrevious: false,
+            hasNext: false,
+            items: items,
+          );
         }
-        return <FoodReference>[];
+        return const PaginatedFoodReferences(
+          currentPage: 1,
+          totalPages: 1,
+          pageSize: 0,
+          totalCount: 0,
+          hasPrevious: false,
+          hasNext: false,
+          items: <FoodReference>[],
+        );
       },
     );
     return response;
