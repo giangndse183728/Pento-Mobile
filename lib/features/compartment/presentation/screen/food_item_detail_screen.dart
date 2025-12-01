@@ -77,7 +77,7 @@ class FoodItemDetailScreen extends ConsumerWidget {
             try {
               await ref
                   .read(foodItemDetailProvider(foodItemId).notifier)
-                  .updateImage(image.link);
+                  .updateImage(image.imageUrl);
               if (context.mounted) {
                 ToastHelper.showSuccess(
                   context,
