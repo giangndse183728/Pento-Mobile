@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/app_images.dart';
+import '../../../../core/utils/quantity_formatter.dart';
 import '../../data/models/compartment_models.dart';
 
 class ImageInfoCard extends StatelessWidget {
@@ -244,7 +245,7 @@ class QuantityHighlight extends StatelessWidget {
     required this.unit,
   });
 
-  final int quantity;
+  final double quantity;
   final String unit;
 
   @override
@@ -304,7 +305,7 @@ class QuantityHighlight extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  quantity.toString(),
+                  formatQuantity(quantity),
                   style: AppTextStyles.sectionHeader().copyWith(
                     fontSize: 32.sp,
                     color: Colors.black87,

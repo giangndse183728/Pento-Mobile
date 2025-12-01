@@ -42,6 +42,17 @@ Map<String, dynamic> _normalizeExpirationFields(Map<String, dynamic> json) {
   };
 }
 
+double _quantityFromJson(dynamic value) {
+  if (value == null) return 0;
+  if (value is num) return value.toDouble();
+  if (value is String) {
+    return double.tryParse(value) ?? 0;
+  }
+  return 0;
+}
+
+double _quantityToJson(double value) => value;
+
 @freezed
 class CompartmentItem with _$CompartmentItem {
   const factory CompartmentItem({
@@ -51,7 +62,9 @@ class CompartmentItem with _$CompartmentItem {
     required String name,
     @JsonKey(name: 'foodGroup') String? foodGroup,
     @JsonKey(name: 'imageUrl') String? imageUrl,
-    @Default(0) int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    @Default(0.0)
+    double quantity,
     @JsonKey(name: 'unitAbbreviation') @Default('') String unitAbbreviation,
     @JsonKey(name: 'expirationDateUtc') DateTime? expirationDateUtc,
     @Default(1) int version,
@@ -157,7 +170,9 @@ class CompartmentItemDetail with _$CompartmentItemDetail {
     required String name,
     String? foodGroup,
     String? imageUrl,
-    @Default(0) int quantity,
+    @JsonKey(fromJson: _quantityFromJson, toJson: _quantityToJson)
+    @Default(0.0)
+    double quantity,
     @Default('') String unitAbbreviation,
     DateTime? expirationDateUtc,
     String? notes,
