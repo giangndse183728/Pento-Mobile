@@ -106,7 +106,7 @@ class RecipeScreen extends ConsumerWidget {
                         crossAxisCount: 2,
                         crossAxisSpacing: 12.w,
                         mainAxisSpacing: 12.h,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.54,
                       ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {

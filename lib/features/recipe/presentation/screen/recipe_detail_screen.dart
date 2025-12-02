@@ -7,6 +7,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
+import '../../../plan/presentation/widgets/create_recipe_reservation_sheet.dart';
 
 class RecipeDetailScreen extends ConsumerWidget {
   const RecipeDetailScreen({
@@ -32,6 +33,7 @@ class RecipeDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(recipeDetailNotifierProvider(recipeId));
+    final currentRecipeId = recipeId;
 
     return AppScaffold(
       title: 'Recipe',
@@ -190,7 +192,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                           top: 24.h,
                           left: 20.w,
                           right: 20.w,
-                          bottom: 24.h,
+                          bottom: 100.h,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -513,6 +515,35 @@ class RecipeDetailScreen extends ConsumerWidget {
                     ),
                   );
                 },
+              ),
+              // Plan button
+              Positioned(
+                bottom: 24.h,
+                right: 20.w,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    final recipeIdValue = detail.recipeId ?? detail.id ?? currentRecipeId;
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => CreateRecipeReservationSheet(
+                        recipeId: recipeIdValue,
+                        recipeName: detail.unifiedTitle,
+                      ),
+                    );
+                  },
+                  backgroundColor: AppColors.blueGray,
+                  foregroundColor: Colors.white,
+                  icon: Icon(Icons.calendar_today, size: 20.w),
+                  label: Text(
+                    'Plan',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ],
           );

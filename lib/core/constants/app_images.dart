@@ -58,6 +58,11 @@ class AppImages {
   static const String foodScan = "assets/icon/camera.png";
   static const String receiptScan = "assets/icon/invoice.png";
   static const String search = "assets/icon/search.png";
+
+  //Difficulty icons
+  static const String easy = "assets/icon/smile.png";
+  static const String medium = "assets/icon/melting.png";
+  static const String hard = "assets/icon/omg.png";
 }
 
 
