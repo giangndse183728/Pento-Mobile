@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../providers/food_item_log_summary_provider.dart';
 import 'food_item_summary_grid.dart';
 
@@ -40,57 +42,81 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
 
         final total = totalIntake + totalConsumption + totalDiscard;
 
-        return Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
+        return ClipPath(
+          clipper: _TopTicketClipper(),
+          child: Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.babyBlue,
+                  AppColors.iceberg,
+                  AppColors.babyBlue,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: Column(
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1.5),
+            ),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'Summary',
-                    style: AppTextStyles.sectionHeader(),
+                    style: AppTextStyles.sectionHeader().copyWith(color: Colors.black87),
                   ),
+                  IconButton(
+                    onPressed: () => context.push(AppRoutes.foodItemLogs),
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16.w,
+                      color: AppColors.blueGray,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              _buildDashedDivider(),
+              SizedBox(height: 24.h),
+              // Summary grid - always shows, independent of toggle
+              FoodItemSummaryGrid(
+                summary: foodSummary,
+                weightUnit: summary.weightUnit,
+                volumeUnit: summary.volumeUnit,
+              ),
+              SizedBox(height: 24.h),
+              // Toggle - always visible so user can switch back
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
                   _buildMeasurementToggle(measurementType),
                 ],
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 16.h),
+              // Chart and legend or empty state - depends on selected measurement type
               if (total == 0)
                 _buildEmptyState()
               else
-                Column(
-                  children: [
-                    FoodItemSummaryGrid(
-                      summary: foodSummary,
-                      weightUnit: summary.weightUnit,
-                      volumeUnit: summary.volumeUnit,
-                    ),
-                    SizedBox(height: 24.h),
-                    _buildChartWithLegend(
-                      totalIntake,
-                      totalConsumption,
-                      totalDiscard,
-                      unit,
-                      total,
-                      isTooltipVisible,
-                      tooltipText,
-                    ),
-                  ],
+                _buildChartWithLegend(
+                  totalIntake,
+                  totalConsumption,
+                  totalDiscard,
+                  unit,
+                  total,
+                  isTooltipVisible,
+                  tooltipText,
                 ),
+              SizedBox(height: 16.h),
             ],
           ),
+        ),
         );
       },
       loading: () => _buildLoadingState(),
@@ -152,87 +178,89 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
     ValueNotifier<bool> isTooltipVisible,
     ValueNotifier<String?> tooltipText,
   ) {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(
-          height: 120.h,
-          child: Row(
-            children: [
-              Expanded(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    PieChart(
-                      PieChartData(
-                        sectionsSpace: 2,
-                        centerSpaceRadius: 30.r,
-                        sections: _buildPieChartSections(
-                          totalIntake,
-                          totalConsumption,
-                          totalDiscard,
-                        ),
-                        pieTouchData: PieTouchData(
-                          enabled: true,
-                          touchCallback: (event, response) {
-                            final isLongPress =
-                                event is FlLongPressStart ||
-                                    event is FlLongPressMoveUpdate;
-                            final endOfLongPress =
-                                event is FlLongPressEnd ||
-                                    event is FlTapUpEvent ||
-                                    event is FlTapDownEvent;
-                            final touchedSection =
-                                response?.touchedSection?.touchedSection;
+        Expanded(
+          flex: 2,
+          child: SizedBox(
+            height: 120.h,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 30.r,
+                    sections: _buildPieChartSections(
+                      totalIntake,
+                      totalConsumption,
+                      totalDiscard,
+                    ),
+                    pieTouchData: PieTouchData(
+                      enabled: true,
+                      touchCallback: (event, response) {
+                        final isLongPress =
+                            event is FlLongPressStart ||
+                                event is FlLongPressMoveUpdate;
+                        final endOfLongPress =
+                            event is FlLongPressEnd ||
+                                event is FlTapUpEvent ||
+                                event is FlTapDownEvent;
+                        final touchedSection =
+                            response?.touchedSection?.touchedSection;
 
-                            if (!isLongPress && !endOfLongPress) {
-                              return;
-                            }
+                        if (!isLongPress && !endOfLongPress) {
+                          return;
+                        }
 
-                            if (isLongPress && touchedSection != null) {
-                              final percent =
-                                  total == 0
-                                      ? 0
-                                      : (touchedSection.value / total) * 100;
-                              tooltipText.value =
-                                  '${touchedSection.title}\n${percent.toStringAsFixed(1)}%';
-                              isTooltipVisible.value = true;
-                            } else {
-                              isTooltipVisible.value = false;
-                              tooltipText.value = null;
-                            }
-                          },
-                        ),
+                        if (isLongPress && touchedSection != null) {
+                          final percent =
+                              total == 0
+                                  ? 0
+                                  : (touchedSection.value / total) * 100;
+                          tooltipText.value =
+                              '${touchedSection.title}\n${percent.toStringAsFixed(1)}%';
+                          isTooltipVisible.value = true;
+                        } else {
+                          isTooltipVisible.value = false;
+                          tooltipText.value = null;
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                if (isTooltipVisible.value &&
+                    (tooltipText.value?.isNotEmpty ?? false))
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      tooltipText.value!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (isTooltipVisible.value &&
-                        (tooltipText.value?.isNotEmpty ?? false))
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          tooltipText.value!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 24.h),
-        _buildLegend(totalIntake, totalConsumption, totalDiscard, unit),
+        SizedBox(width: 32.w),
+        Expanded(
+          flex: 3,
+          child: _buildLegend(totalIntake, totalConsumption, totalDiscard, unit),
+        ),
       ],
     );
   }
@@ -254,7 +282,7 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
             value: totalIntake,
             showTitle: false,
             title: 'Intake',
-            radius: 30.r,
+            radius: 20.r,
             badgeWidget: _buildBadge(
               AppImages.intakeBadge,
               const Color(0xFF4CAF50),
@@ -271,7 +299,7 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
             value: totalConsumption,
             showTitle: false,
             title: 'Consumption',
-            radius: 30.r,
+            radius: 20.r,
             badgeWidget: _buildBadge(
               AppImages.consumptionBadge,
               const Color(0xFF2196F3),
@@ -288,7 +316,7 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
             value: totalDiscard,
             showTitle: false,
             title: 'Discard',
-            radius: 30.r,
+            radius: 20.r,
             badgeWidget: _buildBadge(
               AppImages.discardBadge,
               const Color(0xFFF44336),
@@ -343,36 +371,67 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
     String unit,
     Color color,
   ) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 16.w,
-          height: 16.h,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+        Row(
+          children: [
+            Container(
+              width: 11.w,
+              height: 11.h,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 8.w),
-        Expanded(
+        SizedBox(height: 4.h),
+        Padding(
+          padding: EdgeInsets.only(left: 24.w),
           child: Text(
-            label,
+            '${value.toStringAsFixed(0)} $unit',
             style: TextStyle(
               fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
           ),
         ),
-        Text(
-          '${value.toStringAsFixed(0)} $unit',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
       ],
+    );
+  }
+
+  Widget _buildDashedDivider() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dashWidth = 6.w;
+        final dashSpace = 4.w;
+        final dashCount = (constraints.maxWidth / (dashWidth + dashSpace))
+            .floor()
+            .clamp(0, 100);
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return Container(
+              width: dashWidth,
+              height: 1,
+              color: AppColors.blueGray.withValues(alpha: 0.3),
+            );
+          }),
+        );
+      },
     );
   }
 
@@ -496,6 +555,79 @@ class FoodItemLogSummaryChart extends HookConsumerWidget {
       ),
     );
   }
+}
 
+class _TopTicketClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final notchRadius = 8.0;
+    final notchSpacing = 30.0; // Reduced spacing for more notches
+    final path = Path();
+    
+    // Calculate number of notches that fit
+    final availableWidth = size.width;
+    final notchCount = ((availableWidth - notchSpacing) / notchSpacing).floor();
+    final totalNotchWidth = notchCount * notchSpacing;
+    final startOffset = (availableWidth - totalNotchWidth) / 2;
+    
+    // Start from top-left corner
+    path.moveTo(0, 0);
+    
+    // Draw to first notch position on top
+    path.lineTo(startOffset, 0);
+    
+    // Create notches along the top edge
+    double currentX = startOffset + notchSpacing;
+    for (int i = 0; i < notchCount; i++) {
+      // Draw line to notch start
+      path.lineTo(currentX - notchRadius, 0);
+      // Draw semicircle notch (downward)
+      path.arcToPoint(
+        Offset(currentX + notchRadius, 0),
+        radius: Radius.circular(notchRadius),
+        clockwise: false,
+        largeArc: false,
+      );
+      currentX += notchSpacing;
+    }
+    
+    // Draw line to top-right corner
+    path.lineTo(size.width, 0);
+    
+    // Draw right edge
+    path.lineTo(size.width, size.height);
+    
+    // Draw to first notch position on bottom (from right)
+    path.lineTo(size.width - startOffset, size.height);
+    
+    // Create notches along the bottom edge (from right to left)
+    currentX = size.width - startOffset - notchSpacing;
+    for (int i = 0; i < notchCount; i++) {
+      // Draw line to notch start
+      path.lineTo(currentX + notchRadius, size.height);
+      // Draw semicircle notch (upward)
+      path.arcToPoint(
+        Offset(currentX - notchRadius, size.height),
+        radius: Radius.circular(notchRadius),
+        clockwise: false,
+        largeArc: false,
+      );
+      currentX -= notchSpacing;
+    }
+    
+    // Draw line to bottom-left corner
+    path.lineTo(0, size.height);
+    
+    // Draw left edge back to start
+    path.lineTo(0, 0);
+    
+    // Close the path
+    path.close();
+    
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
