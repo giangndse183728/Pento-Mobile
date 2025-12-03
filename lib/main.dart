@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
@@ -8,18 +11,45 @@ import 'core/routing/app_routes.dart';
 import 'core/constants/app_colors.dart';
 import 'core/network/api_client.dart';
 import 'core/services/secure_storage_service.dart';
+import 'core/services/notification_service.dart';
 import 'core/utils/logging.dart';
 import 'features/authentication/presentation/providers/user_session_provider.dart';
 import 'features/profile/presentation/providers/profile_initializer_provider.dart';
 
 ProviderContainer? _globalContainer;
 
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(
+  RemoteMessage message,
+) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // TODO: handle background message (logging, navigation, etc.)
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+   await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+   FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
+  );
+
+  final messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   AppLogger.initialize(level: Level.ALL);
   
   SecureStorageService.instance.initialize();
+  await NotificationService.instance.initialize();
   
   final container = ProviderContainer();
   _globalContainer = container;
@@ -54,6 +84,18 @@ void main() async {
     // Handle error silently
   }
   
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    final notification = message.notification;
+    final title = notification?.title ?? 'Pento';
+    final body = notification?.body ?? 'You have a new notification';
+
+    await NotificationService.instance.showNotification(
+      id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+      title: title,
+      body: body,
+    );
+  });
+
   runApp(
     UncontrolledProviderScope(
       container: container,
