@@ -24,6 +24,7 @@ class AppScaffold extends ConsumerStatefulWidget {
     this.actions,
     this.padding,
     this.transparentAppBar = false,
+    this.centerTitle = true,
     required this.body,
   });
 
@@ -36,6 +37,7 @@ class AppScaffold extends ConsumerStatefulWidget {
   final List<Widget>? actions;
   final EdgeInsets? padding;
   final bool transparentAppBar;
+  final bool centerTitle;
   final Widget body;
 
   @Deprecated('Use CircleIconButton widget directly')
@@ -235,6 +237,53 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
     );
   }
 
+  Widget _buildAppBarTitle(String? email, String? username) {
+    final bool showUserInfo =
+        widget.showAvatarButton && !widget.showMenuIcon && !widget.showBackButton;
+    final titleStyle = TextStyle(
+      fontSize: 16.sp,
+      fontWeight: FontWeight.bold,
+      color: Colors.black87,
+    );
+
+    if (showUserInfo) {
+      final userInfo = _buildUserInfo(email, username);
+      if (!widget.centerTitle && widget.title != null) {
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.only(left: 8.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                userInfo,
+                SizedBox(height: 4.h),
+                Text(widget.title!, style: titleStyle),
+              ],
+            ),
+          ),
+        );
+      }
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: EdgeInsets.only(left: 8.w),
+          child: userInfo,
+        ),
+      );
+    }
+
+    if (!widget.centerTitle && widget.title != null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(widget.title!, style: titleStyle),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Read user session from Riverpod (cached profile data)
@@ -318,7 +367,10 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                       padding: EdgeInsets.symmetric(
                         horizontal: lerpDouble(0, 16.w, _pillProgress)!,
                       ),
-                      child: AppBar(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AppBar(
                         leading: widget.showBackButton
                             ? Container(
                                 width: 56,
@@ -483,138 +535,130 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
                                     ),
                                   )
                                 : null,
-                        leadingWidth: (widget.showBackButton ||
-                                widget.showMenuIcon ||
-                                (widget.showAvatarButton &&
-                                    !widget.showMenuIcon &&
-                                    !widget.showBackButton))
-                            ? 56
-                            : null,
-                        title: SizedBox(
-                          height: kToolbarHeight,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // User info (fade out)
-                              if (widget.showAvatarButton && !widget.showMenuIcon && !widget.showBackButton)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 8.w),
-                                    child: _buildUserInfo(email, name),
-                                  ),
-                                ),
-
-                              // Title (fade in)
-                              if (widget.title != null)
-                                AnimatedOpacity(
-                                  opacity: _centerTitleOpacity,
-                                  duration: const Duration(milliseconds: 200),
-                                  child: Transform.translate(
-                                    offset: _centerTitleOffset,
-                                    child: Text(
-                                      widget.title!,
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
+                            leadingWidth: (widget.showBackButton ||
+                                    widget.showMenuIcon ||
+                                    (widget.showAvatarButton &&
+                                        !widget.showMenuIcon &&
+                                        !widget.showBackButton))
+                                ? 56
+                                : null,
+                            titleSpacing: widget.showMenuIcon || widget.showBackButton ? 8.w : 0,
+                            title: _buildAppBarTitle(email, name),
+                            actions: widget.actions ??
+                                [
+                                  if (widget.showNotificationButton)
+                                    CircleIconButton(
+                                      icon: Icons.notifications_outlined,
+                                      onTap: _handleNotificationTap,
+                                    )
+                                  else
+                                    const SizedBox(width: 56),
+                                ],
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            systemOverlayStyle: overlayStyle,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                lerpDouble(0, 24.r, _pillProgress)!,
+                              ),
+                            ),
+                            flexibleSpace: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                lerpDouble(0, 24.r, _pillProgress)!,
+                              ),
+                              child: widget.transparentAppBar &&
+                                      !widget.forcePillMode &&
+                                      _pillProgress <= 0.3
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.circular(
+                                          lerpDouble(0, 24.r, _pillProgress)!,
+                                        ),
+                                      ),
+                                    )
+                                  : BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: _pillProgress > 0.3
+                                              ? LinearGradient(
+                                                  colors: [
+                                                    AppColors.babyBlue.withValues(alpha: 0.35),
+                                                    AppColors.iceberg.withValues(alpha: 0.1),
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                )
+                                              : LinearGradient(
+                                                  colors: [
+                                                    AppColors.iceberg.withValues(alpha: 0.9),
+                                                    AppColors.iceberg.withValues(alpha: 0.6),
+                                                    AppColors.iceberg.withValues(alpha: 0.3),
+                                                  ],
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  stops: const [0.0, 0.5, 1.0],
+                                                ),
+                                          borderRadius: BorderRadius.circular(
+                                            lerpDouble(0, 24.r, _pillProgress)!,
+                                          ),
+                                          border: _pillProgress > 0.3
+                                              ? Border.all(
+                                                  color: AppColors.powderBlue.withValues(alpha: 0.5),
+                                                  width: 1,
+                                                )
+                                              : null,
+                                          boxShadow: _pillProgress > 0.3
+                                              ? [
+                                                  BoxShadow(
+                                                    color: AppColors.babyBlue.withValues(alpha: 0.2),
+                                                    blurRadius: 12,
+                                                    spreadRadius: 0,
+                                                  ),
+                                                  BoxShadow(
+                                                    color: AppColors.powderBlue.withValues(alpha: 0.15),
+                                                    blurRadius: 8,
+                                                    spreadRadius: 0,
+                                                  ),
+                                                  BoxShadow(
+                                                    color: Colors.white.withValues(alpha: 0.20),
+                                                    blurRadius: 2,
+                                                    spreadRadius: -1,
+                                                  ),
+                                                ]
+                                              : null,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
-                        ),
-
-                        titleSpacing: widget.showMenuIcon || widget.showBackButton ? 8.w : 0,
-                        actions: widget.actions ??
-                            [
-                              if (widget.showNotificationButton)
-                                CircleIconButton(
-                                  icon: Icons.notifications_outlined,
-                                  onTap: _handleNotificationTap,
-                                )
-                              else
-                                const SizedBox(width: 56),
-                            ],
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        systemOverlayStyle: overlayStyle,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            lerpDouble(0, 24.r, _pillProgress)!,
-                          ),
-                        ),
-                        flexibleSpace: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            lerpDouble(0, 24.r, _pillProgress)!,
-                          ),
-                          child: widget.transparentAppBar &&
-                                  !widget.forcePillMode &&
-                                  _pillProgress <= 0.3
-                              ? Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                    borderRadius: BorderRadius.circular(
-                                      lerpDouble(0, 24.r, _pillProgress)!,
-                                    ),
-                                  ),
-                                )
-                              : BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: _pillProgress > 0.3
-                                          ? LinearGradient(
-                                              colors: [
-                                                AppColors.babyBlue.withValues(alpha: 0.35),
-                                                AppColors.iceberg.withValues(alpha: 0.1),
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            )
-                                          : LinearGradient(
-                                              colors: [
-                                                AppColors.iceberg.withValues(alpha: 0.9),
-                                                AppColors.iceberg.withValues(alpha: 0.6),
-                                                AppColors.iceberg.withValues(alpha: 0.3),
-                                              ],
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              stops: const [0.0, 0.5, 1.0],
+                          if (widget.centerTitle)
+                            IgnorePointer(
+                              child: SizedBox(
+                                height: kToolbarHeight,
+                                child: Center(
+                                  child: widget.title != null
+                                      ? AnimatedOpacity(
+                                          opacity: _centerTitleOpacity,
+                                          duration: const Duration(milliseconds: 200),
+                                          child: Transform.translate(
+                                            offset: _centerTitleOffset,
+                                            child: Text(
+                                              widget.title!,
+                                              style: TextStyle(
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
                                             ),
-                                      borderRadius: BorderRadius.circular(
-                                        lerpDouble(0, 24.r, _pillProgress)!,
-                                      ),
-                                      border: _pillProgress > 0.3
-                                          ? Border.all(
-                                              color: AppColors.powderBlue.withValues(alpha: 0.5),
-                                              width: 1,
-                                            )
-                                          : null,
-                                      boxShadow: _pillProgress > 0.3
-                                          ? [
-                                              BoxShadow(
-                                                color: AppColors.babyBlue.withValues(alpha: 0.2),
-                                                blurRadius: 12,
-                                                spreadRadius: 0,
-                                              ),
-                                              BoxShadow(
-                                                color: AppColors.powderBlue.withValues(alpha: 0.15),
-                                                blurRadius: 8,
-                                                spreadRadius: 0,
-                                              ),
-                                              BoxShadow(
-                                                color: Colors.white.withValues(alpha: 0.20),
-                                                blurRadius: 2,
-                                                spreadRadius: -1,
-                                              ),
-                                            ]
-                                          : null,
-                                    ),
-                                  ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
                                 ),
-                        ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+
 import '../../../../core/layouts/app_scaffold.dart';
-import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
+import '../../../../screens/search_screen.dart';
 import '../../data/models/storage_models.dart';
-import '../providers/pantry_provider.dart';
-import '../../../../core/layouts/android/float_add_button.dart';
 import '../../data/repositories/pantry_repository.dart';
-import '../widgets/small_storage_card.dart';
-import '../widgets/freezer_card.dart';
-import '../../../log/presentation/widgets/food_item_log_summary_chart.dart';
+import '../providers/pantry_provider.dart';
 import '../widgets/add_storage_card.dart';
+import '../widgets/freezer_card.dart';
+import '../widgets/small_storage_card.dart';
+import '../../../log/presentation/providers/food_item_log_summary_provider.dart';
+import '../../../log/presentation/widgets/food_item_log_summary_chart.dart';
 
 class PantryScreen extends ConsumerWidget {
   const PantryScreen({super.key});
@@ -19,8 +20,10 @@ class PantryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncStorages = ref.watch(pantryProvider);
-    Future<void> refreshStorages() =>
-        ref.read(pantryProvider.notifier).refresh();
+    Future<void> refreshStorages() async {
+      await ref.read(pantryProvider.notifier).refresh();
+      await ref.read(foodItemLogSummaryDataProvider.notifier).refresh();
+    }
 
     Future<void> onAddStorage([StorageType initialType = StorageType.pantry]) async {
       final nameCtrl = TextEditingController();
@@ -124,6 +127,24 @@ class PantryScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: 'Pantry',
+      actions: [
+        CircleIconButton(
+          icon: Icons.search,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SearchScreen(),
+              ),
+            );
+          },
+        ),
+        CircleIconButton(
+          icon: Icons.notifications_outlined,
+          onTap: () {
+            // TODO: Navigate to notifications screen once available
+          },
+        ),
+      ],
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.axis != Axis.vertical) {
@@ -188,22 +209,6 @@ class PantryScreen extends ConsumerWidget {
                     children: const [
                       SizedBox(height: 160),
                       Center(child: Text('No storages found')),
-                    ],
-                  ),
-                  FloatingAddButton.defaultPositioned(
-                    right: 0,
-                    bottom: 30,
-                    items: [
-                      FabMenuItem(
-                        label: 'Add Storage',
-                        icon: Icons.add_circle,
-                        onTap: onAddStorage,
-                      ),
-                      FabMenuItem(
-                        label: 'Chatbot',
-                        icon: Icons.smart_toy_outlined,
-                        onTap: () => context.push(AppRoutes.chatbot),
-                      ),
                     ],
                   ),
                 ],

@@ -61,15 +61,11 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
     final boardUi = ref.read(compartmentBoardUiProvider);
     
     if (!boardUi.isZoomed) {
-      // Zooming in: calculate which compartment is most visible/centered
       if (_scrollController != null && _scrollController!.hasClients && _compartments.isNotEmpty) {
         final scrollPosition = _scrollController!.offset;
         final screenWidth = MediaQuery.of(context).size.width;
         final viewportCenter = scrollPosition + (screenWidth / 2);
-        
-        // Calculate the center position of each compartment
-        // Initial padding: 8.w
-        // Each compartment: 220.w width + 12.w spacing
+
         final itemWidth = 220.w + 12.w;
         final compartmentWidth = 220.w;
         
@@ -328,6 +324,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
     if (storageId.isEmpty) {
       return AppScaffold(
         title: 'Compartment',
+        centerTitle: false,
         forcePillMode: true,
         showAvatarButton: false,
         showNotificationButton: false,
@@ -341,6 +338,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
 
     return AppScaffold(
       title: storageName,
+      centerTitle: false,
       forcePillMode: true,
       showAvatarButton: false,
       showNotificationButton: false,
