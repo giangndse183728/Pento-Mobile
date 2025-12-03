@@ -100,7 +100,7 @@ class GroceryListCard extends StatelessWidget {
                                   color: Colors.black87,
                                   fontFamily: AppTextStyles.sectionHeader().fontFamily,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               SizedBox(height: 4.h),

@@ -10,11 +10,24 @@ class RecipeRepository {
   Future<PaginatedRecipes> getRecipes({
     int pageNumber = 1,
     int pageSize = defaultPageSize,
+    String? search,
+    String? difficulty,
+    String? sort,
   }) async {
     final queryParams = <String, dynamic>{
       'pageNumber': pageNumber,
       'pageSize': pageSize,
     };
+
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+    if (difficulty != null) {
+      queryParams['difficulty'] = difficulty;
+    }
+    if (sort != null) {
+      queryParams['sort'] = sort;
+    }
 
     final queryString = queryParams.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')

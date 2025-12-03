@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+
 import '../../../../core/network/endpoints.dart';
 import '../../../../core/network/network_service.dart';
 import '../models/compartment_models.dart';
+import '../models/food_items_page.dart';
 
 class FoodItemRepository {
   final NetworkService _network = NetworkService.instance;
@@ -32,6 +34,49 @@ class FoodItemRepository {
             return CompartmentItemsPage.fromJson(previews);
           }
           return CompartmentItemsPage.fromJson(data);
+        }
+        throw Exception('Invalid response format');
+      },
+    );
+    return result;
+  }
+
+  Future<PaginatedFoodItems> getFoodItems({
+    int pageNumber = 1,
+    int pageSize = 12,
+    String? searchText,
+    String? sortBy,
+    String? sortOrder,
+    List<String>? foodGroups,
+    List<String>? statuses,
+  }) async {
+    final queryParameters = <String, dynamic>{
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    if (searchText != null && searchText.isNotEmpty) {
+      queryParameters['searchText'] = searchText;
+    }
+    if (sortBy != null && sortBy.isNotEmpty) {
+      queryParameters['sortBy'] = sortBy;
+    }
+    if (sortOrder != null && sortOrder.isNotEmpty) {
+      queryParameters['sortOrder'] = sortOrder;
+    }
+    if (foodGroups != null && foodGroups.isNotEmpty) {
+      queryParameters['foodGroup'] = foodGroups;
+    }
+    if (statuses != null && statuses.isNotEmpty) {
+      queryParameters['status'] = statuses;
+    }
+
+    final result = await _network.get<PaginatedFoodItems>(
+      ApiEndpoints.getFoodItems,
+      queryParameters: queryParameters,
+      onSuccess: (data) {
+        if (data is Map<String, dynamic>) {
+          return PaginatedFoodItems.fromJson(data);
         }
         throw Exception('Invalid response format');
       },

@@ -214,7 +214,7 @@ class __$$RecipeStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RecipeStateImpl implements _RecipeState {
+class _$RecipeStateImpl with DiagnosticableTreeMixin implements _RecipeState {
   const _$RecipeStateImpl({
     final List<Recipe> recipes = const <Recipe>[],
     this.currentPage = 1,
@@ -261,8 +261,24 @@ class _$RecipeStateImpl implements _RecipeState {
   final String? loadMoreError;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'RecipeState(recipes: $recipes, currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext, isLoadingMore: $isLoadingMore, loadMoreError: $loadMoreError)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'RecipeState'))
+      ..add(DiagnosticsProperty('recipes', recipes))
+      ..add(DiagnosticsProperty('currentPage', currentPage))
+      ..add(DiagnosticsProperty('totalPages', totalPages))
+      ..add(DiagnosticsProperty('pageSize', pageSize))
+      ..add(DiagnosticsProperty('totalCount', totalCount))
+      ..add(DiagnosticsProperty('hasPrevious', hasPrevious))
+      ..add(DiagnosticsProperty('hasNext', hasNext))
+      ..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))
+      ..add(DiagnosticsProperty('loadMoreError', loadMoreError));
   }
 
   @override

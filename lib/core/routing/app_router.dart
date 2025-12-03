@@ -17,6 +17,7 @@ import '../../features/compartment/presentation/screen/compartment_screen.dart';
 import '../../features/compartment/presentation/screen/add_food_screen.dart';
 import '../../features/compartment/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/compartment/presentation/screen/food_item_detail_screen.dart';
+import '../../features/compartment/presentation/screen/food_items_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_detail_screen.dart';
 import '../../features/log/presentation/screen/food_item_logs_screen.dart';
@@ -223,7 +224,13 @@ GoRouter createAppRouter(ProviderContainer container) {
     GoRoute(
       path: AppRoutes.foodItemLogs,
       pageBuilder: GoTransitions.fadeUpwards.build(
-child: const FoodItemLogsScreen(),
+        child: const FoodItemLogsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.foodItems,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const FoodItemsScreen(),
       ),
     ),
     GoRoute(

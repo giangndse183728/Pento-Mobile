@@ -35,7 +35,7 @@ class FoodItemCard extends StatelessWidget {
       expiration.day,
     );
     final daysUntil = normalizedExpiration.difference(today).inDays;
-    if (daysUntil <= 0) return _ExpirationStatus.expired;
+    if (daysUntil < 0) return _ExpirationStatus.expired;
     if (daysUntil <= 3) return _ExpirationStatus.expiringSoon;
     return _ExpirationStatus.safe;
   }

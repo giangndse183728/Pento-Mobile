@@ -53,6 +53,10 @@ dependencies:
   
   # Secure Storage
   flutter_secure_storage: ^9.2.4
+
+  # Firebase
+  firebase_core: ^3.6.0
+  firebase_messaging: ^15.1.0
   
   # JWT Decoding
   jwt_decoder: ^2.0.1
@@ -80,6 +84,7 @@ dependencies:
   url_launcher: ^6.3.1
   gal: ^2.3.0
   path_provider: ^2.1.4
+  flutter_local_notifications: ^19.5.0
 
 dev_dependencies:
   flutter_test:

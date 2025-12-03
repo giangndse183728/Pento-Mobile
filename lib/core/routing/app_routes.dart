@@ -32,6 +32,7 @@ class AppRoutes {
   static const String foodScanCamera = '/compartment/food-scan-camera';
   static const String foodScanBill = '/compartment/food-scan-bill';
   static const String foodScanResults = '/compartment/food-scan-results';
+  static const String foodItems = '/food-items';
   
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';

@@ -16,6 +16,23 @@ class ProfileRepository {
     return response;
   }
 
+  /// Get user subscription detail by id
+  Future<Map<String, dynamic>> getUserSubscriptionById(
+    String userSubscriptionId,
+  ) async {
+    final path = ApiEndpoints.getUserSubscriptionById.replaceFirst(
+      '{subscriptionId}',
+      userSubscriptionId,
+    );
+
+    final response = await _networkService.get<Map<String, dynamic>>(
+      path,
+      onSuccess: (data) => data as Map<String, dynamic>,
+    );
+
+    return response;
+  }
+
   /// Update user profile
   Future<UserProfile> updateProfile(UpdateProfileRequest request) async {
     // Update API returns 204 No Content on success

@@ -65,5 +65,20 @@ class AuthRepository {
   Future<bool> isLoggedIn() async {
     return await _storage.isLoggedIn();
   }
+
+  /// Register device notification token (FCM) for the current user
+  Future<void> registerNotificationToken({
+    required String token,
+    required String platform,
+  }) async {
+    await _networkService.post<void>(
+      ApiEndpoints.registerNotificationToken,
+      data: {
+        'token': token,
+        'platform': platform,
+      },
+      onSuccess: (_) => null,
+    );
+  }
 }
 

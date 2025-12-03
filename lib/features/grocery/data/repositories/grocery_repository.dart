@@ -243,6 +243,24 @@ class GroceryRepository {
       onSuccess: (data) {},
     );
   }
+
+  Future<void> createGroceryListItemBulk({
+    required String name,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    _logger.info('Creating bulk grocery list items: $name');
+    
+    final payload = <String, dynamic>{
+      'name': name,
+      'items': items,
+    };
+
+    await _network.post<void>(
+      ApiEndpoints.createGroceryListItemBulk,
+      data: payload,
+      onSuccess: (_) => null,
+    );
+  }
 }
 
 String? _normalizeTimestamp(dynamic value) {
