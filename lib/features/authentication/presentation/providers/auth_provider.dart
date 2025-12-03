@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/auth_models.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -39,6 +42,20 @@ class AuthProvider extends _$AuthProvider {
         // Silently fail - profile will be fetched later
       }
 
+      // Register FCM notification token after successful login
+      try {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          final platform = Platform.isAndroid ? 'Android' : 'iOS';
+          await _repository.registerNotificationToken(
+            token: fcmToken,
+            platform: platform,
+          );
+        }
+      } catch (_) {
+        // Silently ignore notification registration errors
+      }
+
       return result.response;
     });
   }
@@ -71,6 +88,20 @@ class AuthProvider extends _$AuthProvider {
         ref.read(profileInitializerProvider.notifier).refresh();
       } catch (e) {
         // Silently fail - profile will be fetched later
+      }
+
+      // Register FCM notification token after successful signup
+      try {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          final platform = Platform.isAndroid ? 'Android' : 'iOS';
+          await _repository.registerNotificationToken(
+            token: fcmToken,
+            platform: platform,
+          );
+        }
+      } catch (_) {
+        // Silently ignore notification registration errors
       }
 
       return result.response;
