@@ -89,11 +89,20 @@ class _EditFoodItemDialogState extends ConsumerState<EditFoodItemDialog> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final now = DateTime.now();
+    // Disallow picking past dates by clamping firstDate to "today"
+    final firstDate = DateTime(now.year, now.month, now.day);
+    final current = _selectedDate ?? firstDate;
+    final initialDate =
+        current.isBefore(firstDate) ? firstDate : current;
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 3650)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: firstDate.add(
+        const Duration(days: 3650),
+      ),
       helpText: 'Select Expiration Date',
     );
     if (picked != null) {
