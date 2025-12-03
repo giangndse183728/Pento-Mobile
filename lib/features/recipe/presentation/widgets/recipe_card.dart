@@ -67,163 +67,178 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(28.r),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28.r),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: 6.w,
-              right: 6.w,
-              top: 6.h,
-            ),
-            child: AspectRatio(
-              aspectRatio: 4 / 5,
-              child: Stack(
-                children: [
-                  ClipPath(
-                    clipper: ConcaveNotchClipper(
-                      borderRadius: 28.r,
-                      notchRadius: 32.r,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            _getDifficultyColor(recipe.difficultyLevel)
-                                .withValues(alpha: 0.3),
-                            _getDifficultyColor(recipe.difficultyLevel)
-                                .withValues(alpha: 0.15),
-                          ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 6.w,
+                  right: 6.w,
+                  top: 6.h,
+                ),
+                child: AspectRatio(
+                  aspectRatio: 4 / 5,
+                  child: Stack(
+                    children: [
+                      ClipPath(
+                        clipper: ConcaveNotchClipper(
+                          borderRadius: 28.r,
+                          notchRadius: 32.r,
                         ),
-                      ),
-                      child: recipe.imageUrl != null
-                          ? Image.network(
-                              recipe.imageUrl!,
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                _getDifficultyColor(recipe.difficultyLevel)
+                                    .withValues(alpha: 0.3),
+                                _getDifficultyColor(recipe.difficultyLevel)
+                                    .withValues(alpha: 0.15),
+                              ],
+                            ),
+                          ),
+                          child: recipe.imageUrl != null
+                              ? Image.network(
+                                  recipe.imageUrl!,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(
+                                        Icons.restaurant,
+                                        size: 60.w,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(
                                   child: Icon(
                                     Icons.restaurant,
                                     size: 60.w,
-                                    color: Colors.white.withValues(alpha: 0.7),
+                                    color: Colors.white.withValues(
+                                      alpha: 0.7,
+                                    ),
                                   ),
-                                );
-                              },
-                            )
-                          : Center(
-                              child: Icon(
-                                Icons.restaurant,
-                                size: 60.w,
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
-                            ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0.h,
-                    right: 0.w,
-                    child: Container(
-                      padding: EdgeInsets.all(6.w),
-                      decoration: BoxDecoration(
-                        color: _getDifficultyColor(recipe.difficultyLevel),
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                      child: Image.asset(
-                        _getDifficultyIcon(recipe.difficultyLevel),
-                        width: 20.w,
-                        height: 20.w,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                   bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 5.h),
-                      decoration: BoxDecoration(
-                        color: _getDifficultyColor(recipe.difficultyLevel)
-                            .withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(16.r),
-                          bottomRight: Radius.circular(16.r),
+                                ),
                         ),
                       ),
-                      child: Text(
-                        '${recipe.unifiedTotalTime} mins',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 16.sp * 1.2 * 2, 
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          recipe.unifiedTitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            height: 1.2,
+                      Positioned(
+                        top: 0.h,
+                        right: 0.w,
+                        child: Container(
+                          padding: EdgeInsets.all(6.w),
+                          decoration: BoxDecoration(
+                            color:
+                                _getDifficultyColor(recipe.difficultyLevel),
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          child: Image.asset(
+                            _getDifficultyIcon(recipe.difficultyLevel),
+                            width: 20.w,
+                            height: 20.w,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 5.h),
+                          decoration: BoxDecoration(
+                            color:
+                                _getDifficultyColor(recipe.difficultyLevel)
+                                    .withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16.r),
+                              bottomRight: Radius.circular(16.r),
+                            ),
+                          ),
+                          child: Text(
+                            '${recipe.unifiedTotalTime} mins',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                SizedBox(height: 6.h),
-                Row(
+              ),
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildChip('${recipe.servings} Servings'),
-                    SizedBox(width: 8.w),
-                    _buildChip(recipe.difficultyLevel)
+                    SizedBox(
+                      height: 16.sp * 1.2 * 2,
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              recipe.unifiedTitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Row(
+                      children: [
+                        _buildChip('${recipe.servings} Servings'),
+                        SizedBox(width: 8.w),
+                        _buildChip(recipe.difficultyLevel),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
