@@ -9,6 +9,8 @@ import '../../../../core/utils/toast_helper.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../../data/models/profile_models.dart';
 import '../providers/profile_provider.dart';
+import '../../../authentication/presentation/widgets/logout_button.dart';
+import '../widgets/profile_subscription_section.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -347,6 +349,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
           ),
           SizedBox(height: 24.h),
+          // Active Subscriptions Card
+          if (profile.activeSubscriptions.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: ProfileSubscriptionSection(
+                subscriptions: profile.activeSubscriptions,
+              ),
+            ),
+            SizedBox(height: 24.h),
+          ],
           // Profile Form Card
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -515,6 +527,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
           ),
+          SizedBox(height: 24.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 12.h),
+                const LogoutButton(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -522,62 +545,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
-  }
-}
-
-class _ReadOnlyField extends StatelessWidget {
-  const _ReadOnlyField({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.inputLabel,
-        ),
-        SizedBox(height: 8.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-          decoration: BoxDecoration(
-            color: AppColors.iceberg.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: AppColors.powderBlue.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color: AppColors.blueGray.withValues(alpha: 153),
-                size: 20.sp,
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }
 

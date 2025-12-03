@@ -86,7 +86,7 @@ class ProfileProvider extends _$ProfileProvider {
 
     state = await AsyncValue.guard(() async {
       final profile = await _repository.getProfile();
-      
+
       // Update UserSession with refreshed profile data
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
         email: profile.email,
@@ -95,9 +95,20 @@ class ProfileProvider extends _$ProfileProvider {
         name: '${profile.firstName} ${profile.lastName}'.trim(),
         householdId: profile.householdId,
       );
-      
+
       return profile;
     });
+  }
+
+  /// Get user subscription detail by id
+  Future<Map<String, dynamic>?> getUserSubscriptionById(
+    String userSubscriptionId,
+  ) async {
+    try {
+      return await _repository.getUserSubscriptionById(userSubscriptionId);
+    } catch (_) {
+      return null;
+    }
   }
 }
 
