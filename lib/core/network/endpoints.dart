@@ -48,6 +48,7 @@ class ApiEndpoints {
   static const String getCompartmentItems = '/compartments/{compartmentId}';
 
   //Food
+  static const String getFoodItems = '/food-items';
   static const String createFood = '/food-items';
   static const String createFoodBulk = '/food-items/bulk';
   static const String getDetailFoodItem = '/food-items/{id}';
@@ -92,14 +93,18 @@ class ApiEndpoints {
   static const String createMealReservation = '/meal-plan-reservations';
   static const String createRecipeReservation = '/meal-plans/from-recipe';
   static const String confirmRecipeReservation = '/meal-plans/from-recipe/confirm';
+  static const String getMealReservations = '/meal-plan-reservations';
 
   //Subscription
   static const String getSubscription = '/subscriptions';
+  static const String getUserSubscriptionById ='/users/subscriptions/{subscriptionId}';
 
   //Payment
   static const String getPayment = '/payments/{paymentId}';
   static const String createPayment = '/payments';
   static const String getPayments = '/payments';
+
+  
 
 
 
