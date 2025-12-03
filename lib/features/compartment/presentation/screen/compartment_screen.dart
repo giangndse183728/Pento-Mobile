@@ -7,11 +7,11 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/board_ui_provider.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/constants/app_enum.dart';
 import '../providers/compartment_provider.dart';
 import '../widgets/add_compartment_tile.dart';
 import '../widgets/compartment_column.dart';
 import '../widgets/compartment_filter_card.dart';
-import '../../../../core/constants/app_enum.dart';
 import '../../data/models/compartment_models.dart';
 
 class CompartmentScreen extends ConsumerStatefulWidget {
@@ -22,19 +22,6 @@ class CompartmentScreen extends ConsumerStatefulWidget {
 }
 
 class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
-  static const List<String> _foodGroups = [
-    'Meat',
-    'Seafood',
-    'FruitsVegetables',
-    'Dairy',
-    'CerealGrainsPasta',
-    'LegumesNutsSeeds',
-    'FatsOils',
-    'Confectionery',
-    'Beverages',
-    'Condiments',
-    'MixedDishes',
-  ];
 
   final TextEditingController _searchCtrl = TextEditingController();
   PageController? _pageController;
@@ -430,7 +417,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
                         _searchQuery = value;
                       });
                     },
-                    foodGroups: _foodGroups,
+                    foodGroups: kFoodGroups,
                     selectedFoodGroup: _selectedFoodGroup,
                     onFoodGroupChanged: (value) {
                       setState(() {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
-import '../../../../screens/search_screen.dart';
 import '../../data/models/storage_models.dart';
 import '../../data/repositories/pantry_repository.dart';
 import '../providers/pantry_provider.dart';
@@ -131,11 +132,7 @@ class PantryScreen extends ConsumerWidget {
         CircleIconButton(
           icon: Icons.search,
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const SearchScreen(),
-              ),
-            );
+            context.push(AppRoutes.foodItems);
           },
         ),
         CircleIconButton(
