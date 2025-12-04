@@ -36,10 +36,11 @@ import '../services/token_provider.dart';
 import '../utils/jwt_utils.dart';
 import 'app_routes.dart';
 
-GoRouter createAppRouter(ProviderContainer container) {
+GoRouter createAppRouter() {
   return GoRouter(
     initialLocation: AppRoutes.onboarding,
     redirect: (context, state) async {
+      final container = ProviderScope.containerOf(context);
       final storage = SecureStorageService.instance;
       final currentLocation = state.matchedLocation;
 
@@ -108,6 +109,7 @@ GoRouter createAppRouter(ProviderContainer container) {
       path: AppRoutes.onboarding,
       pageBuilder: GoTransitions.fadeUpwards.build(
         builder: (context, state) {
+          final container = ProviderScope.containerOf(context);
           final storage = SecureStorageService.instance;
           return OnboardingScreen(
             onFinished: () async {

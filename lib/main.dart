@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
 import 'package:toastification/toastification.dart';
+import 'package:go_router/go_router.dart';
 import 'core/routing/app_router.dart';
 import 'core/routing/app_routes.dart';
 import 'core/constants/app_colors.dart';
@@ -16,8 +18,6 @@ import 'core/utils/logging.dart';
 import 'features/authentication/presentation/providers/user_session_provider.dart';
 import 'features/profile/presentation/providers/profile_initializer_provider.dart';
 
-ProviderContainer? _globalContainer;
-
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(
   RemoteMessage message,
@@ -25,7 +25,6 @@ Future<void> firebaseMessagingBackgroundHandler(
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // TODO: handle background message (logging, navigation, etc.)
 }
 
 void main() async {
@@ -51,39 +50,6 @@ void main() async {
   SecureStorageService.instance.initialize();
   await NotificationService.instance.initialize();
   
-  final container = ProviderContainer();
-  _globalContainer = container;
-  
-  // Initialize router with container first
-  appRouter = createAppRouter(container);
-  
-  ApiClient.instance.initialize(
-    onTokenRefreshed: (String newAccessToken) async {
-      if (_globalContainer != null) {
-        try {
-          _globalContainer!.read(userSessionNotifierProvider.notifier).updateAccessToken(newAccessToken);
-        } catch (e) {
-          // Handle error silently 
-        }
-      }
-    },
-    onRefreshTokenFailed: () async {
-      // Navigate to auth screen when refresh token fails
-      appRouter.go(AppRoutes.auth);
-    },
-  );
-  
-  // Fetch user profile on app startup if user is logged in
-  try {
-    final userSession = container.read(userSessionNotifierProvider);
-    if (userSession?.accessToken != null) {
-      // Trigger profile fetch
-      container.read(profileInitializerProvider);
-    }
-  } catch (e) {
-    // Handle error silently
-  }
-  
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     final notification = message.notification;
     final title = notification?.title ?? 'Pento';
@@ -96,19 +62,99 @@ void main() async {
     );
   });
 
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const MyApp(),
+  
+
+runApp(
+  Phoenix(
+    child: ProviderScope(
+      key: UniqueKey(), 
+      child: MyApp(),
     ),
-  );
+  ),
+);
+
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  late final GoRouter _router;
+  bool _apiClientInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create router without container - it will use ProviderScope.containerOf(context)
+    _router = createAppRouter();
+  }
+
+  void _initializeApiClient() {
+    if (_apiClientInitialized) {
+      // Update callbacks with current container after Phoenix.rebirth()
+      _updateApiClientCallbacks();
+      return;
+    }
+    _apiClientInitialized = true;
+    
+    // Initialize ApiClient
+    ApiClient.instance.initialize(
+      onTokenRefreshed: (String newAccessToken) async {
+        _handleTokenRefreshed(newAccessToken);
+      },
+      onRefreshTokenFailed: () async {
+        // Navigate to auth screen when refresh token fails
+        _router.go(AppRoutes.auth);
+      },
+    );
+    
+    // Fetch user profile on app startup if user is logged in
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialProfile();
+    });
+  }
+
+  void _updateApiClientCallbacks() {
+    // Update callbacks to use current container
+    ApiClient.instance.updateCallbacks(
+      onTokenRefreshed: (String newAccessToken) async {
+        _handleTokenRefreshed(newAccessToken);
+      },
+      onRefreshTokenFailed: () async {
+        _router.go(AppRoutes.auth);
+      },
+    );
+  }
+
+  void _handleTokenRefreshed(String newAccessToken) {
+    try {
+      // Use ref.container which is always current
+      ref.read(userSessionNotifierProvider.notifier).updateAccessToken(newAccessToken);
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  void _loadInitialProfile() {
+    try {
+      final userSession = ref.read(userSessionNotifierProvider);
+      if (userSession?.accessToken != null) {
+        // Trigger profile fetch
+        ref.read(profileInitializerProvider);
+      }
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Initialize/update ApiClient on each build to ensure callbacks use current container
+    _initializeApiClient();
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
@@ -122,7 +168,7 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0),
           ),
-          routerConfig: appRouter,
+          routerConfig: _router,
           builder: (context, child) {
             return ToastificationWrapper(
               child: child ?? const SizedBox.shrink(),

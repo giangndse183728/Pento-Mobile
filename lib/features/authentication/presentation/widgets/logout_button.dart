@@ -1,13 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
-import '../../../../core/routing/app_routes.dart';
 import '../providers/auth_provider.dart';
 
 class LogoutButton extends ConsumerWidget {
@@ -22,7 +21,7 @@ class LogoutButton extends ConsumerWidget {
       try {
         await ref.read(authProviderProvider.notifier).logout();
         if (context.mounted) {
-          context.go(AppRoutes.auth);
+          Phoenix.rebirth(context);
         }
       } catch (error, stackTrace) {
         log(

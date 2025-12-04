@@ -9,11 +9,10 @@ class ApiClient {
   static ApiClient get instance => _instance;
 
   late final Dio _dio;
+  bool _isInitialized = false;
   
-  /// Callback to update user session when access token is refreshed
   Future<void> Function(String newAccessToken)? onTokenRefreshed;
   
-  /// Callback to handle refresh token failure (e.g., navigate to auth screen)
   Future<void> Function()? onRefreshTokenFailed;
 
   Dio get dio => _dio;
@@ -27,6 +26,13 @@ class ApiClient {
   }) {
     this.onTokenRefreshed = onTokenRefreshed;
     this.onRefreshTokenFailed = onRefreshTokenFailed;
+    
+    if (_isInitialized) {
+      // Already initialized, just update callbacks
+      return;
+    }
+    
+    _isInitialized = true;
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
@@ -68,6 +74,18 @@ class ApiClient {
     );
     _nestDio.interceptors.add(LoggingInterceptor());
     _nestDio.interceptors.add(AuthInterceptor());
+  }
+
+  void updateCallbacks({
+    Future<void> Function(String newAccessToken)? onTokenRefreshed,
+    Future<void> Function()? onRefreshTokenFailed,
+  }) {
+    if (onTokenRefreshed != null) {
+      this.onTokenRefreshed = onTokenRefreshed;
+    }
+    if (onRefreshTokenFailed != null) {
+      this.onRefreshTokenFailed = onRefreshTokenFailed;
+    }
   }
 
   // GET request
