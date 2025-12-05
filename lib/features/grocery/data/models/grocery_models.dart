@@ -45,9 +45,14 @@ class GroceryListItem with _$GroceryListItem {
     String? unitName,
     String? priority,
     String? notes,
+    String? foodGroup,
+    int? typicalShelfLifeDaysPantry,
+    int? typicalShelfLifeDaysFridge,
+    int? typicalShelfLifeDaysFreezer,
     bool? isCompleted,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? createdOnUtc,
   }) = _GroceryListItem;
 
   factory GroceryListItem.fromJson(Map<String, dynamic> json) =>

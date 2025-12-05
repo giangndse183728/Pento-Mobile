@@ -78,59 +78,64 @@ class GroceryRepository {
     );
   }
 
-  // Get grocery list detail including items
-  Future<GroceryListDetail> getGroceryListDetail({required String id}) async {
-    final endpoint = ApiEndpoints.getGroceryListItem.replaceAll('{id}', id);
-    _logger.info('Fetching grocery list detail: $id');
+  // Get grocery list items by listId
+  Future<List<GroceryListItem>> getGroceryListItems({
+    required String listId,
+  }) async {
+    _logger.info('Fetching grocery list items for list: $listId');
 
-    return await _network.get<GroceryListDetail>(
-      endpoint,
+    return await _network.get<List<GroceryListItem>>(
+      ApiEndpoints.getGroceryListItem,
+      queryParameters: {'listId': listId},
       onSuccess: (data) {
-        if (data is! Map<String, dynamic>) {
-          throw Exception('Invalid grocery list detail payload');
-        }
-
-        final normalizedItems = (data['items'] as List<dynamic>? ?? [])
+        if (data == null) return [];
+        
+        final List<dynamic> items = data as List<dynamic>;
+        return items
             .whereType<Map<String, dynamic>>()
             .map((item) {
           final itemMap = <String, dynamic>{
             'id': item['id'],
-            'listId': data['id'],
+            'listId': item['listId'] ?? listId,
             'foodRefId': item['foodRefId'],
-            'foodRefName': item['foodRefName'],
-            'imageUrl': item['foodRefImageUrl'] ?? item['imageUrl'],
-            'customName': item['customName'] ?? item['foodRefName'],
+            'foodRefName': item['foodName'] ?? item['foodRefName'],
+            'imageUrl': item['foodImageUri'] ?? item['imageUrl'],
+            'customName': item['customName'],
             'quantity': (item['quantity'] as num?)?.toDouble() ?? 0,
             'unitId': item['unitId'],
             'unitName': item['unitName'],
             'priority': item['priority'],
             'notes': item['notes'],
+            'foodGroup': item['foodGroup'],
+            'typicalShelfLifeDaysPantry': item['typicalShelfLifeDays_Pantry'],
+            'typicalShelfLifeDaysFridge': item['typicalShelfLifeDays_Fridge'],
+            'typicalShelfLifeDaysFreezer': item['typicalShelfLifeDays_Freezer'],
             'isCompleted': item['isCompleted'] ?? false,
             'createdAt': _normalizeTimestamp(
               item['createdAt'] ?? item['createdOnUtc'],
             ),
+            'createdOnUtc': _normalizeTimestamp(item['createdOnUtc']),
             'updatedAt': _normalizeTimestamp(
               item['updatedAt'] ?? item['updatedOnUtc'],
             ),
           }..removeWhere((_, value) => value == null);
 
-          return itemMap;
+          return GroceryListItem.fromJson(itemMap);
         }).toList();
-
-        final normalizedData = <String, dynamic>{
-          'id': data['id'],
-          'name': data['name'],
-          'items': normalizedItems,
-          'createdAt': _normalizeTimestamp(
-            data['createdAt'] ?? data['createdOnUtc'],
-          ),
-          'updatedAt': _normalizeTimestamp(
-            data['updatedAt'] ?? data['updatedOnUtc'],
-          ),
-        }..removeWhere((_, value) => value == null);
-
-        return GroceryListDetail.fromJson(normalizedData);
       },
+    );
+  }
+
+  // Get grocery list detail including items (deprecated - kept for backward compatibility)
+  Future<GroceryListDetail> getGroceryListDetail({required String id}) async {
+    final items = await getGroceryListItems(listId: id);
+    
+    // We need to get the list name from somewhere - for now, use a placeholder
+    // This method might need to be refactored if list name is needed
+    return GroceryListDetail(
+      id: id,
+      name: 'Grocery List',
+      items: items,
     );
   }
 

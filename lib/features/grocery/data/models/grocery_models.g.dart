@@ -70,6 +70,13 @@ _$GroceryListItemImpl _$$GroceryListItemImplFromJson(
   unitName: json['unitName'] as String?,
   priority: json['priority'] as String?,
   notes: json['notes'] as String?,
+  foodGroup: json['foodGroup'] as String?,
+  typicalShelfLifeDaysPantry: (json['typicalShelfLifeDaysPantry'] as num?)
+      ?.toInt(),
+  typicalShelfLifeDaysFridge: (json['typicalShelfLifeDaysFridge'] as num?)
+      ?.toInt(),
+  typicalShelfLifeDaysFreezer: (json['typicalShelfLifeDaysFreezer'] as num?)
+      ?.toInt(),
   isCompleted: json['isCompleted'] as bool?,
   createdAt: json['createdAt'] == null
       ? null
@@ -77,6 +84,9 @@ _$GroceryListItemImpl _$$GroceryListItemImplFromJson(
   updatedAt: json['updatedAt'] == null
       ? null
       : DateTime.parse(json['updatedAt'] as String),
+  createdOnUtc: json['createdOnUtc'] == null
+      ? null
+      : DateTime.parse(json['createdOnUtc'] as String),
 );
 
 Map<String, dynamic> _$$GroceryListItemImplToJson(
@@ -93,7 +103,12 @@ Map<String, dynamic> _$$GroceryListItemImplToJson(
   'unitName': instance.unitName,
   'priority': instance.priority,
   'notes': instance.notes,
+  'foodGroup': instance.foodGroup,
+  'typicalShelfLifeDaysPantry': instance.typicalShelfLifeDaysPantry,
+  'typicalShelfLifeDaysFridge': instance.typicalShelfLifeDaysFridge,
+  'typicalShelfLifeDaysFreezer': instance.typicalShelfLifeDaysFreezer,
   'isCompleted': instance.isCompleted,
   'createdAt': instance.createdAt?.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
+  'createdOnUtc': instance.createdOnUtc?.toIso8601String(),
 };
