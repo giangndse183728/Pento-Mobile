@@ -12,6 +12,7 @@ class UserSession with _$UserSession {
     required String accessToken,
     required String email,
     required String preferredUsername,
+    String? userId,
     String? avatarUrl,
     String? name,
     String? householdId,

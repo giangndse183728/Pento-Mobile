@@ -60,7 +60,7 @@ class AuthRepository {
   
     _tokenProvider.clearTokens();
 
-    await _storage.clearTokens();
+    await _storage.clearAll();
   }
 
   Future<bool> isLoggedIn() async {

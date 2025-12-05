@@ -50,6 +50,7 @@ class ProfileProvider extends _$ProfileProvider {
       
       // Update UserSession with new profile data
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: updatedProfile.id,
         email: updatedProfile.email,
         preferredUsername: updatedProfile.email,
         avatarUrl: updatedProfile.avatarUrl,
@@ -69,6 +70,7 @@ class ProfileProvider extends _$ProfileProvider {
       final updatedProfile = await _repository.uploadAvatar(filePath);
 
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: updatedProfile.id,
         email: updatedProfile.email,
         preferredUsername: updatedProfile.email,
         avatarUrl: updatedProfile.avatarUrl,
@@ -89,6 +91,7 @@ class ProfileProvider extends _$ProfileProvider {
 
       // Update UserSession with refreshed profile data
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: profile.id,
         email: profile.email,
         preferredUsername: profile.email,
         avatarUrl: profile.avatarUrl,

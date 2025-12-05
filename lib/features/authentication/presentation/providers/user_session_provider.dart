@@ -62,8 +62,12 @@ class UserSessionNotifier extends _$UserSessionNotifier {
   /// Get preferred username
   String? get preferredUsername => state?.preferredUsername;
 
+  /// Get userId
+  String? get userId => state?.userId;
+
   /// Update session with profile data (email, preferredUsername, avatarUrl, name, householdId)
   void updateProfileData({
+    required String userId,
     String? email,
     String? preferredUsername,
     String? avatarUrl,
@@ -72,6 +76,7 @@ class UserSessionNotifier extends _$UserSessionNotifier {
   }) {
     if (state != null) {
       state = state!.copyWith(
+        userId: userId,
         email: email ?? state!.email,
         preferredUsername: preferredUsername ?? state!.preferredUsername,
         avatarUrl: avatarUrl,

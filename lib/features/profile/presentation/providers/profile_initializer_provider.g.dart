@@ -7,7 +7,7 @@ part of 'profile_initializer_provider.dart';
 // **************************************************************************
 
 String _$profileInitializerHash() =>
-    r'61351fe7f926e17c85820bb5c938cac31f7dbf67';
+    r'c96731cbf5f2972384b1b4647e14d965bb0e8b8b';
 
 /// Provider to fetch user profile on app startup and update UserSession
 ///

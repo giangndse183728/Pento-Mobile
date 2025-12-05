@@ -24,6 +24,7 @@ mixin _$UserSession {
   String get accessToken => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String get preferredUsername => throw _privateConstructorUsedError;
+  String? get userId => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
   String? get householdId => throw _privateConstructorUsedError;
@@ -49,6 +50,7 @@ abstract class $UserSessionCopyWith<$Res> {
     String accessToken,
     String email,
     String preferredUsername,
+    String? userId,
     String? avatarUrl,
     String? name,
     String? householdId,
@@ -73,6 +75,7 @@ class _$UserSessionCopyWithImpl<$Res, $Val extends UserSession>
     Object? accessToken = null,
     Object? email = null,
     Object? preferredUsername = null,
+    Object? userId = freezed,
     Object? avatarUrl = freezed,
     Object? name = freezed,
     Object? householdId = freezed,
@@ -91,6 +94,10 @@ class _$UserSessionCopyWithImpl<$Res, $Val extends UserSession>
                 ? _value.preferredUsername
                 : preferredUsername // ignore: cast_nullable_to_non_nullable
                       as String,
+            userId: freezed == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             avatarUrl: freezed == avatarUrl
                 ? _value.avatarUrl
                 : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -122,6 +129,7 @@ abstract class _$$UserSessionImplCopyWith<$Res>
     String accessToken,
     String email,
     String preferredUsername,
+    String? userId,
     String? avatarUrl,
     String? name,
     String? householdId,
@@ -145,6 +153,7 @@ class __$$UserSessionImplCopyWithImpl<$Res>
     Object? accessToken = null,
     Object? email = null,
     Object? preferredUsername = null,
+    Object? userId = freezed,
     Object? avatarUrl = freezed,
     Object? name = freezed,
     Object? householdId = freezed,
@@ -163,6 +172,10 @@ class __$$UserSessionImplCopyWithImpl<$Res>
             ? _value.preferredUsername
             : preferredUsername // ignore: cast_nullable_to_non_nullable
                   as String,
+        userId: freezed == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         avatarUrl: freezed == avatarUrl
             ? _value.avatarUrl
             : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -187,6 +200,7 @@ class _$UserSessionImpl implements _UserSession {
     required this.accessToken,
     required this.email,
     required this.preferredUsername,
+    this.userId,
     this.avatarUrl,
     this.name,
     this.householdId,
@@ -202,6 +216,8 @@ class _$UserSessionImpl implements _UserSession {
   @override
   final String preferredUsername;
   @override
+  final String? userId;
+  @override
   final String? avatarUrl;
   @override
   final String? name;
@@ -210,7 +226,7 @@ class _$UserSessionImpl implements _UserSession {
 
   @override
   String toString() {
-    return 'UserSession(accessToken: $accessToken, email: $email, preferredUsername: $preferredUsername, avatarUrl: $avatarUrl, name: $name, householdId: $householdId)';
+    return 'UserSession(accessToken: $accessToken, email: $email, preferredUsername: $preferredUsername, userId: $userId, avatarUrl: $avatarUrl, name: $name, householdId: $householdId)';
   }
 
   @override
@@ -223,6 +239,7 @@ class _$UserSessionImpl implements _UserSession {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.preferredUsername, preferredUsername) ||
                 other.preferredUsername == preferredUsername) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.avatarUrl, avatarUrl) ||
                 other.avatarUrl == avatarUrl) &&
             (identical(other.name, name) || other.name == name) &&
@@ -237,6 +254,7 @@ class _$UserSessionImpl implements _UserSession {
     accessToken,
     email,
     preferredUsername,
+    userId,
     avatarUrl,
     name,
     householdId,
@@ -261,6 +279,7 @@ abstract class _UserSession implements UserSession {
     required final String accessToken,
     required final String email,
     required final String preferredUsername,
+    final String? userId,
     final String? avatarUrl,
     final String? name,
     final String? householdId,
@@ -275,6 +294,8 @@ abstract class _UserSession implements UserSession {
   String get email;
   @override
   String get preferredUsername;
+  @override
+  String? get userId;
   @override
   String? get avatarUrl;
   @override
