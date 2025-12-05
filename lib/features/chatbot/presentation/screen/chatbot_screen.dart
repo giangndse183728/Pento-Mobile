@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/chat_message.dart';
 import '../providers/chatbot_provider.dart';
 
@@ -46,10 +49,17 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           });
         }
         final error = next.errorMessage;
+        final statusCode = next.errorStatusCode;
         if (error != null && error != previous?.errorMessage) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          if (statusCode == 403) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showSubscriptionDialog(context);
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(error)),
+            );
+          }
         }
       },
     );
@@ -146,6 +156,94 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       _scrollController.position.maxScrollExtent + 80.h,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
+    );
+  }
+
+  void _showSubscriptionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.lock_outline_rounded,
+              size: 48.sp,
+              color: AppColors.blueGray,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Feature Not Available',
+              style: AppTextStyles.sectionHeader().copyWith(
+                fontSize: 20.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'This feature is only available for subscribed users. '
+              'Please subscribe to access the chatbot.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.blueGray,
+                      side: BorderSide(
+                        color: AppColors.powderBlue,
+                        width: 2,
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      context.push(AppRoutes.subscription);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blueGray,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Subscribe',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

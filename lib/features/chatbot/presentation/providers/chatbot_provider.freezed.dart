@@ -20,6 +20,7 @@ mixin _$ChatbotState {
   List<ChatMessage> get messages => throw _privateConstructorUsedError;
   bool get isSending => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+  int? get errorStatusCode => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatbotState
   /// with the given fields replaced by the non-null parameter values.
@@ -35,7 +36,12 @@ abstract class $ChatbotStateCopyWith<$Res> {
     $Res Function(ChatbotState) then,
   ) = _$ChatbotStateCopyWithImpl<$Res, ChatbotState>;
   @useResult
-  $Res call({List<ChatMessage> messages, bool isSending, String? errorMessage});
+  $Res call({
+    List<ChatMessage> messages,
+    bool isSending,
+    String? errorMessage,
+    int? errorStatusCode,
+  });
 }
 
 /// @nodoc
@@ -56,6 +62,7 @@ class _$ChatbotStateCopyWithImpl<$Res, $Val extends ChatbotState>
     Object? messages = null,
     Object? isSending = null,
     Object? errorMessage = freezed,
+    Object? errorStatusCode = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -71,6 +78,10 @@ class _$ChatbotStateCopyWithImpl<$Res, $Val extends ChatbotState>
                 ? _value.errorMessage
                 : errorMessage // ignore: cast_nullable_to_non_nullable
                       as String?,
+            errorStatusCode: freezed == errorStatusCode
+                ? _value.errorStatusCode
+                : errorStatusCode // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -86,7 +97,12 @@ abstract class _$$ChatbotStateImplCopyWith<$Res>
   ) = __$$ChatbotStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<ChatMessage> messages, bool isSending, String? errorMessage});
+  $Res call({
+    List<ChatMessage> messages,
+    bool isSending,
+    String? errorMessage,
+    int? errorStatusCode,
+  });
 }
 
 /// @nodoc
@@ -106,6 +122,7 @@ class __$$ChatbotStateImplCopyWithImpl<$Res>
     Object? messages = null,
     Object? isSending = null,
     Object? errorMessage = freezed,
+    Object? errorStatusCode = freezed,
   }) {
     return _then(
       _$ChatbotStateImpl(
@@ -121,6 +138,10 @@ class __$$ChatbotStateImplCopyWithImpl<$Res>
             ? _value.errorMessage
             : errorMessage // ignore: cast_nullable_to_non_nullable
                   as String?,
+        errorStatusCode: freezed == errorStatusCode
+            ? _value.errorStatusCode
+            : errorStatusCode // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -133,6 +154,7 @@ class _$ChatbotStateImpl implements _ChatbotState {
     final List<ChatMessage> messages = const <ChatMessage>[],
     this.isSending = false,
     this.errorMessage,
+    this.errorStatusCode,
   }) : _messages = messages;
 
   final List<ChatMessage> _messages;
@@ -149,10 +171,12 @@ class _$ChatbotStateImpl implements _ChatbotState {
   final bool isSending;
   @override
   final String? errorMessage;
+  @override
+  final int? errorStatusCode;
 
   @override
   String toString() {
-    return 'ChatbotState(messages: $messages, isSending: $isSending, errorMessage: $errorMessage)';
+    return 'ChatbotState(messages: $messages, isSending: $isSending, errorMessage: $errorMessage, errorStatusCode: $errorStatusCode)';
   }
 
   @override
@@ -164,7 +188,9 @@ class _$ChatbotStateImpl implements _ChatbotState {
             (identical(other.isSending, isSending) ||
                 other.isSending == isSending) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+                other.errorMessage == errorMessage) &&
+            (identical(other.errorStatusCode, errorStatusCode) ||
+                other.errorStatusCode == errorStatusCode));
   }
 
   @override
@@ -173,6 +199,7 @@ class _$ChatbotStateImpl implements _ChatbotState {
     const DeepCollectionEquality().hash(_messages),
     isSending,
     errorMessage,
+    errorStatusCode,
   );
 
   /// Create a copy of ChatbotState
@@ -189,6 +216,7 @@ abstract class _ChatbotState implements ChatbotState {
     final List<ChatMessage> messages,
     final bool isSending,
     final String? errorMessage,
+    final int? errorStatusCode,
   }) = _$ChatbotStateImpl;
 
   @override
@@ -197,6 +225,8 @@ abstract class _ChatbotState implements ChatbotState {
   bool get isSending;
   @override
   String? get errorMessage;
+  @override
+  int? get errorStatusCode;
 
   /// Create a copy of ChatbotState
   /// with the given fields replaced by the non-null parameter values.

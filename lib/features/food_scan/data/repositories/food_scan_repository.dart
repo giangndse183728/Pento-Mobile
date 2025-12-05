@@ -14,7 +14,10 @@ class FoodScanRepository {
   final _logger = AppLogger.getLogger('FoodScanRepository');
 
   /// Scan food image to detect food items
-  Future<ScanFoodResponse> scanFoodImage(File imageFile) async {
+  Future<ScanFoodResponse> scanFoodImage({
+    required File imageFile,
+    required String userId,
+  }) async {
     try {
       final formData = FormData.fromMap({
         'image': await MultipartFile.fromFile(
@@ -25,6 +28,9 @@ class FoodScanRepository {
 
       final response = await _localClient.post(
         ApiEndpoints.scanImage,
+        queryParameters: {
+          'userId': userId,
+        },
         data: formData,
       );
 
@@ -52,7 +58,10 @@ class FoodScanRepository {
   }
 
   /// Scan bill/receipt image to detect food items
-  Future<ScanFoodResponse> scanBillImage(File imageFile) async {
+  Future<ScanFoodResponse> scanBillImage({
+    required File imageFile,
+    required String userId,
+  }) async {
     try {
       final formData = FormData.fromMap({
         'image': await MultipartFile.fromFile(
@@ -63,6 +72,9 @@ class FoodScanRepository {
 
       final response = await _localClient.post(
         ApiEndpoints.scanBillImage,
+        queryParameters: {
+          'userId': userId,
+        },
         data: formData,
       );
 
