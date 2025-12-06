@@ -22,7 +22,6 @@ class FoodScan extends _$FoodScan {
   Future<ScanFoodResponse> scanFoodImage(File imageFile) async {
     state = const AsyncLoading();
     try {
-      // Get userId from user session (set by profile_initializer_provider)
       final userSession = ref.read(userSessionNotifierProvider);
       final userId = userSession?.userId;
       if (userId == null) {
@@ -48,7 +47,6 @@ class FoodScan extends _$FoodScan {
   Future<ScanFoodResponse> scanBillImage(File imageFile) async {
     state = const AsyncLoading();
     try {
-      // Get userId from user session (set by profile_initializer_provider)
       final userSession = ref.read(userSessionNotifierProvider);
       final userId = userSession?.userId;
       if (userId == null) {

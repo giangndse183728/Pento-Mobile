@@ -147,9 +147,12 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
       showAvatarButton: false,
       showNotificationButton: false,
       forcePillMode: true,
-      body: SingleChildScrollView(
+      padding: EdgeInsets.zero,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + kToolbarHeight + 36.h,
+          top: MediaQuery.of(context).padding.top + kToolbarHeight + 48.h,
           left: 16.w,
           right: 16.w,
           bottom: 24.h,
@@ -374,21 +377,12 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                icon: _isScanning
-                    ? SizedBox(
-                        height: 20.sp,
-                        width: 20.sp,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Icon(
-                        isBillScan ? Icons.document_scanner : Icons.search,
-                        size: 22.sp,
-                      ),
+                icon: Icon(
+                  isBillScan ? Icons.document_scanner : Icons.search,
+                  size: 22.sp,
+                ),
                 label: Text(
-                  _isScanning ? 'Scanning...' : 'Scan Image',
+                  'Scan Image',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -449,6 +443,54 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
             ),
           ],
         ),
+      ),
+          // Loading overlay - covers entire screen including scaffold padding
+          if (_isScanning)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.5),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(32.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.iceberg,
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: AppColors.powderBlue,
+                        width: 4,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          color: AppColors.blueGray,
+                          strokeWidth: 3,
+                        ),
+                        SizedBox(height: 24.h),
+                        Text(
+                          'Scanning...',
+                          style: AppTextStyles.sectionHeader().copyWith(
+                            fontSize: 18.sp,
+                            color: AppColors.blueGray,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Please wait while we process your image',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.blueGray.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

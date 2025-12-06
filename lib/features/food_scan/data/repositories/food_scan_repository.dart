@@ -64,7 +64,7 @@ class FoodScanRepository {
   }) async {
     try {
       final formData = FormData.fromMap({
-        'image': await MultipartFile.fromFile(
+        'billImage': await MultipartFile.fromFile(
           imageFile.path,
           filename: 'bill_image.jpg',
         ),

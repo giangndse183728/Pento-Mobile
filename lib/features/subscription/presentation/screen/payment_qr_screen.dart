@@ -569,7 +569,7 @@ class _PaymentQrScreenState extends ConsumerState<PaymentQrScreen> {
       child: ElevatedButton(
         onPressed: () {
           ref.read(paymentNotifierProvider.notifier).reset();
-          context.go(AppRoutes.subscription);
+          context.go(AppRoutes.profile);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.blueGray,
@@ -581,7 +581,7 @@ class _PaymentQrScreenState extends ConsumerState<PaymentQrScreen> {
         ),
         child: Text(
           isCompleted
-              ? (isPaid ? 'Continue to Subscription' : 'Back to Subscription')
+              ? (isPaid ? 'Continue to Profile' : 'Back to Subscription')
               : 'Cancel Payment',
           style: TextStyle(
             fontSize: 16.sp,
