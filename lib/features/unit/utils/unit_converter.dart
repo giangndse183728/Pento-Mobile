@@ -61,8 +61,8 @@ class UnitConverter {
     if (fromUnit.toBaseFactor <= 0 || toUnit.toBaseFactor <= 0) {
       return null;
     }
-    final quantityInBase = quantity / fromUnit.toBaseFactor;
-    return quantityInBase * toUnit.toBaseFactor;
+    final quantityInBase = quantity * fromUnit.toBaseFactor;
+    return quantityInBase / toUnit.toBaseFactor;
   }
 }
 
