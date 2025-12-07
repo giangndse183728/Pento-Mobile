@@ -168,6 +168,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             useMaterial3: true,
             appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0),
           ),
+          debugShowCheckedModeBanner: false,
           routerConfig: _router,
           builder: (context, child) {
             return ToastificationWrapper(
