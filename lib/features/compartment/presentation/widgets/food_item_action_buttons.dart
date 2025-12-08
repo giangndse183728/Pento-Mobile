@@ -12,13 +12,29 @@ class FoodItemActionButtons extends ConsumerWidget {
 
   final CompartmentItemDetail detail;
 
+  bool _isExpired() {
+    if (detail.expirationDateUtc == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final expirationDate = DateTime(
+      detail.expirationDateUtc!.year,
+      detail.expirationDateUtc!.month,
+      detail.expirationDateUtc!.day,
+    );
+    return expirationDate.isBefore(today);
+  }
+
+  bool _canPerformAction() {
+    return detail.quantity > 0 && !_isExpired();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: detail.quantity > 0
+            onPressed: _canPerformAction()
                 ? () => _showConsumeDialog(context, ref)
                 : null,
             icon: Icon(Icons.check_circle_outline_rounded, size: 20.sp),
@@ -41,7 +57,7 @@ class FoodItemActionButtons extends ConsumerWidget {
         SizedBox(width: 12.w),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: detail.quantity > 0
+            onPressed: _canPerformAction()
                 ? () => _showDiscardDialog(context, ref)
                 : null,
             icon: Icon(Icons.delete_outline_rounded, size: 20.sp),
