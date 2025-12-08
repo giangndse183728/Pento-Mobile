@@ -95,21 +95,6 @@ class HouseholdScreen extends StatelessWidget {
                 },
               ),
               SizedBox(height: 24.h),
-
-              // Skip for now
-              TextButton(
-                onPressed: () {
-                  context.go('/pantry');
-                },
-                child: Text(
-                  'Skip for now',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppColors.blueGray,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

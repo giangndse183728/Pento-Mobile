@@ -788,6 +788,8 @@ mixin _$MealPlanRecipe {
   String? get imageUrl => throw _privateConstructorUsedError;
   int get servings => throw _privateConstructorUsedError;
   String? get difficultyLevel => throw _privateConstructorUsedError;
+  @JsonKey(name: 'recipeStatus')
+  String? get status => throw _privateConstructorUsedError;
 
   /// Serializes this MealPlanRecipe to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -813,6 +815,7 @@ abstract class $MealPlanRecipeCopyWith<$Res> {
     String? imageUrl,
     int servings,
     String? difficultyLevel,
+    @JsonKey(name: 'recipeStatus') String? status,
   });
 }
 
@@ -837,6 +840,7 @@ class _$MealPlanRecipeCopyWithImpl<$Res, $Val extends MealPlanRecipe>
     Object? imageUrl = freezed,
     Object? servings = null,
     Object? difficultyLevel = freezed,
+    Object? status = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -864,6 +868,10 @@ class _$MealPlanRecipeCopyWithImpl<$Res, $Val extends MealPlanRecipe>
                 ? _value.difficultyLevel
                 : difficultyLevel // ignore: cast_nullable_to_non_nullable
                       as String?,
+            status: freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -886,6 +894,7 @@ abstract class _$$MealPlanRecipeImplCopyWith<$Res>
     String? imageUrl,
     int servings,
     String? difficultyLevel,
+    @JsonKey(name: 'recipeStatus') String? status,
   });
 }
 
@@ -909,6 +918,7 @@ class __$$MealPlanRecipeImplCopyWithImpl<$Res>
     Object? imageUrl = freezed,
     Object? servings = null,
     Object? difficultyLevel = freezed,
+    Object? status = freezed,
   }) {
     return _then(
       _$MealPlanRecipeImpl(
@@ -936,6 +946,10 @@ class __$$MealPlanRecipeImplCopyWithImpl<$Res>
             ? _value.difficultyLevel
             : difficultyLevel // ignore: cast_nullable_to_non_nullable
                   as String?,
+        status: freezed == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -951,6 +965,7 @@ class _$MealPlanRecipeImpl implements _MealPlanRecipe {
     this.imageUrl,
     this.servings = 1,
     this.difficultyLevel,
+    @JsonKey(name: 'recipeStatus') this.status,
   });
 
   factory _$MealPlanRecipeImpl.fromJson(Map<String, dynamic> json) =>
@@ -969,10 +984,13 @@ class _$MealPlanRecipeImpl implements _MealPlanRecipe {
   final int servings;
   @override
   final String? difficultyLevel;
+  @override
+  @JsonKey(name: 'recipeStatus')
+  final String? status;
 
   @override
   String toString() {
-    return 'MealPlanRecipe(id: $id, title: $title, description: $description, imageUrl: $imageUrl, servings: $servings, difficultyLevel: $difficultyLevel)';
+    return 'MealPlanRecipe(id: $id, title: $title, description: $description, imageUrl: $imageUrl, servings: $servings, difficultyLevel: $difficultyLevel, status: $status)';
   }
 
   @override
@@ -989,7 +1007,8 @@ class _$MealPlanRecipeImpl implements _MealPlanRecipe {
             (identical(other.servings, servings) ||
                 other.servings == servings) &&
             (identical(other.difficultyLevel, difficultyLevel) ||
-                other.difficultyLevel == difficultyLevel));
+                other.difficultyLevel == difficultyLevel) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1002,6 +1021,7 @@ class _$MealPlanRecipeImpl implements _MealPlanRecipe {
     imageUrl,
     servings,
     difficultyLevel,
+    status,
   );
 
   /// Create a copy of MealPlanRecipe
@@ -1029,6 +1049,7 @@ abstract class _MealPlanRecipe implements MealPlanRecipe {
     final String? imageUrl,
     final int servings,
     final String? difficultyLevel,
+    @JsonKey(name: 'recipeStatus') final String? status,
   }) = _$MealPlanRecipeImpl;
 
   factory _MealPlanRecipe.fromJson(Map<String, dynamic> json) =
@@ -1046,6 +1067,9 @@ abstract class _MealPlanRecipe implements MealPlanRecipe {
   int get servings;
   @override
   String? get difficultyLevel;
+  @override
+  @JsonKey(name: 'recipeStatus')
+  String? get status;
 
   /// Create a copy of MealPlanRecipe
   /// with the given fields replaced by the non-null parameter values.
@@ -1062,6 +1086,7 @@ MealPlanFoodItem _$MealPlanFoodItemFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$MealPlanFoodItem {
   String get id => throw _privateConstructorUsedError;
+  String? get reservationId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get foodReferenceName => throw _privateConstructorUsedError;
   String? get foodGroup => throw _privateConstructorUsedError;
@@ -1069,6 +1094,7 @@ mixin _$MealPlanFoodItem {
   double get quantity => throw _privateConstructorUsedError;
   String? get unitAbbreviation => throw _privateConstructorUsedError;
   String? get expirationDate => throw _privateConstructorUsedError;
+  String? get status => throw _privateConstructorUsedError;
 
   /// Serializes this MealPlanFoodItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1089,6 +1115,7 @@ abstract class $MealPlanFoodItemCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
+    String? reservationId,
     String name,
     String? foodReferenceName,
     String? foodGroup,
@@ -1096,6 +1123,7 @@ abstract class $MealPlanFoodItemCopyWith<$Res> {
     double quantity,
     String? unitAbbreviation,
     String? expirationDate,
+    String? status,
   });
 }
 
@@ -1115,6 +1143,7 @@ class _$MealPlanFoodItemCopyWithImpl<$Res, $Val extends MealPlanFoodItem>
   @override
   $Res call({
     Object? id = null,
+    Object? reservationId = freezed,
     Object? name = null,
     Object? foodReferenceName = freezed,
     Object? foodGroup = freezed,
@@ -1122,6 +1151,7 @@ class _$MealPlanFoodItemCopyWithImpl<$Res, $Val extends MealPlanFoodItem>
     Object? quantity = null,
     Object? unitAbbreviation = freezed,
     Object? expirationDate = freezed,
+    Object? status = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1129,6 +1159,10 @@ class _$MealPlanFoodItemCopyWithImpl<$Res, $Val extends MealPlanFoodItem>
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as String,
+            reservationId: freezed == reservationId
+                ? _value.reservationId
+                : reservationId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             name: null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
@@ -1157,6 +1191,10 @@ class _$MealPlanFoodItemCopyWithImpl<$Res, $Val extends MealPlanFoodItem>
                 ? _value.expirationDate
                 : expirationDate // ignore: cast_nullable_to_non_nullable
                       as String?,
+            status: freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1174,6 +1212,7 @@ abstract class _$$MealPlanFoodItemImplCopyWith<$Res>
   @useResult
   $Res call({
     String id,
+    String? reservationId,
     String name,
     String? foodReferenceName,
     String? foodGroup,
@@ -1181,6 +1220,7 @@ abstract class _$$MealPlanFoodItemImplCopyWith<$Res>
     double quantity,
     String? unitAbbreviation,
     String? expirationDate,
+    String? status,
   });
 }
 
@@ -1199,6 +1239,7 @@ class __$$MealPlanFoodItemImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? reservationId = freezed,
     Object? name = null,
     Object? foodReferenceName = freezed,
     Object? foodGroup = freezed,
@@ -1206,6 +1247,7 @@ class __$$MealPlanFoodItemImplCopyWithImpl<$Res>
     Object? quantity = null,
     Object? unitAbbreviation = freezed,
     Object? expirationDate = freezed,
+    Object? status = freezed,
   }) {
     return _then(
       _$MealPlanFoodItemImpl(
@@ -1213,6 +1255,10 @@ class __$$MealPlanFoodItemImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as String,
+        reservationId: freezed == reservationId
+            ? _value.reservationId
+            : reservationId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         name: null == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
@@ -1241,6 +1287,10 @@ class __$$MealPlanFoodItemImplCopyWithImpl<$Res>
             ? _value.expirationDate
             : expirationDate // ignore: cast_nullable_to_non_nullable
                   as String?,
+        status: freezed == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1251,6 +1301,7 @@ class __$$MealPlanFoodItemImplCopyWithImpl<$Res>
 class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
   const _$MealPlanFoodItemImpl({
     required this.id,
+    this.reservationId,
     required this.name,
     this.foodReferenceName,
     this.foodGroup,
@@ -1258,6 +1309,7 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
     this.quantity = 0,
     this.unitAbbreviation,
     this.expirationDate,
+    this.status,
   });
 
   factory _$MealPlanFoodItemImpl.fromJson(Map<String, dynamic> json) =>
@@ -1265,6 +1317,8 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
 
   @override
   final String id;
+  @override
+  final String? reservationId;
   @override
   final String name;
   @override
@@ -1280,10 +1334,12 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
   final String? unitAbbreviation;
   @override
   final String? expirationDate;
+  @override
+  final String? status;
 
   @override
   String toString() {
-    return 'MealPlanFoodItem(id: $id, name: $name, foodReferenceName: $foodReferenceName, foodGroup: $foodGroup, imageUrl: $imageUrl, quantity: $quantity, unitAbbreviation: $unitAbbreviation, expirationDate: $expirationDate)';
+    return 'MealPlanFoodItem(id: $id, reservationId: $reservationId, name: $name, foodReferenceName: $foodReferenceName, foodGroup: $foodGroup, imageUrl: $imageUrl, quantity: $quantity, unitAbbreviation: $unitAbbreviation, expirationDate: $expirationDate, status: $status)';
   }
 
   @override
@@ -1292,6 +1348,8 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
         (other.runtimeType == runtimeType &&
             other is _$MealPlanFoodItemImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.reservationId, reservationId) ||
+                other.reservationId == reservationId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.foodReferenceName, foodReferenceName) ||
                 other.foodReferenceName == foodReferenceName) &&
@@ -1304,7 +1362,8 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
             (identical(other.unitAbbreviation, unitAbbreviation) ||
                 other.unitAbbreviation == unitAbbreviation) &&
             (identical(other.expirationDate, expirationDate) ||
-                other.expirationDate == expirationDate));
+                other.expirationDate == expirationDate) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1312,6 +1371,7 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
   int get hashCode => Object.hash(
     runtimeType,
     id,
+    reservationId,
     name,
     foodReferenceName,
     foodGroup,
@@ -1319,6 +1379,7 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
     quantity,
     unitAbbreviation,
     expirationDate,
+    status,
   );
 
   /// Create a copy of MealPlanFoodItem
@@ -1341,6 +1402,7 @@ class _$MealPlanFoodItemImpl implements _MealPlanFoodItem {
 abstract class _MealPlanFoodItem implements MealPlanFoodItem {
   const factory _MealPlanFoodItem({
     required final String id,
+    final String? reservationId,
     required final String name,
     final String? foodReferenceName,
     final String? foodGroup,
@@ -1348,6 +1410,7 @@ abstract class _MealPlanFoodItem implements MealPlanFoodItem {
     final double quantity,
     final String? unitAbbreviation,
     final String? expirationDate,
+    final String? status,
   }) = _$MealPlanFoodItemImpl;
 
   factory _MealPlanFoodItem.fromJson(Map<String, dynamic> json) =
@@ -1355,6 +1418,8 @@ abstract class _MealPlanFoodItem implements MealPlanFoodItem {
 
   @override
   String get id;
+  @override
+  String? get reservationId;
   @override
   String get name;
   @override
@@ -1369,6 +1434,8 @@ abstract class _MealPlanFoodItem implements MealPlanFoodItem {
   String? get unitAbbreviation;
   @override
   String? get expirationDate;
+  @override
+  String? get status;
 
   /// Create a copy of MealPlanFoodItem
   /// with the given fields replaced by the non-null parameter values.

@@ -25,7 +25,7 @@ final foodScanRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FoodScanRepositoryRef = AutoDisposeProviderRef<FoodScanRepository>;
-String _$foodScanHash() => r'94448d0305c3b9b55f32cfe170a895094404e2f4';
+String _$foodScanHash() => r'5c1a3cf87998f671fa047ffcc1ed6f9561bb5995';
 
 /// See also [FoodScan].
 @ProviderFor(FoodScan)

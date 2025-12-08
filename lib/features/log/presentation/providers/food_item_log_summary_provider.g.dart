@@ -7,7 +7,7 @@ part of 'food_item_log_summary_provider.dart';
 // **************************************************************************
 
 String _$foodItemLogSummaryDataHash() =>
-    r'01a0ba01cc82399d95505e2047c7564170c7c183';
+    r'2b556450a2300a660908029191f889ad6d3adcaf';
 
 /// See also [FoodItemLogSummaryData].
 @ProviderFor(FoodItemLogSummaryData)

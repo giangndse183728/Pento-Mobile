@@ -9,13 +9,10 @@ part 'food_item_log_summary_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class FoodItemLogSummaryData extends _$FoodItemLogSummaryData {
-  late final FoodItemLogRepository _repository;
+  final FoodItemLogRepository _repository = FoodItemLogRepository();
 
   @override
-  FutureOr<FoodItemLogSummary> build() async {
-    _repository = FoodItemLogRepository();
-    return await _loadSummary();
-  }
+  FutureOr<FoodItemLogSummary> build() async => _loadSummary();
 
   Future<FoodItemLogSummary> _loadSummary() async {
     return await _repository.getSummary();

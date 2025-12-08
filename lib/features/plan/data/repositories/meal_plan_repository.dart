@@ -114,5 +114,67 @@ class MealPlanRepository {
       onSuccess: (_) => null,
     );
   }
+
+  /// Fulfill a recipe reservation
+  Future<void> fulfillRecipeReservation({
+    required String mealPlanId,
+    required String recipeId,
+  }) async {
+    _logger.info('Fulfilling recipe reservation: $recipeId in meal plan: $mealPlanId');
+    final path = ApiEndpoints.fulfillRecipeReservation
+        .replaceAll('{mealPlanId}', mealPlanId)
+        .replaceAll('{recipeId}', recipeId);
+    await _network.patch<void>(
+      path,
+      onSuccess: (_) => null,
+    );
+  }
+
+  /// Cancel a recipe reservation
+  Future<void> cancelRecipeReservation({
+    required String mealPlanId,
+    required String recipeId,
+  }) async {
+    _logger.info('Cancelling recipe reservation: $recipeId in meal plan: $mealPlanId');
+    final path = ApiEndpoints.cancelRecipeReservation
+        .replaceAll('{mealPlanId}', mealPlanId)
+        .replaceAll('{recipeId}', recipeId);
+    await _network.patch<void>(
+      path,
+      onSuccess: (_) => null,
+    );
+  }
+
+  /// Fulfill a food item reservation
+  Future<void> fulfillFoodItemReservation({
+    required String reservationId,
+    required double quantity,
+    required String unitId,
+  }) async {
+    _logger.info('Fulfilling food item reservation: $reservationId');
+    final path = ApiEndpoints.fulfillFoodItemReservation
+        .replaceAll('{id}', reservationId);
+    await _network.patch<void>(
+      path,
+      data: {
+        'quantity': quantity,
+        'unitId': unitId,
+      },
+      onSuccess: (_) => null,
+    );
+  }
+
+  /// Cancel a food item reservation
+  Future<void> cancelFoodItemReservation({
+    required String reservationId,
+  }) async {
+    _logger.info('Cancelling food item reservation: $reservationId');
+    final path = ApiEndpoints.cancelFoodItemReservation
+        .replaceAll('{id}', reservationId);
+    await _network.patch<void>(
+      path,
+      onSuccess: (_) => null,
+    );
+  }
 }
 

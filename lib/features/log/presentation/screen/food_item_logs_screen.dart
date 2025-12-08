@@ -5,29 +5,52 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/widgets/glass_toggle.dart';
+import '../../data/models/food_item_log_model.dart';
+import '../../data/models/meal_reservation_model.dart';
 import '../providers/food_item_log_provider.dart';
+import '../providers/meal_reservation_provider.dart';
 import '../widgets/food_item_log_card.dart';
+import '../widgets/meal_reservation_card.dart';
 
 class FoodItemLogsScreen extends HookConsumerWidget {
   const FoodItemLogsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final viewIndex = useState<int>(0); // 0 = Logs, 1 = Reservations
     final asyncLogs = ref.watch(foodItemLogsProvider);
+    final asyncReservations = ref.watch(mealReservationsProvider);
     final searchController = useTextEditingController();
     final selectedAction = useState<String>('--');
+    final selectedMealType = useState<String>('--');
     final fromDate = useState<DateTime?>(null);
     final toDate = useState<DateTime?>(null);
 
     Future<void> applyFilters() async {
-      await ref.read(foodItemLogsProvider.notifier).applyFilters(
-            searchText: searchController.text.isEmpty
-                ? null
-                : searchController.text,
-            fromDate: fromDate.value,
-            toDate: toDate.value,
-            logAction: selectedAction.value == '--' ? null : selectedAction.value,
-          );
+      if (viewIndex.value == 0) {
+        await ref.read(foodItemLogsProvider.notifier).applyFilters(
+              searchText: searchController.text.isEmpty
+                  ? null
+                  : searchController.text,
+              fromDate: fromDate.value,
+              toDate: toDate.value,
+              logAction: selectedAction.value == '--'
+                  ? null
+                  : selectedAction.value,
+            );
+      } else {
+        await ref.read(mealReservationsProvider.notifier).applyFilters(
+              searchText: searchController.text.isEmpty
+                  ? null
+                  : searchController.text,
+              fromDate: fromDate.value,
+              toDate: toDate.value,
+              mealType: selectedMealType.value == '--'
+                  ? null
+                  : selectedMealType.value,
+            );
+      }
     }
 
     Future<void> selectDate(
@@ -58,8 +81,34 @@ class FoodItemLogsScreen extends HookConsumerWidget {
         ),
         child: Column(
           children: [
-          // Filters Section
-          Container(
+            // Glass Toggle
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 12.h,
+              ),
+              child: GlassToggle(
+                selectedIndex: viewIndex.value,
+                onChanged: (index) {
+                  viewIndex.value = index;
+                  // Reset filters when switching views
+                  searchController.clear();
+                  selectedAction.value = '--';
+                  selectedMealType.value = '--';
+                  fromDate.value = null;
+                  toDate.value = null;
+                  if (index == 0) {
+                    ref.read(foodItemLogsProvider.notifier).resetFilters();
+                  } else {
+                    ref.read(mealReservationsProvider.notifier).resetFilters();
+                  }
+                },
+                labels: const ['Food Item Logs', 'Food Reservations'],
+              ),
+            ),
+
+            // Filters Section
+            Container(
             padding: EdgeInsets.symmetric(
               horizontal: 16.w,
               vertical: 12.h,
@@ -80,7 +129,9 @@ class FoodItemLogsScreen extends HookConsumerWidget {
                 TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search food items...',
+                    hintText: viewIndex.value == 0
+                        ? 'Search food items...'
+                        : 'Search reservations...',
                     hintStyle: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade600,
@@ -110,15 +161,17 @@ class FoodItemLogsScreen extends HookConsumerWidget {
                 ),
                 SizedBox(height: 12.h),
 
-                // Action & Date Filters
+                // Action/Meal Type & Date Filters
                 Row(
                   children: [
-                    // Action Dropdown
+                    // Action/Meal Type Dropdown
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: selectedAction.value,
+                        value: viewIndex.value == 0
+                            ? selectedAction.value
+                            : selectedMealType.value,
                         decoration: InputDecoration(
-                          labelText: 'Action',
+                          labelText: viewIndex.value == 0 ? 'Action' : 'Meal Type',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.r),
                           ),
@@ -127,15 +180,26 @@ class FoodItemLogsScreen extends HookConsumerWidget {
                             vertical: 8.h,
                           ),
                         ),
-                        items: ['--', 'Intake', 'Consumption', 'Discard']
-                            .map((action) => DropdownMenuItem(
-                                  value: action,
-                                  child: Text(action),
-                                ))
-                            .toList(),
+                        items: viewIndex.value == 0
+                            ? ['--', 'Intake', 'Consumption', 'Discard']
+                                .map((action) => DropdownMenuItem(
+                                      value: action,
+                                      child: Text(action),
+                                    ))
+                                .toList()
+                            : ['--', 'Breakfast', 'Lunch', 'Dinner', 'Snack']
+                                .map((mealType) => DropdownMenuItem(
+                                      value: mealType,
+                                      child: Text(mealType),
+                                    ))
+                                .toList(),
                         onChanged: (value) {
                           if (value != null) {
-                            selectedAction.value = value;
+                            if (viewIndex.value == 0) {
+                              selectedAction.value = value;
+                            } else {
+                              selectedMealType.value = value;
+                            }
                             applyFilters();
                           }
                         },
@@ -208,7 +272,9 @@ class FoodItemLogsScreen extends HookConsumerWidget {
                 // Clear Filters Button
                 if (fromDate.value != null ||
                     toDate.value != null ||
-                    selectedAction.value != '--' ||
+                    (viewIndex.value == 0
+                        ? selectedAction.value != '--'
+                        : selectedMealType.value != '--') ||
                     searchController.text.isNotEmpty)
                   Padding(
                     padding: EdgeInsets.only(top: 8.h),
@@ -216,9 +282,15 @@ class FoodItemLogsScreen extends HookConsumerWidget {
                       onPressed: () {
                         searchController.clear();
                         selectedAction.value = '--';
+                        selectedMealType.value = '--';
                         fromDate.value = null;
                         toDate.value = null;
-                        ref.read(foodItemLogsProvider.notifier).resetFilters();
+                        if (viewIndex.value == 0) {
+                          ref.read(foodItemLogsProvider.notifier).resetFilters();
+                        } else {
+                          ref.read(mealReservationsProvider.notifier)
+                              .resetFilters();
+                        }
                       },
                       icon: const Icon(Icons.clear_all),
                       label: const Text('Clear Filters'),
@@ -228,149 +300,302 @@ class FoodItemLogsScreen extends HookConsumerWidget {
             ),
           ),
 
-          // Logs List
+          // Content List (Logs or Reservations)
           Expanded(
-            child: asyncLogs.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              error: (error, stackTrace) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Failed to load logs',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.red,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    ElevatedButton(
-                      onPressed: () =>
-                          ref.read(foodItemLogsProvider.notifier).refresh(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-              data: (paginatedLogs) {
-                if (paginatedLogs.items.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.assignment_outlined,
-                          size: 64.sp,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 16.h),
-                        Text(
-                          'No logs found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return Column(
-                  children: [
-                    // Pagination Info
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
-                      ),
-                      color: Colors.grey.shade100,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Page ${paginatedLogs.currentPage} of ${paginatedLogs.totalPages}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '${paginatedLogs.totalCount} total logs',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Logs List
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.all(16.w),
-                        itemCount: paginatedLogs.items.length,
-                        itemBuilder: (context, index) {
-                          final log = paginatedLogs.items[index];
-                          return FoodItemLogCard(log: log);
-                        },
-                      ),
-                    ),
-
-                    // Pagination Controls
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, -2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: paginatedLogs.hasPrevious
-                                ? () => ref
-                                    .read(foodItemLogsProvider.notifier)
-                                    .loadPreviousPage()
-                                : null,
-                            icon: const Icon(Icons.chevron_left),
-                            label: const Text('Previous'),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: paginatedLogs.hasNext
-                                ? () => ref
-                                    .read(foodItemLogsProvider.notifier)
-                                    .loadNextPage()
-                                : null,
-                            icon: const Icon(Icons.chevron_right),
-                            label: const Text('Next'),
-                            style: ElevatedButton.styleFrom(
-                              iconAlignment: IconAlignment.end,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+            child: viewIndex.value == 0
+                ? _buildLogsView(ref, asyncLogs)
+                : _buildReservationsView(ref, asyncReservations),
           ),
         ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLogsView(
+    WidgetRef ref,
+    AsyncValue<PaginatedFoodItemLogs> asyncLogs,
+  ) {
+    return asyncLogs.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Failed to load logs',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            ElevatedButton(
+              onPressed: () =>
+                  ref.read(foodItemLogsProvider.notifier).refresh(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (paginatedLogs) {
+        if (paginatedLogs.items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.assignment_outlined,
+                  size: 64.sp,
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No logs found',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            // Pagination Info
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
+              ),
+              color: Colors.grey.shade100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Page ${paginatedLogs.currentPage} of ${paginatedLogs.totalPages}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${paginatedLogs.totalCount} total logs',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Logs List
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.all(16.w),
+                itemCount: paginatedLogs.items.length,
+                itemBuilder: (context, index) {
+                  final log = paginatedLogs.items[index];
+                  return FoodItemLogCard(log: log);
+                },
+              ),
+            ),
+
+            // Pagination Controls
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 12.h,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: paginatedLogs.hasPrevious
+                        ? () => ref
+                            .read(foodItemLogsProvider.notifier)
+                            .loadPreviousPage()
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('Previous'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: paginatedLogs.hasNext
+                        ? () => ref
+                            .read(foodItemLogsProvider.notifier)
+                            .loadNextPage()
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                    label: const Text('Next'),
+                    style: ElevatedButton.styleFrom(
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReservationsView(
+    WidgetRef ref,
+    AsyncValue<PaginatedMealReservations> asyncReservations,
+  ) {
+    return asyncReservations.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Failed to load reservations',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            ElevatedButton(
+              onPressed: () => ref
+                  .read(mealReservationsProvider.notifier)
+                  .refresh(),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (paginatedReservations) {
+        if (paginatedReservations.items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.restaurant_menu_outlined,
+                  size: 64.sp,
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'No reservations found',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            // Pagination Info
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
+              ),
+              color: Colors.grey.shade100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Page ${paginatedReservations.currentPage} of ${paginatedReservations.totalPages}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${paginatedReservations.totalCount} total reservations',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Reservations List
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.all(16.w),
+                itemCount: paginatedReservations.items.length,
+                itemBuilder: (context, index) {
+                  final reservation = paginatedReservations.items[index];
+                  return MealReservationCard(reservation: reservation);
+                },
+              ),
+            ),
+
+            // Pagination Controls
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 12.h,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: paginatedReservations.hasPrevious
+                        ? () => ref
+                            .read(mealReservationsProvider.notifier)
+                            .loadPreviousPage()
+                        : null,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('Previous'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: paginatedReservations.hasNext
+                        ? () => ref
+                            .read(mealReservationsProvider.notifier)
+                            .loadNextPage()
+                        : null,
+                    icon: const Icon(Icons.chevron_right),
+                    label: const Text('Next'),
+                    style: ElevatedButton.styleFrom(
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
