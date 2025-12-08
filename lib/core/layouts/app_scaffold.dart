@@ -96,6 +96,9 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
       case 'subscription':
         context.go(AppRoutes.subscription);
         break;
+      case 'my-posts':
+        context.go(AppRoutes.myPosts);
+        break;
       case 'settings':
         // TODO: Navigate to settings
         // context.go('/settings');

@@ -33,10 +33,25 @@ class AppRoutes {
   static const String foodScanBill = '/compartment/food-scan-bill';
   static const String foodScanResults = '/compartment/food-scan-results';
   static const String foodItems = '/food-items';
+  static const String selectFoodItems = '/select-food-items';
+  static const String createTradePost = '/create-trade-post';
+  static const String selectFoodItemsForTradeRequest =
+      '/select-food-items-for-trade-request';
+  static const String nearbyPlaces = '/grocery/nearby-places';
+  static const String achievement = '/achievement';
+  static const String achievementDetail = '/achievement/:milestoneId';
+  static const String myPosts = '/my-posts';
+  static const String wishlist = '/wishlist';
   
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';
 
   static String recipeDetailRoute(String id) => '/recipe/$id';
+  
+  static String nearbyPlacesRoute(String foodGroup) =>
+      '/grocery/nearby-places?foodGroup=$foodGroup';
+  
+  static String achievementDetailRoute(String milestoneId) =>
+      '/achievement/$milestoneId';
   
 }

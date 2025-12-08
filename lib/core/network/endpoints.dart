@@ -9,11 +9,12 @@ class ApiEndpoints {
 
   static const String baseUrlLocal = 'http://10.0.2.2:8000/api/v1';
 
-  // Image Search (Nest API)
+  // Nest API
   static const String imageSearch = '$baseUrlNest/image-search';
   static const String scanImage = '$baseUrlNest/scan-food';
   static const String scanBillImage = '$baseUrlNest/scan-food/bill';
   static const String chatbot = '$baseUrlNest/chatbot/chat';
+  static const String placeNearBy = '$baseUrlNest/places/nearby';
 
   // Authentication
   static const String signIn = '/auth/mobile-sign-in';
@@ -67,6 +68,10 @@ class ApiEndpoints {
   //Recipe
   static const String getRecipe = '/recipes';
   static const String getRecipeById = '/recipes/{recipeId}';
+  static const String getWishlist = '/recipes/wishlist';
+  static const String addToWishlist = '/recipes/{recipeId}/add-to-wishlist';
+  static const String removeFromWishlist = '/recipes/{recipeId}/wishlist';
+
 
   //Activity Log
   static const String getSummaryFoodItemLogs = '/food-item-logs/summary';
@@ -74,7 +79,7 @@ class ApiEndpoints {
 
   //Grocery List
   static const String getGroceryList = '/grocery-lists/current-house';
-  static const String getGroceryListItem = '/grocery-lists/{id}';
+  static const String getGroceryListItem = '/grocery-list-items';
   static const String createGroceryList = '/grocery-lists';
   static const String updateGroceryList = '/grocery-lists/{id}';
   static const String deleteGroceryList = '/grocery-lists/{id}';
@@ -88,12 +93,20 @@ class ApiEndpoints {
   //Meal Plan
   static const String getMealPlan = '/meal-plans';
   static const String createMealPlan = '/meal-plans';
+  static const String fulfillMealPlan = '/meal-plans/{mealPlanId}/fulfill';
+  static const String cancelMealPlan = '/meal-plans/{mealPlanId}/cancel';
 
   //Reservation
   static const String createMealReservation = '/meal-plan-reservations';
   static const String createRecipeReservation = '/meal-plans/from-recipe';
   static const String confirmRecipeReservation = '/meal-plans/from-recipe/confirm';
   static const String getMealReservations = '/meal-plan-reservations';
+
+  static const String fulfillRecipeReservation = '/meal-plans/{mealPlanId}/recipes/{recipeId}/fulfill';
+  static const String cancelRecipeReservation = '/meal-plans/{mealPlanId}/recipes/{recipeId}/cancel';
+
+  static const String fulfillFoodItemReservation = '/mealplan-reservations/{id}/fulfill';
+  static const String cancelFoodItemReservation = '/mealplan-reservations/{id}/cancel';
 
   //Subscription
   static const String getSubscription = '/subscriptions';
@@ -104,10 +117,20 @@ class ApiEndpoints {
   static const String createPayment = '/payments';
   static const String getPayments = '/payments';
 
+  //Notifications
+  static const String registerNotificationToken = '/notifications/register-token';
+
+  //Achievement
+  static const String getAchievement = '/users/milestones';
+  static const String getAchievementById = '/users/milestones/{milestoneId}';
+
+  //Trade 
+  static const String getTradeOffers = '/trade-posts';
+  static const String createTradeOffer = '/trade-offers/items';
+  static const String createTradeRequestItem = '/trade-requests/items';
+  static const String getMyPosts = '/trades/posts/me';
+  static const String getPostById = '/trade-requests/offer/{offerId}';
+
   
-
-
-
-
 
 }
