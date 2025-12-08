@@ -56,5 +56,64 @@ class RecipeRepository {
     );
     return recipe;
   }
+
+  Future<PaginatedRecipes> getWishlist({
+    int pageNumber = 1,
+    int pageSize = defaultPageSize,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+
+    return await _network.get<PaginatedRecipes>(
+      '${ApiEndpoints.getWishlist}?$queryString',
+      onSuccess: (data) {
+        if (data is List) {
+          final recipes = data
+              .cast<Map<String, dynamic>>()
+              .map(Recipe.fromJson)
+              .toList();
+          return PaginatedRecipes(
+            items: recipes,
+            currentPage: pageNumber,
+            totalPages: 1,
+            pageSize: pageSize,
+            totalCount: recipes.length,
+            hasPrevious: false,
+            hasNext: false,
+          );
+        }
+
+        return PaginatedRecipes.fromJson(data as Map<String, dynamic>);
+      },
+    );
+  }
+
+  Future<void> addToWishlist(String recipeId) async {
+    final path = ApiEndpoints.addToWishlist.replaceFirst(
+      '{recipeId}',
+      recipeId,
+    );
+    await _network.post<void>(
+      path,
+      onSuccess: (_) => null,
+    );
+  }
+
+  Future<void> removeFromWishlist(String recipeId) async {
+    final path = ApiEndpoints.removeFromWishlist.replaceFirst(
+      '{recipeId}',
+      recipeId,
+    );
+    await _network.delete<void>(
+      path,
+      onSuccess: (_) => null,
+    );
+  }
 }
 

@@ -4,65 +4,60 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/routing/app_routes.dart';
-import '../../../../core/widgets/circle_icon_button.dart';
 import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
-import '../widgets/recipe_filter_card.dart';
 
-class RecipeScreen extends ConsumerStatefulWidget {
-  const RecipeScreen({super.key});
+class WishlistScreen extends ConsumerWidget {
+  const WishlistScreen({super.key});
 
-  @override
-  ConsumerState<RecipeScreen> createState() => _RecipeScreenState();
-}
-
-class _RecipeScreenState extends ConsumerState<RecipeScreen> {
-  late final TextEditingController _searchController;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
+  Widget _buildHeader(int totalCount) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Wishlist',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: Colors.blueGrey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Text(
+              '$totalCount items',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncWishlist = ref.watch(wishlistProvider);
 
-  @override
-  Widget build(BuildContext context) {
-    final filters = ref.watch(recipeFiltersProvider);
-    final asyncRecipes = ref.watch(recipesProvider);
-
-    if (_searchController.text != filters.search) {
-      _searchController.text = filters.search;
-      _searchController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _searchController.text.length),
-      );
-    }
-
-    Future<void> refreshRecipes() =>
-        ref.read(recipesProvider.notifier).refresh();
+    Future<void> refreshWishlist() =>
+        ref.read(wishlistProvider.notifier).refresh();
 
     return AppScaffold(
-      title: 'Recipes',
+      title: 'Wishlist',
+      showBackButton: true,
       padding: EdgeInsets.zero,
-      actions: [
-        CircleIconButton(
-          icon: Icons.shopping_cart_outlined,
-          onTap: () => context.push(AppRoutes.grocery),
-        ),
-        CircleIconButton(
-          icon: Icons.heart_broken_outlined,
-          onTap: () => context.push(AppRoutes.wishlist),
-        ),
-      ],
       body: RefreshIndicator(
-        onRefresh: refreshRecipes,
-        child: asyncRecipes.when(
+        onRefresh: refreshWishlist,
+        child: asyncWishlist.when(
           loading: () => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.zero,
@@ -72,32 +67,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                     kToolbarHeight +
                     16.h,
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: RecipeFilterCard(
-                  searchController: _searchController,
-                  filters: filters,
-                  totalCount: 0,
-                  onSearchChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(search: value);
-                  },
-                  onDifficultyChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(
-                      difficulty: value,
-                      clearDifficulty: value == null,
-                    );
-                  },
-                  onSortChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(
-                      sort: value,
-                      clearSort: value == null,
-                    );
-                  },
-                ),
-              ),
+              _buildHeader(0),
               const SizedBox(
                 height: 320,
                 child: Center(
@@ -115,42 +85,17 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                     kToolbarHeight +
                     16.h,
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: RecipeFilterCard(
-                  searchController: _searchController,
-                  filters: filters,
-                  totalCount: 0,
-                  onSearchChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(search: value);
-                  },
-                  onDifficultyChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(
-                      difficulty: value,
-                      clearDifficulty: value == null,
-                    );
-                  },
-                  onSortChanged: (value) {
-                    ref.read(recipeFiltersProvider.notifier).state =
-                        filters.copyWith(
-                      sort: value,
-                      clearSort: value == null,
-                    );
-                  },
-                ),
-              ),
+              _buildHeader(0),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Failed to load recipes'),
+                      const Text('Failed to load wishlist'),
                       SizedBox(height: 8.h),
                       ElevatedButton(
-                        onPressed: refreshRecipes,
+                        onPressed: refreshWishlist,
                         child: const Text('Retry'),
                       ),
                     ],
@@ -159,14 +104,14 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
               ),
             ],
           ),
-          data: (recipeState) {
+          data: (wishlistState) {
             Widget buildList({required bool isEmpty}) {
               return NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
                   if (notification.metrics.axis != Axis.vertical) {
                     return false;
                   }
-                  final data = asyncRecipes.valueOrNull;
+                  final data = asyncWishlist.valueOrNull;
                   if (data == null ||
                       data.isLoadingMore ||
                       !data.hasNext) {
@@ -177,7 +122,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                       notification.metrics.maxScrollExtent - 120;
                   if (notification.metrics.pixels >= threshold &&
                       notification.metrics.maxScrollExtent > 0) {
-                    ref.read(recipesProvider.notifier).loadNextPage();
+                    ref.read(wishlistProvider.notifier).loadNextPage();
                   }
                   return false;
                 },
@@ -192,40 +137,31 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                       ),
                     ),
                     SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: RecipeFilterCard(
-                          searchController: _searchController,
-                          filters: filters,
-                          totalCount: recipeState.totalCount,
-                          onSearchChanged: (value) {
-                            ref.read(recipeFiltersProvider.notifier).state =
-                                filters.copyWith(search: value);
-                          },
-                          onDifficultyChanged: (value) {
-                            ref.read(recipeFiltersProvider.notifier).state =
-                                filters.copyWith(
-                              difficulty: value,
-                              clearDifficulty: value == null,
-                            );
-                          },
-                          onSortChanged: (value) {
-                            ref.read(recipeFiltersProvider.notifier).state =
-                                filters.copyWith(
-                              sort: value,
-                              clearSort: value == null,
-                            );
-                          },
-                        ),
-                      ),
+                      child: _buildHeader(wishlistState.totalCount),
                     ),
                     if (isEmpty) ...[
                       SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
-                          child: Text(
-                            'No recipes found',
-                            style: Theme.of(context).textTheme.bodyLarge,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.favorite_border,
+                                size: 64.sp,
+                                color: Colors.grey.shade400,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                'No recipes in wishlist',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                'Add recipes to your wishlist to see them here',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -244,7 +180,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                             ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
-                                final recipe = recipeState.recipes[index];
+                                final recipe = wishlistState.recipes[index];
                                 return RecipeCard(
                                   recipe: recipe,
                                   onTap: () {
@@ -256,12 +192,12 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                                   },
                                 );
                               },
-                              childCount: recipeState.recipes.length,
+                              childCount: wishlistState.recipes.length,
                             ),
                           ),
                         ),
                       ),
-                      if (recipeState.isLoadingMore) ...[
+                      if (wishlistState.isLoadingMore) ...[
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -271,7 +207,7 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                           ),
                         ),
                       ],
-                      if (recipeState.loadMoreError != null) ...[
+                      if (wishlistState.loadMoreError != null) ...[
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -294,11 +230,10 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
               );
             }
 
-            return buildList(isEmpty: recipeState.recipes.isEmpty);
+            return buildList(isEmpty: wishlistState.recipes.isEmpty);
           },
         ),
       ),
     );
   }
 }
-
