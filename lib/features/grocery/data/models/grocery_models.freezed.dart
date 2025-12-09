@@ -542,9 +542,14 @@ mixin _$GroceryListItem {
   String? get unitName => throw _privateConstructorUsedError;
   String? get priority => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
+  String? get foodGroup => throw _privateConstructorUsedError;
+  int? get typicalShelfLifeDaysPantry => throw _privateConstructorUsedError;
+  int? get typicalShelfLifeDaysFridge => throw _privateConstructorUsedError;
+  int? get typicalShelfLifeDaysFreezer => throw _privateConstructorUsedError;
   bool? get isCompleted => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get createdOnUtc => throw _privateConstructorUsedError;
 
   /// Serializes this GroceryListItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -575,9 +580,14 @@ abstract class $GroceryListItemCopyWith<$Res> {
     String? unitName,
     String? priority,
     String? notes,
+    String? foodGroup,
+    int? typicalShelfLifeDaysPantry,
+    int? typicalShelfLifeDaysFridge,
+    int? typicalShelfLifeDaysFreezer,
     bool? isCompleted,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? createdOnUtc,
   });
 }
 
@@ -607,9 +617,14 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
     Object? unitName = freezed,
     Object? priority = freezed,
     Object? notes = freezed,
+    Object? foodGroup = freezed,
+    Object? typicalShelfLifeDaysPantry = freezed,
+    Object? typicalShelfLifeDaysFridge = freezed,
+    Object? typicalShelfLifeDaysFreezer = freezed,
     Object? isCompleted = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? createdOnUtc = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -657,6 +672,22 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
+            foodGroup: freezed == foodGroup
+                ? _value.foodGroup
+                : foodGroup // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            typicalShelfLifeDaysPantry: freezed == typicalShelfLifeDaysPantry
+                ? _value.typicalShelfLifeDaysPantry
+                : typicalShelfLifeDaysPantry // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            typicalShelfLifeDaysFridge: freezed == typicalShelfLifeDaysFridge
+                ? _value.typicalShelfLifeDaysFridge
+                : typicalShelfLifeDaysFridge // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            typicalShelfLifeDaysFreezer: freezed == typicalShelfLifeDaysFreezer
+                ? _value.typicalShelfLifeDaysFreezer
+                : typicalShelfLifeDaysFreezer // ignore: cast_nullable_to_non_nullable
+                      as int?,
             isCompleted: freezed == isCompleted
                 ? _value.isCompleted
                 : isCompleted // ignore: cast_nullable_to_non_nullable
@@ -668,6 +699,10 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            createdOnUtc: freezed == createdOnUtc
+                ? _value.createdOnUtc
+                : createdOnUtc // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
           )
           as $Val,
@@ -696,9 +731,14 @@ abstract class _$$GroceryListItemImplCopyWith<$Res>
     String? unitName,
     String? priority,
     String? notes,
+    String? foodGroup,
+    int? typicalShelfLifeDaysPantry,
+    int? typicalShelfLifeDaysFridge,
+    int? typicalShelfLifeDaysFreezer,
     bool? isCompleted,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? createdOnUtc,
   });
 }
 
@@ -727,9 +767,14 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
     Object? unitName = freezed,
     Object? priority = freezed,
     Object? notes = freezed,
+    Object? foodGroup = freezed,
+    Object? typicalShelfLifeDaysPantry = freezed,
+    Object? typicalShelfLifeDaysFridge = freezed,
+    Object? typicalShelfLifeDaysFreezer = freezed,
     Object? isCompleted = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? createdOnUtc = freezed,
   }) {
     return _then(
       _$GroceryListItemImpl(
@@ -777,6 +822,22 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String?,
+        foodGroup: freezed == foodGroup
+            ? _value.foodGroup
+            : foodGroup // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        typicalShelfLifeDaysPantry: freezed == typicalShelfLifeDaysPantry
+            ? _value.typicalShelfLifeDaysPantry
+            : typicalShelfLifeDaysPantry // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        typicalShelfLifeDaysFridge: freezed == typicalShelfLifeDaysFridge
+            ? _value.typicalShelfLifeDaysFridge
+            : typicalShelfLifeDaysFridge // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        typicalShelfLifeDaysFreezer: freezed == typicalShelfLifeDaysFreezer
+            ? _value.typicalShelfLifeDaysFreezer
+            : typicalShelfLifeDaysFreezer // ignore: cast_nullable_to_non_nullable
+                  as int?,
         isCompleted: freezed == isCompleted
             ? _value.isCompleted
             : isCompleted // ignore: cast_nullable_to_non_nullable
@@ -788,6 +849,10 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        createdOnUtc: freezed == createdOnUtc
+            ? _value.createdOnUtc
+            : createdOnUtc // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
       ),
     );
@@ -809,9 +874,14 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     this.unitName,
     this.priority,
     this.notes,
+    this.foodGroup,
+    this.typicalShelfLifeDaysPantry,
+    this.typicalShelfLifeDaysFridge,
+    this.typicalShelfLifeDaysFreezer,
     this.isCompleted,
     this.createdAt,
     this.updatedAt,
+    this.createdOnUtc,
   });
 
   factory _$GroceryListItemImpl.fromJson(Map<String, dynamic> json) =>
@@ -841,15 +911,25 @@ class _$GroceryListItemImpl implements _GroceryListItem {
   @override
   final String? notes;
   @override
+  final String? foodGroup;
+  @override
+  final int? typicalShelfLifeDaysPantry;
+  @override
+  final int? typicalShelfLifeDaysFridge;
+  @override
+  final int? typicalShelfLifeDaysFreezer;
+  @override
   final bool? isCompleted;
   @override
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+  @override
+  final DateTime? createdOnUtc;
 
   @override
   String toString() {
-    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, imageUrl: $imageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, priority: $priority, notes: $notes, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, imageUrl: $imageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, priority: $priority, notes: $notes, foodGroup: $foodGroup, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt, createdOnUtc: $createdOnUtc)';
   }
 
   @override
@@ -875,17 +955,39 @@ class _$GroceryListItemImpl implements _GroceryListItem {
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.foodGroup, foodGroup) ||
+                other.foodGroup == foodGroup) &&
+            (identical(
+                  other.typicalShelfLifeDaysPantry,
+                  typicalShelfLifeDaysPantry,
+                ) ||
+                other.typicalShelfLifeDaysPantry ==
+                    typicalShelfLifeDaysPantry) &&
+            (identical(
+                  other.typicalShelfLifeDaysFridge,
+                  typicalShelfLifeDaysFridge,
+                ) ||
+                other.typicalShelfLifeDaysFridge ==
+                    typicalShelfLifeDaysFridge) &&
+            (identical(
+                  other.typicalShelfLifeDaysFreezer,
+                  typicalShelfLifeDaysFreezer,
+                ) ||
+                other.typicalShelfLifeDaysFreezer ==
+                    typicalShelfLifeDaysFreezer) &&
             (identical(other.isCompleted, isCompleted) ||
                 other.isCompleted == isCompleted) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.createdOnUtc, createdOnUtc) ||
+                other.createdOnUtc == createdOnUtc));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     listId,
@@ -898,10 +1000,15 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     unitName,
     priority,
     notes,
+    foodGroup,
+    typicalShelfLifeDaysPantry,
+    typicalShelfLifeDaysFridge,
+    typicalShelfLifeDaysFreezer,
     isCompleted,
     createdAt,
     updatedAt,
-  );
+    createdOnUtc,
+  ]);
 
   /// Create a copy of GroceryListItem
   /// with the given fields replaced by the non-null parameter values.
@@ -933,9 +1040,14 @@ abstract class _GroceryListItem implements GroceryListItem {
     final String? unitName,
     final String? priority,
     final String? notes,
+    final String? foodGroup,
+    final int? typicalShelfLifeDaysPantry,
+    final int? typicalShelfLifeDaysFridge,
+    final int? typicalShelfLifeDaysFreezer,
     final bool? isCompleted,
     final DateTime? createdAt,
     final DateTime? updatedAt,
+    final DateTime? createdOnUtc,
   }) = _$GroceryListItemImpl;
 
   factory _GroceryListItem.fromJson(Map<String, dynamic> json) =
@@ -964,11 +1076,21 @@ abstract class _GroceryListItem implements GroceryListItem {
   @override
   String? get notes;
   @override
+  String? get foodGroup;
+  @override
+  int? get typicalShelfLifeDaysPantry;
+  @override
+  int? get typicalShelfLifeDaysFridge;
+  @override
+  int? get typicalShelfLifeDaysFreezer;
+  @override
   bool? get isCompleted;
   @override
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+  @override
+  DateTime? get createdOnUtc;
 
   /// Create a copy of GroceryListItem
   /// with the given fields replaced by the non-null parameter values.

@@ -9,11 +9,19 @@ class ChatbotRepository {
 
   final Dio _localClient;
 
-  Future<String> sendMessage({required String message}) async {
+  Future<String> sendMessage({
+    required String message,
+    required String userId,
+  }) async {
     try {
       final response = await _localClient.post(
         ApiEndpoints.chatbot,
-        data: {'message': message},
+        queryParameters: {
+          'userId': userId,
+        },
+        data: {
+          'message': message,
+        },
       );
 
       final statusCode = response.statusCode ?? 200;

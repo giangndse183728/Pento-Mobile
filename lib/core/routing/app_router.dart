@@ -5,7 +5,10 @@ import '../layouts/main_layout.dart';
 import '../layouts/bottom_nav_items.dart';
 import '../../features/pantry/presentation/screen/pantry_screen.dart';
 import '../../features/plan/presentation/screen/meal_plan_screen.dart';
-import '../../screens/posts_screen.dart';
+import '../../features/trade/presentation/screen/trade_offers_screen.dart';
+import '../../features/compartment/presentation/screen/select_food_items_screen.dart';
+import '../../features/trade/presentation/screen/create_trade_post_screen.dart';
+import '../../features/trade/presentation/screen/select_food_items_for_trade_request_screen.dart';
 import '../../features/authentication/presentation/screen/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/household/presentation/screen/household_screen.dart';
@@ -20,8 +23,10 @@ import '../../features/compartment/presentation/screen/food_item_detail_screen.d
 import '../../features/compartment/presentation/screen/food_items_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_detail_screen.dart';
+import '../../features/recipe/presentation/screen/wishlist_screen.dart';
 import '../../features/log/presentation/screen/food_item_logs_screen.dart';
 import '../../features/grocery/presentation/screen/grocery_screen.dart';
+import '../../features/grocery/presentation/screen/nearby_places_screen.dart';
 import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
 import '../../features/subscription/presentation/screen/subscription_screen.dart';
 import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
@@ -29,6 +34,9 @@ import '../../features/subscription/presentation/screen/payment_history_screen.d
 import '../../features/food_scan/presentation/screen/food_scan_screen.dart';
 import '../../features/food_scan/presentation/screen/food_scan_results_screen.dart';
 import '../../features/food_scan/data/models/scanned_food_reference.dart';
+import '../../features/achievement/presentation/screen/achievement_screen.dart';
+import '../../features/achievement/presentation/screen/achievement_detail_screen.dart';
+import '../../features/trade/presentation/screen/my_posts_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -36,10 +44,11 @@ import '../services/token_provider.dart';
 import '../utils/jwt_utils.dart';
 import 'app_routes.dart';
 
-GoRouter createAppRouter(ProviderContainer container) {
+GoRouter createAppRouter() {
   return GoRouter(
     initialLocation: AppRoutes.onboarding,
     redirect: (context, state) async {
+      final container = ProviderScope.containerOf(context);
       final storage = SecureStorageService.instance;
       final currentLocation = state.matchedLocation;
 
@@ -108,6 +117,7 @@ GoRouter createAppRouter(ProviderContainer container) {
       path: AppRoutes.onboarding,
       pageBuilder: GoTransitions.fadeUpwards.build(
         builder: (context, state) {
+          final container = ProviderScope.containerOf(context);
           final storage = SecureStorageService.instance;
           return OnboardingScreen(
             onFinished: () async {
@@ -234,9 +244,42 @@ GoRouter createAppRouter(ProviderContainer container) {
       ),
     ),
     GoRoute(
+      path: AppRoutes.selectFoodItems,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const SelectFoodItemsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.createTradePost,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const CreateTradePostScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '${AppRoutes.selectFoodItemsForTradeRequest}/:tradeOfferId',
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final tradeOfferId =
+              state.pathParameters['tradeOfferId'] ?? '';
+          return SelectFoodItemsForTradeRequestScreen(
+            tradeOfferId: tradeOfferId,
+          );
+        },
+      ),
+    ),
+    GoRoute(
       path: AppRoutes.grocery,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const GroceryScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nearbyPlaces,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final foodGroup = state.uri.queryParameters['foodGroup'] ?? '';
+          return NearbyPlacesScreen(foodGroup: foodGroup);
+        },
       ),
     ),
     GoRoute(
@@ -311,6 +354,35 @@ GoRouter createAppRouter(ProviderContainer container) {
         },
       ),
     ),
+    GoRoute(
+      path: AppRoutes.achievement,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const AchievementScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.achievementDetail,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final milestoneId = state.pathParameters['milestoneId'] ?? '';
+          return AchievementDetailScreen(
+            milestoneId: milestoneId,
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.myPosts,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const MyPostsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.wishlist,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const WishlistScreen(),
+      ),
+    ),
 
     
 ShellRoute(
@@ -329,10 +401,10 @@ ShellRoute(
           path: AppRoutes.meal,
           builder: (context, state) => const MealPlanScreen(),
         ),
-        GoRoute(
-          path: AppRoutes.posts,
-          builder: (context, state) => const PostsScreen(),
-        ),
+          GoRoute(
+            path: AppRoutes.posts,
+            builder: (context, state) => const TradeOffersScreen(),
+          ),
         GoRoute(
           path: AppRoutes.recipe,
           builder: (context, state) => const RecipeScreen(),
@@ -345,5 +417,4 @@ ShellRoute(
   );
 }
 
-// Create router instance - will be initialized in main.dart
 late final GoRouter appRouter;

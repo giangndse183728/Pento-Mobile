@@ -28,13 +28,14 @@ class ProfileInitializer extends _$ProfileInitializer {
       
       // Update UserSession with profile data
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: profile.id,
         email: profile.email,
-        preferredUsername: profile.email, // Use email as preferred username
+        preferredUsername: profile.email,
         avatarUrl: profile.avatarUrl,
         name: '${profile.firstName} ${profile.lastName}'.trim(),
         householdId: profile.householdId,
       );
-      
+      _logger.info('User ID: ${profile.id}');
       _logger.info('✅ Profile data cached in UserSession');
     } catch (e) {
       _logger.warning('⚠️ Failed to fetch profile on startup: $e');
@@ -47,20 +48,17 @@ class ProfileInitializer extends _$ProfileInitializer {
     state = const AsyncValue.loading();
     
     state = await AsyncValue.guard(() async {
-      // Call API - interceptor will handle getting accessToken from refreshToken
-      // If session doesn't exist, interceptor callback will create it immediately after refresh
+
       final profile = await _repository.getProfile();
       
-      // Session should already exist (created by interceptor callback after token refresh)
-      // Just update it with profile data
       ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: profile.id,
         email: profile.email,
         preferredUsername: profile.email,
         avatarUrl: profile.avatarUrl,
         name: '${profile.firstName} ${profile.lastName}'.trim(),
         householdId: profile.householdId,
       );
-      
       return;
     });
   }

@@ -88,6 +88,7 @@ _$MealPlanRecipeImpl _$$MealPlanRecipeImplFromJson(Map<String, dynamic> json) =>
       imageUrl: json['imageUrl'] as String?,
       servings: (json['servings'] as num?)?.toInt() ?? 1,
       difficultyLevel: json['difficultyLevel'] as String?,
+      status: json['recipeStatus'] as String?,
     );
 
 Map<String, dynamic> _$$MealPlanRecipeImplToJson(
@@ -99,12 +100,14 @@ Map<String, dynamic> _$$MealPlanRecipeImplToJson(
   'imageUrl': instance.imageUrl,
   'servings': instance.servings,
   'difficultyLevel': instance.difficultyLevel,
+  'recipeStatus': instance.status,
 };
 
 _$MealPlanFoodItemImpl _$$MealPlanFoodItemImplFromJson(
   Map<String, dynamic> json,
 ) => _$MealPlanFoodItemImpl(
   id: json['id'] as String,
+  reservationId: json['reservationId'] as String?,
   name: json['name'] as String,
   foodReferenceName: json['foodReferenceName'] as String?,
   foodGroup: json['foodGroup'] as String?,
@@ -112,12 +115,14 @@ _$MealPlanFoodItemImpl _$$MealPlanFoodItemImplFromJson(
   quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
   unitAbbreviation: json['unitAbbreviation'] as String?,
   expirationDate: json['expirationDate'] as String?,
+  status: json['status'] as String?,
 );
 
 Map<String, dynamic> _$$MealPlanFoodItemImplToJson(
   _$MealPlanFoodItemImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
+  'reservationId': instance.reservationId,
   'name': instance.name,
   'foodReferenceName': instance.foodReferenceName,
   'foodGroup': instance.foodGroup,
@@ -125,6 +130,7 @@ Map<String, dynamic> _$$MealPlanFoodItemImplToJson(
   'quantity': instance.quantity,
   'unitAbbreviation': instance.unitAbbreviation,
   'expirationDate': instance.expirationDate,
+  'status': instance.status,
 };
 
 _$MissingIngredientImpl _$$MissingIngredientImplFromJson(

@@ -6,23 +6,8 @@ part of 'recipe_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$recipesHash() => r'8dec2158c90aa8d37e55d244d2f9010be2624bd7';
-
-/// See also [Recipes].
-@ProviderFor(Recipes)
-final recipesProvider = AsyncNotifierProvider<Recipes, RecipeState>.internal(
-  Recipes.new,
-  name: r'recipesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$recipesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$Recipes = AsyncNotifier<RecipeState>;
-String _$recipeDetailNotifierHash() =>
-    r'e7541fa5e320b378427bdd46aed808a4a2f312cf';
+String _$isRecipeInWishlistHash() =>
+    r'f5d5350242840acd58e7d7405f569ba5854d2e88';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -44,6 +29,142 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [isRecipeInWishlist].
+@ProviderFor(isRecipeInWishlist)
+const isRecipeInWishlistProvider = IsRecipeInWishlistFamily();
+
+/// See also [isRecipeInWishlist].
+class IsRecipeInWishlistFamily extends Family<AsyncValue<bool>> {
+  /// See also [isRecipeInWishlist].
+  const IsRecipeInWishlistFamily();
+
+  /// See also [isRecipeInWishlist].
+  IsRecipeInWishlistProvider call(String recipeId) {
+    return IsRecipeInWishlistProvider(recipeId);
+  }
+
+  @override
+  IsRecipeInWishlistProvider getProviderOverride(
+    covariant IsRecipeInWishlistProvider provider,
+  ) {
+    return call(provider.recipeId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'isRecipeInWishlistProvider';
+}
+
+/// See also [isRecipeInWishlist].
+class IsRecipeInWishlistProvider extends AutoDisposeFutureProvider<bool> {
+  /// See also [isRecipeInWishlist].
+  IsRecipeInWishlistProvider(String recipeId)
+    : this._internal(
+        (ref) => isRecipeInWishlist(ref as IsRecipeInWishlistRef, recipeId),
+        from: isRecipeInWishlistProvider,
+        name: r'isRecipeInWishlistProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$isRecipeInWishlistHash,
+        dependencies: IsRecipeInWishlistFamily._dependencies,
+        allTransitiveDependencies:
+            IsRecipeInWishlistFamily._allTransitiveDependencies,
+        recipeId: recipeId,
+      );
+
+  IsRecipeInWishlistProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.recipeId,
+  }) : super.internal();
+
+  final String recipeId;
+
+  @override
+  Override overrideWith(
+    FutureOr<bool> Function(IsRecipeInWishlistRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: IsRecipeInWishlistProvider._internal(
+        (ref) => create(ref as IsRecipeInWishlistRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        recipeId: recipeId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<bool> createElement() {
+    return _IsRecipeInWishlistProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is IsRecipeInWishlistProvider && other.recipeId == recipeId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, recipeId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin IsRecipeInWishlistRef on AutoDisposeFutureProviderRef<bool> {
+  /// The parameter `recipeId` of this provider.
+  String get recipeId;
+}
+
+class _IsRecipeInWishlistProviderElement
+    extends AutoDisposeFutureProviderElement<bool>
+    with IsRecipeInWishlistRef {
+  _IsRecipeInWishlistProviderElement(super.provider);
+
+  @override
+  String get recipeId => (origin as IsRecipeInWishlistProvider).recipeId;
+}
+
+String _$recipesHash() => r'8dec2158c90aa8d37e55d244d2f9010be2624bd7';
+
+/// See also [Recipes].
+@ProviderFor(Recipes)
+final recipesProvider = AsyncNotifierProvider<Recipes, RecipeState>.internal(
+  Recipes.new,
+  name: r'recipesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$recipesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$Recipes = AsyncNotifier<RecipeState>;
+String _$recipeDetailNotifierHash() =>
+    r'e7541fa5e320b378427bdd46aed808a4a2f312cf';
 
 abstract class _$RecipeDetailNotifier
     extends BuildlessAutoDisposeAsyncNotifier<Recipe> {
@@ -176,5 +297,20 @@ class _RecipeDetailNotifierProviderElement
   String get recipeId => (origin as RecipeDetailNotifierProvider).recipeId;
 }
 
+String _$wishlistHash() => r'a94617557d74f3fecb85116d7573a5f47cda6c8c';
+
+/// See also [Wishlist].
+@ProviderFor(Wishlist)
+final wishlistProvider = AsyncNotifierProvider<Wishlist, RecipeState>.internal(
+  Wishlist.new,
+  name: r'wishlistProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$wishlistHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$Wishlist = AsyncNotifier<RecipeState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

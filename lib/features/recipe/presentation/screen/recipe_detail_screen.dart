@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
 import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../../../plan/presentation/widgets/create_recipe_reservation_sheet.dart';
@@ -34,6 +35,9 @@ class RecipeDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(recipeDetailNotifierProvider(recipeId));
     final currentRecipeId = recipeId;
+    final isInWishlistAsync = ref.watch(
+      isRecipeInWishlistProvider(recipeId),
+    );
 
     return AppScaffold(
       title: 'Recipe',
@@ -42,6 +46,69 @@ class RecipeDetailScreen extends ConsumerWidget {
       showNotificationButton: false,
       padding: EdgeInsets.zero,
       transparentAppBar: true,
+      actions: [
+        isInWishlistAsync.when(
+          data: (isInWishlist) => CircleIconButton(
+            icon: isInWishlist
+                ? Icons.favorite
+                : Icons.favorite_border,
+            iconColor: isInWishlist
+                ? Colors.red
+                : Colors.black87,
+            onTap: () async {
+              try {
+                if (isInWishlist) {
+                  await ref
+                      .read(wishlistProvider.notifier)
+                      .removeFromWishlist(recipeId);
+                } else {
+                  await ref
+                      .read(wishlistProvider.notifier)
+                      .addToWishlist(recipeId);
+                }
+                ref.invalidate(isRecipeInWishlistProvider(recipeId));
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Failed to update wishlist',
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+          loading: () => CircleIconButton(
+            icon: Icons.favorite_border,
+            onTap: null,
+          ),
+          error: (_, __) => CircleIconButton(
+            icon: Icons.favorite_border,
+            onTap: () async {
+              try {
+                await ref
+                    .read(wishlistProvider.notifier)
+                    .addToWishlist(recipeId);
+                ref.invalidate(isRecipeInWishlistProvider(recipeId));
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Failed to add to wishlist',
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ),
+      ],
       body: detailAsync.when(
         loading: () => Center(
           child: Padding(

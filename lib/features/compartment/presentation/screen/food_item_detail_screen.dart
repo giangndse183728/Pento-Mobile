@@ -303,6 +303,8 @@ class _DetailBody extends StatelessWidget {
                         isExpiringSoon:
                             _isExpiringSoon(detail.expirationDateUtc),
                         onPlanMeal: onPlanMeal,
+                        expirationDate: detail.expirationDateUtc,
+                        quantity: detail.quantity,
                       ),
                     ),
                   ],
@@ -556,7 +558,9 @@ class _DetailBody extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: onPlanMeal,
+              onPressed: _canPlanMeal(detail)
+                  ? onPlanMeal
+                  : null,
               icon: Icon(
                 Icons.event_available_rounded,
                 size: 20.sp,
@@ -565,6 +569,10 @@ class _DetailBody extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.babyBlue,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.blueGray.withValues(
+                  alpha: 0.3,
+                ),
+                disabledForegroundColor: Colors.white.withValues(alpha: 0.5),
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.r),
@@ -586,6 +594,22 @@ class _DetailBody extends StatelessWidget {
     final daysUntilExpiration =
         expirationDate.difference(DateTime.now()).inDays;
     return daysUntilExpiration <= 3 && daysUntilExpiration >= 0;
+  }
+
+  bool _isItemExpired(DateTime? expirationDate) {
+    if (expirationDate == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final expiration = DateTime(
+      expirationDate.year,
+      expirationDate.month,
+      expirationDate.day,
+    );
+    return expiration.isBefore(today);
+  }
+
+  bool _canPlanMeal(CompartmentItemDetail detail) {
+    return detail.quantity > 0 && !_isItemExpired(detail.expirationDateUtc);
   }
 }
 

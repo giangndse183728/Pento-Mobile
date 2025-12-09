@@ -105,6 +105,7 @@ class MealPlanRecipe with _$MealPlanRecipe {
     String? imageUrl,
     @Default(1) int servings,
     String? difficultyLevel,
+    @JsonKey(name: 'recipeStatus') String? status,
   }) = _MealPlanRecipe;
 
   factory MealPlanRecipe.fromJson(Map<String, dynamic> json) =>
@@ -116,6 +117,7 @@ class MealPlanRecipe with _$MealPlanRecipe {
 class MealPlanFoodItem with _$MealPlanFoodItem {
   const factory MealPlanFoodItem({
     required String id,
+    String? reservationId,
     required String name,
     String? foodReferenceName,
     String? foodGroup,
@@ -123,6 +125,7 @@ class MealPlanFoodItem with _$MealPlanFoodItem {
     @Default(0) double quantity,
     String? unitAbbreviation,
     String? expirationDate,
+    String? status,
   }) = _MealPlanFoodItem;
 
   factory MealPlanFoodItem.fromJson(Map<String, dynamic> json) =>

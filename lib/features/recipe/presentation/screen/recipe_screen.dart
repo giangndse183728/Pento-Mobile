@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/circle_icon_button.dart';
 import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
@@ -49,6 +50,16 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
     return AppScaffold(
       title: 'Recipes',
       padding: EdgeInsets.zero,
+      actions: [
+        CircleIconButton(
+          icon: Icons.shopping_cart_outlined,
+          onTap: () => context.push(AppRoutes.grocery),
+        ),
+        CircleIconButton(
+          icon: Icons.heart_broken_outlined,
+          onTap: () => context.push(AppRoutes.wishlist),
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: refreshRecipes,
         child: asyncRecipes.when(

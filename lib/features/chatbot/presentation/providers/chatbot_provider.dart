@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/exceptions/network_exception.dart';
+import '../../../authentication/presentation/providers/user_session_provider.dart';
 import '../../data/models/chat_message.dart';
 import '../../data/repositories/chatbot_repository.dart';
 
@@ -13,6 +14,7 @@ class ChatbotState with _$ChatbotState {
     @Default(<ChatMessage>[]) List<ChatMessage> messages,
     @Default(false) bool isSending,
     String? errorMessage,
+    int? errorStatusCode,
   }) = _ChatbotState;
 }
 
@@ -45,10 +47,23 @@ class ChatbotViewModel extends _$ChatbotViewModel {
       messages: [...previousMessages, userMessage],
       isSending: true,
       errorMessage: null,
+      errorStatusCode: null,
     );
 
     try {
-      final reply = await _repository.sendMessage(message: trimmed);
+      final userSession = ref.read(userSessionNotifierProvider);
+      final userId = userSession?.userId;
+      if (userId == null) {
+        throw NetworkException(
+          message: 'User not authenticated',
+          statusCode: 401,
+        );
+      }
+
+      final reply = await _repository.sendMessage(
+        message: trimmed,
+        userId: userId,
+      );
       final botTime = DateTime.now();
       final botMessage = ChatMessage(
         id: _buildMessageId(botTime),
@@ -66,10 +81,14 @@ class ChatbotViewModel extends _$ChatbotViewModel {
       final message = error is NetworkException
           ? error.message
           : 'Unable to send message. Please try again.';
+      final statusCode = error is NetworkException
+          ? error.statusCode
+          : null;
       state = state.copyWith(
         messages: previousMessages,
         isSending: false,
         errorMessage: message,
+        errorStatusCode: statusCode,
       );
     }
   }

@@ -57,16 +57,16 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
+  
     _tokenProvider.clearTokens();
+
     await _storage.clearAll();
   }
 
-  /// Check if user is logged in
   Future<bool> isLoggedIn() async {
     return await _storage.isLoggedIn();
   }
 
-  /// Register device notification token (FCM) for the current user
   Future<void> registerNotificationToken({
     required String token,
     required String platform,

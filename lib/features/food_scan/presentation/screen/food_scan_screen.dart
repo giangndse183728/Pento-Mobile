@@ -8,7 +8,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/scanned_food_reference.dart';
 import '../providers/food_scan_provider.dart';
 
@@ -93,11 +95,18 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
           extra: response,
         );
       } else if (!response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.error ?? 'Scan failed'),
-          ),
-        );
+        // Check if error is about feature not available
+        final errorMessage = response.error ?? '';
+        if (errorMessage.toLowerCase().contains('feature not available') ||
+            errorMessage.toLowerCase().contains('not available for this user')) {
+          _showSubscriptionDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -111,9 +120,14 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Scan failed: $e')),
-      );
+      // Check if it's a NetworkException with 403 status
+      if (e is NetworkException && e.isForbidden) {
+        _showSubscriptionDialog(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scan failed: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -133,9 +147,12 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
       showAvatarButton: false,
       showNotificationButton: false,
       forcePillMode: true,
-      body: SingleChildScrollView(
+      padding: EdgeInsets.zero,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + kToolbarHeight + 36.h,
+          top: MediaQuery.of(context).padding.top + kToolbarHeight + 48.h,
           left: 16.w,
           right: 16.w,
           bottom: 24.h,
@@ -360,21 +377,12 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                icon: _isScanning
-                    ? SizedBox(
-                        height: 20.sp,
-                        width: 20.sp,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Icon(
-                        isBillScan ? Icons.document_scanner : Icons.search,
-                        size: 22.sp,
-                      ),
+                icon: Icon(
+                  isBillScan ? Icons.document_scanner : Icons.search,
+                  size: 22.sp,
+                ),
                 label: Text(
-                  _isScanning ? 'Scanning...' : 'Scan Image',
+                  'Scan Image',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -432,6 +440,142 @@ class _FoodScanScreenState extends ConsumerState<FoodScanScreen> {
                     ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+          // Loading overlay - covers entire screen including scaffold padding
+          if (_isScanning)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.5),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(32.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.iceberg,
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: AppColors.powderBlue,
+                        width: 4,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          color: AppColors.blueGray,
+                          strokeWidth: 3,
+                        ),
+                        SizedBox(height: 24.h),
+                        Text(
+                          'Scanning...',
+                          style: AppTextStyles.sectionHeader().copyWith(
+                            fontSize: 18.sp,
+                            color: AppColors.blueGray,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Please wait while we process your image',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.blueGray.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showSubscriptionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.lock_outline_rounded,
+              size: 48.sp,
+              color: AppColors.blueGray,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Feature Not Available',
+              style: AppTextStyles.sectionHeader().copyWith(
+                fontSize: 20.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'This feature is only available for subscribed users. '
+              'Please subscribe to access food scanning.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.blueGray,
+                      side: BorderSide(
+                        color: AppColors.powderBlue,
+                        width: 2,
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      context.push(AppRoutes.subscription);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blueGray,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Subscribe',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

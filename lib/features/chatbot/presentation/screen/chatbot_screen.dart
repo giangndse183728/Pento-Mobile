@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_dialog.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import '../../../../core/services/tts_service.dart';
 import '../../data/models/chat_message.dart';
 import '../providers/chatbot_provider.dart';
 
@@ -19,18 +24,22 @@ class ChatbotScreen extends ConsumerStatefulWidget {
 class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   late final TextEditingController _messageController;
   late final ScrollController _scrollController;
+  final TtsService _ttsService = TtsService.instance;
+  bool _isTtsEnabled = false;
 
   @override
   void initState() {
     super.initState();
     _messageController = TextEditingController();
     _scrollController = ScrollController();
+    _ttsService.initialize();
   }
 
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _ttsService.stop();
     super.dispose();
   }
 
@@ -44,12 +53,28 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _scrollToBottom();
           });
+
+          // Speak the latest assistant message if TTS is enabled
+          final latestMessage = next.messages.last;
+          if (latestMessage.role == ChatRole.assistant &&
+              _isTtsEnabled) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _ttsService.speak(latestMessage.content);
+            });
+          }
         }
         final error = next.errorMessage;
+        final statusCode = next.errorStatusCode;
         if (error != null && error != previous?.errorMessage) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          if (statusCode == 403) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showSubscriptionDialog(context);
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(error)),
+            );
+          }
         }
       },
     );
@@ -61,6 +86,18 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       showAvatarButton: false,
       showNotificationButton: false,
       forcePillMode: true,
+      actions: [
+        IconButton(
+          icon: Icon(
+            _isTtsEnabled ? Icons.volume_up : Icons.volume_off,
+            color: _isTtsEnabled
+                ? AppColors.blueGray
+                : AppColors.blueGray.withValues(alpha: 0.5),
+          ),
+          onPressed: _toggleTts,
+          tooltip: _isTtsEnabled ? 'Disable TTS' : 'Enable TTS',
+        ),
+      ],
       body: Column(
         children: [
           Expanded(
@@ -137,7 +174,18 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       return;
     }
     _messageController.clear();
+    _ttsService.stop(); // Stop any ongoing speech
     ref.read(chatbotViewModelProvider.notifier).sendMessage(message);
+  }
+
+  Future<void> _toggleTts() async {
+    setState(() {
+      _isTtsEnabled = !_isTtsEnabled;
+    });
+    await _ttsService.setEnabled(_isTtsEnabled);
+    if (!_isTtsEnabled) {
+      await _ttsService.stop();
+    }
   }
 
   void _scrollToBottom() {
@@ -146,6 +194,94 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
       _scrollController.position.maxScrollExtent + 80.h,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
+    );
+  }
+
+  void _showSubscriptionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.lock_outline_rounded,
+              size: 48.sp,
+              color: AppColors.blueGray,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Feature Not Available',
+              style: AppTextStyles.sectionHeader().copyWith(
+                fontSize: 20.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'This feature is only available for subscribed users. '
+              'Please subscribe to access the chatbot.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.blueGray,
+                      side: BorderSide(
+                        color: AppColors.powderBlue,
+                        width: 2,
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      context.push(AppRoutes.subscription);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blueGray,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Subscribe',
+                      style: AppTextStyles.inputLabel.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -183,13 +319,72 @@ class _MessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            message.content,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: textColor,
-            ),
-          ),
+          isUser
+              ? Text(
+                  message.content,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: textColor,
+                  ),
+                )
+              : MarkdownBody(
+                  data: message.content,
+                  styleSheet: MarkdownStyleSheet(
+                    p: TextStyle(
+                      fontSize: 14.sp,
+                      color: textColor,
+                    ),
+                    h1: TextStyle(
+                      fontSize: 18.sp,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    h2: TextStyle(
+                      fontSize: 16.sp,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    h3: TextStyle(
+                      fontSize: 15.sp,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    strong: TextStyle(
+                      fontSize: 14.sp,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    em: TextStyle(
+                      fontSize: 14.sp,
+                      color: textColor,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    code: TextStyle(
+                      fontSize: 13.sp,
+                      color: textColor,
+                      fontFamily: 'monospace',
+                      backgroundColor: AppColors.powderBlue.withValues(alpha: 0.2),
+                    ),
+                    codeblockDecoration: BoxDecoration(
+                      color: AppColors.powderBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    listBullet: TextStyle(
+                      fontSize: 14.sp,
+                      color: textColor,
+                    ),
+                    blockquote: TextStyle(
+                      fontSize: 14.sp,
+                      color: textColor.withValues(alpha: 0.8),
+                      fontStyle: FontStyle.italic,
+                    ),
+                    a: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.blueGray,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
           SizedBox(height: 6.h),
           Text(
             _formatTimestamp(message.createdAt),

@@ -112,7 +112,6 @@ class AuthProvider extends _$AuthProvider {
   Future<void> logout() async {
     await _repository.logout();
 
-    // Clear session from Riverpod provider (this also clears TokenProvider)
     await ref.read(userSessionNotifierProvider.notifier).clearSession();
 
     state = const AsyncValue.data(null);

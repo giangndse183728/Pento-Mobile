@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../../core/exceptions/network_exception.dart';
+import '../../../authentication/presentation/providers/user_session_provider.dart';
 import '../../data/models/scanned_food_reference.dart';
 import '../../data/repositories/food_scan_repository.dart';
 
@@ -20,8 +22,20 @@ class FoodScan extends _$FoodScan {
   Future<ScanFoodResponse> scanFoodImage(File imageFile) async {
     state = const AsyncLoading();
     try {
+      final userSession = ref.read(userSessionNotifierProvider);
+      final userId = userSession?.userId;
+      if (userId == null) {
+        throw NetworkException(
+          message: 'User not authenticated',
+          statusCode: 401,
+        );
+      }
+
       final repository = ref.read(foodScanRepositoryProvider);
-      final response = await repository.scanFoodImage(imageFile);
+      final response = await repository.scanFoodImage(
+        imageFile: imageFile,
+        userId: userId,
+      );
       state = AsyncData(response);
       return response;
     } catch (e, st) {
@@ -33,8 +47,20 @@ class FoodScan extends _$FoodScan {
   Future<ScanFoodResponse> scanBillImage(File imageFile) async {
     state = const AsyncLoading();
     try {
+      final userSession = ref.read(userSessionNotifierProvider);
+      final userId = userSession?.userId;
+      if (userId == null) {
+        throw NetworkException(
+          message: 'User not authenticated',
+          statusCode: 401,
+        );
+      }
+
       final repository = ref.read(foodScanRepositoryProvider);
-      final response = await repository.scanBillImage(imageFile);
+      final response = await repository.scanBillImage(
+        imageFile: imageFile,
+        userId: userId,
+      );
       state = AsyncData(response);
       return response;
     } catch (e, st) {

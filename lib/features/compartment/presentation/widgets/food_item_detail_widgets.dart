@@ -16,12 +16,32 @@ class ImageInfoCard extends StatelessWidget {
     required this.expiration,
     required this.isExpiringSoon,
     this.onPlanMeal,
+    this.expirationDate,
+    this.quantity = 0,
   });
 
   final String name;
   final String expiration;
   final bool isExpiringSoon;
   final VoidCallback? onPlanMeal;
+  final DateTime? expirationDate;
+  final double quantity;
+
+  bool _isExpired() {
+    if (expirationDate == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final expiration = DateTime(
+      expirationDate!.year,
+      expirationDate!.month,
+      expirationDate!.day,
+    );
+    return expiration.isBefore(today);
+  }
+
+  bool _canPlanMeal() {
+    return quantity > 0 && !_isExpired();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +108,14 @@ class ImageInfoCard extends StatelessWidget {
               if (onPlanMeal != null) ...[
                 SizedBox(width: 12.w),
                 ElevatedButton.icon(
-                  onPressed: onPlanMeal,
+                  onPressed: _canPlanMeal() ? onPlanMeal : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blueGray,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        AppColors.blueGray.withValues(alpha: 0.4),
+                    disabledForegroundColor:
+                        Colors.white.withValues(alpha: 0.5),
                     padding: EdgeInsets.symmetric(
                       horizontal: 14.w,
                       vertical: 10.h,

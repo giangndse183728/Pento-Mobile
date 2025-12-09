@@ -203,3 +203,131 @@ class RecipeDetailNotifier extends _$RecipeDetailNotifier {
   }
 }
 
+@Riverpod(keepAlive: true)
+class Wishlist extends _$Wishlist {
+  late final RecipeRepository _repository;
+
+  @override
+  FutureOr<RecipeState> build() async {
+    _repository = RecipeRepository();
+    return await _loadFirstPage();
+  }
+
+  Future<RecipeState> _loadFirstPage() async {
+    final response = await _repository.getWishlist();
+    return response.toRecipeState();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_loadFirstPage);
+  }
+
+  Future<void> loadNextPage() async {
+    final currentData = state.value;
+    if (currentData == null ||
+        currentData.isLoadingMore ||
+        !currentData.hasNext) {
+      return;
+    }
+
+    final loadingState = currentData.copyWith(
+      isLoadingMore: true,
+      loadMoreError: null,
+    );
+    state = AsyncValue.data(loadingState);
+
+    try {
+      final response = await _repository.getWishlist(
+        pageNumber: currentData.currentPage + 1,
+        pageSize: currentData.pageSize,
+      );
+
+      final merged = [
+        ...currentData.recipes,
+        ...response.items.where(
+          (recipe) => !currentData.recipes
+              .any((existing) => existing.unifiedId == recipe.unifiedId),
+        ),
+      ];
+
+      state = AsyncValue.data(
+        loadingState.copyWith(
+          recipes: merged,
+          currentPage: response.currentPage,
+          totalPages: response.totalPages,
+          totalCount: response.totalCount,
+          hasNext: response.hasNext,
+          hasPrevious: response.hasPrevious,
+          isLoadingMore: false,
+        ),
+      );
+    } catch (error) {
+      state = AsyncValue.data(
+        loadingState.copyWith(
+          isLoadingMore: false,
+          loadMoreError: error.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> addToWishlist(String recipeId) async {
+    final currentData = state.value;
+    if (currentData == null) {
+      await refresh();
+      return;
+    }
+
+    try {
+      await _repository.addToWishlist(recipeId);
+      await refresh();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> removeFromWishlist(String recipeId) async {
+    final currentData = state.value;
+    if (currentData == null) {
+      await refresh();
+      return;
+    }
+
+    final previousState = state;
+    final updatedRecipes = currentData.recipes
+        .where((recipe) => recipe.unifiedId != recipeId)
+        .toList();
+
+    state = AsyncValue.data(
+      currentData.copyWith(
+        recipes: updatedRecipes,
+        totalCount: currentData.totalCount > 0
+            ? currentData.totalCount - 1
+            : 0,
+      ),
+    );
+
+    try {
+      await _repository.removeFromWishlist(recipeId);
+    } catch (error) {
+      state = previousState;
+      rethrow;
+    }
+  }
+}
+
+@riverpod
+Future<bool> isRecipeInWishlist(
+  IsRecipeInWishlistRef ref,
+  String recipeId,
+) async {
+  final wishlistAsync = ref.watch(wishlistProvider);
+  return wishlistAsync.when(
+    data: (state) => state.recipes
+        .any((recipe) => recipe.unifiedId == recipeId),
+    loading: () => false,
+    error: (_, __) => false,
+  );
+}
+
