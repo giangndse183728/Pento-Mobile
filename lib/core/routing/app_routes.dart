@@ -42,7 +42,9 @@ class AppRoutes {
   static const String achievementDetail = '/achievement/:milestoneId';
   static const String myPosts = '/my-posts';
   static const String wishlist = '/wishlist';
+  static const String notifications = '/notifications';
   
+
   static String foodItemDetailRoute(String id) =>
       '/compartment/food-item/$id';
 

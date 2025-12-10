@@ -37,6 +37,7 @@ import '../../features/food_scan/data/models/scanned_food_reference.dart';
 import '../../features/achievement/presentation/screen/achievement_screen.dart';
 import '../../features/achievement/presentation/screen/achievement_detail_screen.dart';
 import '../../features/trade/presentation/screen/my_posts_screen.dart';
+import '../../features/notification/presentation/screen/notifications_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -381,6 +382,12 @@ GoRouter createAppRouter() {
       path: AppRoutes.wishlist,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const WishlistScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.notifications,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const NotificationsScreen(),
       ),
     ),
 

@@ -138,7 +138,7 @@ class PantryScreen extends ConsumerWidget {
         CircleIconButton(
           icon: Icons.notifications_outlined,
           onTap: () {
-            // TODO: Navigate to notifications screen once available
+            context.push(AppRoutes.notifications);
           },
         ),
       ],

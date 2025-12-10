@@ -119,6 +119,7 @@ class ApiEndpoints {
 
   //Notifications
   static const String registerNotificationToken = '/notifications/register-token';
+  static const String getNotifications = '/notifications';
 
   //Achievement
   static const String getAchievement = '/users/milestones';
