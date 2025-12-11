@@ -15,6 +15,7 @@ class ApiEndpoints {
   static const String scanBillImage = '$baseUrlNest/scan-food/bill';
   static const String chatbot = '$baseUrlNest/chatbot/chat';
   static const String placeNearBy = '$baseUrlNest/places/nearby';
+  static const String getFoodReferenceBarcode = '$baseUrlNest/scan-barcode';
 
   // Authentication
   static const String signIn = '/auth/mobile-sign-in';
@@ -60,7 +61,6 @@ class ApiEndpoints {
   
   //Food Reference
   static const String getFoodReference = '/food-references';
-  static const String getFoodReferenceBarcode = '/food-references/{barcode}';
 
   //Unit
   static const String getUnit = '/units';

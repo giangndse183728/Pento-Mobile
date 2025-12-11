@@ -101,6 +101,97 @@ class FoodScanRepository {
     }
   }
 
+  /// Scan barcode to get food reference
+  Future<ScanBarcodeResponse> scanBarcode({
+    required String barcode,
+  }) async {
+    try {
+      final response = await _localClient.post(
+        ApiEndpoints.getFoodReferenceBarcode,
+        data: {'barcode': barcode},
+      );
+
+      final statusCode = response.statusCode ?? 200;
+      if (statusCode >= 400) {
+        throw NetworkException(
+          message: 'Failed to scan barcode',
+          statusCode: statusCode,
+          data: response.data,
+        );
+      }
+
+      return _parseBarcodeResponse(response.data);
+    } on DioException catch (error) {
+      final responseData = error.response?.data;
+      final messageText = responseData?['detail'] as String? ??
+          responseData?['message'] as String? ??
+          'Failed to scan barcode. Please try again.';
+      throw NetworkException(
+        message: messageText,
+        statusCode: error.response?.statusCode,
+        data: responseData,
+      );
+    }
+  }
+
+  ScanBarcodeResponse _parseBarcodeResponse(dynamic data) {
+    if (data == null) {
+      _logger.warning('Barcode response data is null');
+      return const ScanBarcodeResponse(
+        success: false,
+        error: 'Empty response from server',
+      );
+    }
+
+    if (data is Map<String, dynamic>) {
+      // Check if response is wrapped in a 'data' field
+      if (data.containsKey('data') && data['data'] is Map<String, dynamic>) {
+        final innerData = data['data'] as Map<String, dynamic>;
+        _logger.info('Parsing nested barcode data: $innerData');
+        try {
+          final parsed = ScanBarcodeResponse.fromJson(innerData);
+          _logger.info(
+            'Parsed barcode response: success=${parsed.success}, '
+            'item=${parsed.item?.name}',
+          );
+          return parsed;
+        } catch (e, stackTrace) {
+          _logger.severe(
+            'Failed to parse nested barcode response',
+            e,
+            stackTrace,
+          );
+          return ScanBarcodeResponse(
+            success: false,
+            error: 'Failed to parse response: $e',
+          );
+        }
+      }
+      // Otherwise, try to parse directly
+      _logger.info('Parsing direct barcode data: $data');
+      try {
+        final parsed = ScanBarcodeResponse.fromJson(data);
+        _logger.info(
+          'Parsed barcode response: success=${parsed.success}, '
+          'item=${parsed.item?.name}',
+        );
+        return parsed;
+      } catch (e, stackTrace) {
+        _logger.severe('Failed to parse direct barcode response', e, stackTrace);
+        return ScanBarcodeResponse(
+          success: false,
+          error: 'Failed to parse response: $e',
+        );
+      }
+    }
+
+    _logger.warning('Barcode response is not a Map: ${data.runtimeType}');
+    return const ScanBarcodeResponse(
+      success: false,
+      error: 'Invalid response format',
+    );
+  }
+
   ScanFoodResponse _parseResponse(dynamic data) {
     if (data == null) {
       _logger.warning('Response data is null');

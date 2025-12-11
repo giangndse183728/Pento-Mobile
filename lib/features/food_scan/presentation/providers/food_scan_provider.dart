@@ -7,6 +7,16 @@ import '../../data/repositories/food_scan_repository.dart';
 
 part 'food_scan_provider.g.dart';
 
+/// Provider for barcode scanning
+@riverpod
+Future<ScanBarcodeResponse> scanBarcode(
+  ScanBarcodeRef ref,
+  String barcode,
+) async {
+  final repository = ref.read(foodScanRepositoryProvider);
+  return await repository.scanBarcode(barcode: barcode);
+}
+
 @riverpod
 FoodScanRepository foodScanRepository(FoodScanRepositoryRef ref) {
   return FoodScanRepository();

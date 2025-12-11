@@ -32,6 +32,7 @@ mixin _$ScannedFoodReference {
   int get typicalShelfLifeDaysFreezer => throw _privateConstructorUsedError;
   String? get unitType => throw _privateConstructorUsedError;
   dynamic get imageUrl => throw _privateConstructorUsedError;
+  String? get barcode => throw _privateConstructorUsedError;
   String? get referenceId => throw _privateConstructorUsedError;
   bool get isExistingReference => throw _privateConstructorUsedError;
 
@@ -64,6 +65,7 @@ abstract class $ScannedFoodReferenceCopyWith<$Res> {
     int typicalShelfLifeDaysFreezer,
     String? unitType,
     dynamic imageUrl,
+    String? barcode,
     String? referenceId,
     bool isExistingReference,
   });
@@ -95,6 +97,7 @@ class _$ScannedFoodReferenceCopyWithImpl<
     Object? typicalShelfLifeDaysFreezer = null,
     Object? unitType = freezed,
     Object? imageUrl = freezed,
+    Object? barcode = freezed,
     Object? referenceId = freezed,
     Object? isExistingReference = null,
   }) {
@@ -132,6 +135,10 @@ class _$ScannedFoodReferenceCopyWithImpl<
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
                       as dynamic,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
             referenceId: freezed == referenceId
                 ? _value.referenceId
                 : referenceId // ignore: cast_nullable_to_non_nullable
@@ -167,6 +174,7 @@ abstract class _$$ScannedFoodReferenceImplCopyWith<$Res>
     int typicalShelfLifeDaysFreezer,
     String? unitType,
     dynamic imageUrl,
+    String? barcode,
     String? referenceId,
     bool isExistingReference,
   });
@@ -194,6 +202,7 @@ class __$$ScannedFoodReferenceImplCopyWithImpl<$Res>
     Object? typicalShelfLifeDaysFreezer = null,
     Object? unitType = freezed,
     Object? imageUrl = freezed,
+    Object? barcode = freezed,
     Object? referenceId = freezed,
     Object? isExistingReference = null,
   }) {
@@ -231,6 +240,10 @@ class __$$ScannedFoodReferenceImplCopyWithImpl<$Res>
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
                   as dynamic,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
         referenceId: freezed == referenceId
             ? _value.referenceId
             : referenceId // ignore: cast_nullable_to_non_nullable
@@ -259,6 +272,7 @@ class _$ScannedFoodReferenceImpl implements _ScannedFoodReference {
     this.typicalShelfLifeDaysFreezer = 0,
     this.unitType,
     this.imageUrl,
+    this.barcode,
     this.referenceId,
     this.isExistingReference = false,
   });
@@ -286,6 +300,8 @@ class _$ScannedFoodReferenceImpl implements _ScannedFoodReference {
   @override
   final dynamic imageUrl;
   @override
+  final String? barcode;
+  @override
   final String? referenceId;
   @override
   @JsonKey()
@@ -293,7 +309,7 @@ class _$ScannedFoodReferenceImpl implements _ScannedFoodReference {
 
   @override
   String toString() {
-    return 'ScannedFoodReference(name: $name, foodGroup: $foodGroup, notes: $notes, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, unitType: $unitType, imageUrl: $imageUrl, referenceId: $referenceId, isExistingReference: $isExistingReference)';
+    return 'ScannedFoodReference(name: $name, foodGroup: $foodGroup, notes: $notes, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, unitType: $unitType, imageUrl: $imageUrl, barcode: $barcode, referenceId: $referenceId, isExistingReference: $isExistingReference)';
   }
 
   @override
@@ -326,6 +342,7 @@ class _$ScannedFoodReferenceImpl implements _ScannedFoodReference {
             (identical(other.unitType, unitType) ||
                 other.unitType == unitType) &&
             const DeepCollectionEquality().equals(other.imageUrl, imageUrl) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
             (identical(other.referenceId, referenceId) ||
                 other.referenceId == referenceId) &&
             (identical(other.isExistingReference, isExistingReference) ||
@@ -344,6 +361,7 @@ class _$ScannedFoodReferenceImpl implements _ScannedFoodReference {
     typicalShelfLifeDaysFreezer,
     unitType,
     const DeepCollectionEquality().hash(imageUrl),
+    barcode,
     referenceId,
     isExistingReference,
   );
@@ -379,6 +397,7 @@ abstract class _ScannedFoodReference implements ScannedFoodReference {
     final int typicalShelfLifeDaysFreezer,
     final String? unitType,
     final dynamic imageUrl,
+    final String? barcode,
     final String? referenceId,
     final bool isExistingReference,
   }) = _$ScannedFoodReferenceImpl;
@@ -406,6 +425,8 @@ abstract class _ScannedFoodReference implements ScannedFoodReference {
   @override
   dynamic get imageUrl;
   @override
+  String? get barcode;
+  @override
   String? get referenceId;
   @override
   bool get isExistingReference;
@@ -416,6 +437,253 @@ abstract class _ScannedFoodReference implements ScannedFoodReference {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ScannedFoodReferenceImplCopyWith<_$ScannedFoodReferenceImpl>
   get copyWith => throw _privateConstructorUsedError;
+}
+
+ScanBarcodeResponse _$ScanBarcodeResponseFromJson(Map<String, dynamic> json) {
+  return _ScanBarcodeResponse.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ScanBarcodeResponse {
+  bool get success => throw _privateConstructorUsedError;
+  ScannedFoodReference? get item => throw _privateConstructorUsedError;
+  String? get createdId => throw _privateConstructorUsedError;
+  String? get error => throw _privateConstructorUsedError;
+
+  /// Serializes this ScanBarcodeResponse to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ScanBarcodeResponseCopyWith<ScanBarcodeResponse> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ScanBarcodeResponseCopyWith<$Res> {
+  factory $ScanBarcodeResponseCopyWith(
+    ScanBarcodeResponse value,
+    $Res Function(ScanBarcodeResponse) then,
+  ) = _$ScanBarcodeResponseCopyWithImpl<$Res, ScanBarcodeResponse>;
+  @useResult
+  $Res call({
+    bool success,
+    ScannedFoodReference? item,
+    String? createdId,
+    String? error,
+  });
+
+  $ScannedFoodReferenceCopyWith<$Res>? get item;
+}
+
+/// @nodoc
+class _$ScanBarcodeResponseCopyWithImpl<$Res, $Val extends ScanBarcodeResponse>
+    implements $ScanBarcodeResponseCopyWith<$Res> {
+  _$ScanBarcodeResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? success = null,
+    Object? item = freezed,
+    Object? createdId = freezed,
+    Object? error = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            success: null == success
+                ? _value.success
+                : success // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            item: freezed == item
+                ? _value.item
+                : item // ignore: cast_nullable_to_non_nullable
+                      as ScannedFoodReference?,
+            createdId: freezed == createdId
+                ? _value.createdId
+                : createdId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            error: freezed == error
+                ? _value.error
+                : error // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
+  }
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ScannedFoodReferenceCopyWith<$Res>? get item {
+    if (_value.item == null) {
+      return null;
+    }
+
+    return $ScannedFoodReferenceCopyWith<$Res>(_value.item!, (value) {
+      return _then(_value.copyWith(item: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$ScanBarcodeResponseImplCopyWith<$Res>
+    implements $ScanBarcodeResponseCopyWith<$Res> {
+  factory _$$ScanBarcodeResponseImplCopyWith(
+    _$ScanBarcodeResponseImpl value,
+    $Res Function(_$ScanBarcodeResponseImpl) then,
+  ) = __$$ScanBarcodeResponseImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    bool success,
+    ScannedFoodReference? item,
+    String? createdId,
+    String? error,
+  });
+
+  @override
+  $ScannedFoodReferenceCopyWith<$Res>? get item;
+}
+
+/// @nodoc
+class __$$ScanBarcodeResponseImplCopyWithImpl<$Res>
+    extends _$ScanBarcodeResponseCopyWithImpl<$Res, _$ScanBarcodeResponseImpl>
+    implements _$$ScanBarcodeResponseImplCopyWith<$Res> {
+  __$$ScanBarcodeResponseImplCopyWithImpl(
+    _$ScanBarcodeResponseImpl _value,
+    $Res Function(_$ScanBarcodeResponseImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? success = null,
+    Object? item = freezed,
+    Object? createdId = freezed,
+    Object? error = freezed,
+  }) {
+    return _then(
+      _$ScanBarcodeResponseImpl(
+        success: null == success
+            ? _value.success
+            : success // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        item: freezed == item
+            ? _value.item
+            : item // ignore: cast_nullable_to_non_nullable
+                  as ScannedFoodReference?,
+        createdId: freezed == createdId
+            ? _value.createdId
+            : createdId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        error: freezed == error
+            ? _value.error
+            : error // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ScanBarcodeResponseImpl implements _ScanBarcodeResponse {
+  const _$ScanBarcodeResponseImpl({
+    this.success = false,
+    this.item,
+    this.createdId,
+    this.error,
+  });
+
+  factory _$ScanBarcodeResponseImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ScanBarcodeResponseImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final bool success;
+  @override
+  final ScannedFoodReference? item;
+  @override
+  final String? createdId;
+  @override
+  final String? error;
+
+  @override
+  String toString() {
+    return 'ScanBarcodeResponse(success: $success, item: $item, createdId: $createdId, error: $error)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ScanBarcodeResponseImpl &&
+            (identical(other.success, success) || other.success == success) &&
+            (identical(other.item, item) || other.item == item) &&
+            (identical(other.createdId, createdId) ||
+                other.createdId == createdId) &&
+            (identical(other.error, error) || other.error == error));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, success, item, createdId, error);
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ScanBarcodeResponseImplCopyWith<_$ScanBarcodeResponseImpl> get copyWith =>
+      __$$ScanBarcodeResponseImplCopyWithImpl<_$ScanBarcodeResponseImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ScanBarcodeResponseImplToJson(this);
+  }
+}
+
+abstract class _ScanBarcodeResponse implements ScanBarcodeResponse {
+  const factory _ScanBarcodeResponse({
+    final bool success,
+    final ScannedFoodReference? item,
+    final String? createdId,
+    final String? error,
+  }) = _$ScanBarcodeResponseImpl;
+
+  factory _ScanBarcodeResponse.fromJson(Map<String, dynamic> json) =
+      _$ScanBarcodeResponseImpl.fromJson;
+
+  @override
+  bool get success;
+  @override
+  ScannedFoodReference? get item;
+  @override
+  String? get createdId;
+  @override
+  String? get error;
+
+  /// Create a copy of ScanBarcodeResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ScanBarcodeResponseImplCopyWith<_$ScanBarcodeResponseImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 ScanFoodResponse _$ScanFoodResponseFromJson(Map<String, dynamic> json) {

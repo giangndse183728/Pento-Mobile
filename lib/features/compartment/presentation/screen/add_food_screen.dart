@@ -11,7 +11,6 @@ import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/widgets/app_text_form_field.dart';
 import '../../../reference/data/models/food_reference.dart';
 import '../../../reference/presentation/widgets/index.dart';
-import '../../../reference/presentation/providers/food_reference_provider.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../providers/compartment_provider.dart';
 
@@ -51,35 +50,38 @@ class _AddFoodScreenState extends ConsumerState<AddFoodScreen> {
   }
 
   void _initializeFromQueryParams() {
-    final foodRefId =
-        GoRouterState.of(context).uri.queryParameters['foodRefId'];
-    final foodRefName =
-        GoRouterState.of(context).uri.queryParameters['foodRefName'];
- final barcode = GoRouterState.of(context).uri.queryParameters['barcode'];
-    final fromScanner =
-        GoRouterState.of(context).uri.queryParameters['fromScanner'] == 'true';
+    final queryParams = GoRouterState.of(context).uri.queryParameters;
+    final foodRefId = queryParams['foodRefId'];
+    final foodRefName = queryParams['foodRefName'];
+    final fromScanner = queryParams['fromScanner'] == 'true';
 
     if (foodRefId != null && foodRefName != null) {
-      if (fromScanner && barcode != null) {
-        ref.read(foodReferenceByBarcodeProvider(barcode).future).then(
-          (foodRef) {
-            if (mounted) {
-              setState(() {
-                _selectedReference = foodRef;
-                _nameCtrl.text = foodRef.name;
-              });
-            }
-          },
-        ).catchError((error) {
-          if (mounted) {
-            setState(() {
-              _selectedReference = FoodReference(
-                id: foodRefId,
-                name: foodRefName,
-              );
-              _nameCtrl.text = foodRefName;
-            });
-          }
+      if (fromScanner) {
+        // Use data passed from barcode scanner
+        final foodGroup = queryParams['foodGroup'];
+        final unitType = queryParams['unitType'];
+        final imageUrl = queryParams['imageUrl'];
+        final barcode = queryParams['barcode'];
+        final shelfLifePantry =
+            int.tryParse(queryParams['shelfLifePantry'] ?? '') ?? 0;
+        final shelfLifeFridge =
+            int.tryParse(queryParams['shelfLifeFridge'] ?? '') ?? 0;
+        final shelfLifeFreezer =
+            int.tryParse(queryParams['shelfLifeFreezer'] ?? '') ?? 0;
+
+        setState(() {
+          _selectedReference = FoodReference(
+            id: foodRefId,
+            name: foodRefName,
+            foodGroup: foodGroup,
+            unitType: unitType,
+            imageUrl: imageUrl,
+            barcode: barcode,
+            typicalShelfLifeDaysPantry: shelfLifePantry,
+            typicalShelfLifeDaysFridge: shelfLifeFridge,
+            typicalShelfLifeDaysFreezer: shelfLifeFreezer,
+          );
+          _nameCtrl.text = foodRefName;
         });
       } else {
         setState(() {

@@ -18,7 +18,7 @@ import '../../features/household/presentation/screen/household_detail_screen.dar
 import '../../features/profile/presentation/screen/profile_screen.dart';
 import '../../features/compartment/presentation/screen/compartment_screen.dart';
 import '../../features/compartment/presentation/screen/add_food_screen.dart';
-import '../../features/compartment/presentation/screen/barcode_scanner_screen.dart';
+import '../../features/food_scan/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/compartment/presentation/screen/food_item_detail_screen.dart';
 import '../../features/compartment/presentation/screen/food_items_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_screen.dart';

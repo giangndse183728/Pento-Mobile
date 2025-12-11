@@ -20,6 +20,7 @@ _$ScannedFoodReferenceImpl _$$ScannedFoodReferenceImplFromJson(
       (json['typicalShelfLifeDays_Freezer'] as num?)?.toInt() ?? 0,
   unitType: json['unitType'] as String?,
   imageUrl: json['imageUrl'],
+  barcode: json['barcode'] as String?,
   referenceId: json['referenceId'] as String?,
   isExistingReference: json['isExistingReference'] as bool? ?? false,
 );
@@ -35,8 +36,29 @@ Map<String, dynamic> _$$ScannedFoodReferenceImplToJson(
   'typicalShelfLifeDays_Freezer': instance.typicalShelfLifeDaysFreezer,
   'unitType': instance.unitType,
   'imageUrl': instance.imageUrl,
+  'barcode': instance.barcode,
   'referenceId': instance.referenceId,
   'isExistingReference': instance.isExistingReference,
+};
+
+_$ScanBarcodeResponseImpl _$$ScanBarcodeResponseImplFromJson(
+  Map<String, dynamic> json,
+) => _$ScanBarcodeResponseImpl(
+  success: json['success'] as bool? ?? false,
+  item: json['item'] == null
+      ? null
+      : ScannedFoodReference.fromJson(json['item'] as Map<String, dynamic>),
+  createdId: json['createdId'] as String?,
+  error: json['error'] as String?,
+);
+
+Map<String, dynamic> _$$ScanBarcodeResponseImplToJson(
+  _$ScanBarcodeResponseImpl instance,
+) => <String, dynamic>{
+  'success': instance.success,
+  'item': instance.item,
+  'createdId': instance.createdId,
+  'error': instance.error,
 };
 
 _$ScanFoodResponseImpl _$$ScanFoodResponseImplFromJson(

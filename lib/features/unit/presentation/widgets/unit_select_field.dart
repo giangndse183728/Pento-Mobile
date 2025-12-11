@@ -112,7 +112,12 @@ class _UnitSelectFieldState extends ConsumerState<UnitSelectField> {
         _units = sortedUnits;
         if (initialUnit != null && _selectedUnit?.id != initialUnit.id) {
           _selectedUnit = initialUnit;
-          widget.onUnitSelected?.call(initialUnit);
+          // Defer callback to avoid calling setState during build
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              widget.onUnitSelected?.call(initialUnit);
+            }
+          });
         } else if (initialUnit == null && _selectedUnit != null && widget.selectedUnitId == null) {
           _selectedUnit = null;
         }
