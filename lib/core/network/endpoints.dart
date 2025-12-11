@@ -33,6 +33,8 @@ class ApiEndpoints {
   static const String createHousehold = '/households';
   static const String joinHousehold = '/households/join';
   static const String getHousehold = '/households/current';
+  static const String leaveHousehold = '/households/leave';
+  static const String kickHouseholdMember = '/households/members/{userId}';
 
   // Storage
   static const String getStorage = '/storages';
@@ -126,11 +128,12 @@ class ApiEndpoints {
   static const String getAchievementById = '/users/milestones/{milestoneId}';
 
   //Trade 
-  static const String getTradeOffers = '/trade-posts';
-  static const String createTradeOffer = '/trade-offers/items';
-  static const String createTradeRequestItem = '/trade-requests/items';
-  static const String getMyPosts = '/trades/posts/me';
-  static const String getPostById = '/trade-requests/offer/{offerId}';
+  static const String getTradeOffers = '/trades/offers';
+  static const String createTradeOffer = '/trades/offers/items';
+  static const String createTradeRequestItem = '/trades/requests/items';
+  static const String getMyPosts = '/trades/offers/me';
+  static const String getPostById = '/trades/offers/{offerId}/requests';
+
 
   
 

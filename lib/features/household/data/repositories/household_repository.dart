@@ -21,14 +21,20 @@ class HouseholdRepository {
 
   /// Join an existing household with invite code
   /// Returns the full household after joining
+  /// Note: API returns 204 No Content, so we fetch the household after joining
   Future<Household> joinHousehold(JoinHouseholdRequest request) async {
-    final response = await _networkService.post(
+    await _networkService.post(
       ApiEndpoints.joinHousehold,
       data: request.toJson(),
-      onSuccess: (data) => Household.fromJson(data),
+      onSuccess: (_) => null, // 204 No Content - no response body
     );
 
-    return response;
+    // After joining, fetch the full household details
+    final household = await getCurrentHousehold();
+    if (household == null) {
+      throw Exception('Failed to fetch household after joining');
+    }
+    return household;
   }
 
   /// Get current user's household
@@ -44,6 +50,26 @@ class HouseholdRepository {
       // User might not be in a household yet
       return null;
     }
+  }
+
+  /// Leave the current household
+  Future<void> leaveHousehold() async {
+    await _networkService.delete(
+      ApiEndpoints.leaveHousehold,
+      onSuccess: (_) => null,
+    );
+  }
+
+  /// Kick a member from the household
+  Future<void> kickHouseholdMember(String userId) async {
+    final path = ApiEndpoints.kickHouseholdMember.replaceFirst(
+      '{userId}',
+      userId,
+    );
+    await _networkService.delete(
+      path,
+      onSuccess: (_) => null,
+    );
   }
 }
 
