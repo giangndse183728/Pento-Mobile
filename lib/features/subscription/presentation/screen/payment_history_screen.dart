@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/layouts/app_scaffold.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../data/models/payment_models.dart';
+import '../../data/repositories/payment_repository.dart';
 import '../providers/payment_provider.dart';
 
 class PaymentHistoryScreen extends HookConsumerWidget {
@@ -15,6 +19,7 @@ class PaymentHistoryScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final historyState = ref.watch(paymentHistoryNotifierProvider);
     final notifier = ref.read(paymentHistoryNotifierProvider.notifier);
+    final isLoadingPayment = useState(false);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -23,6 +28,43 @@ class PaymentHistoryScreen extends HookConsumerWidget {
       return null;
     }, const []);
 
+    Future<void> onPaymentTap(Payment payment) async {
+      if (isLoadingPayment.value) return;
+
+      isLoadingPayment.value = true;
+
+      try {
+        final repository = PaymentRepository();
+        final paymentDetails = await repository.getPayment(payment.paymentId);
+
+        if (!context.mounted) return;
+
+        final qrCode = paymentDetails.qrCode ?? paymentDetails.checkoutUrl;
+        context.push(
+          AppRoutes.paymentQr,
+          extra: {
+            'qrCode': qrCode ?? '',
+            'paymentId': paymentDetails.paymentId,
+            'planName': paymentDetails.description,
+            'price': paymentDetails.amountDue ?? paymentDetails.amountPaid,
+            'initialPayment': paymentDetails,
+          },
+        );
+      } catch (e) {
+        if (context.mounted) {
+          toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            title: const Text('Error'),
+            description: Text('Failed to load payment details: $e'),
+            autoCloseDuration: const Duration(seconds: 3),
+          );
+        }
+      } finally {
+        isLoadingPayment.value = false;
+      }
+    }
+
     return AppScaffold(
       title: 'Payment History',
       forcePillMode: true,
@@ -30,83 +72,99 @@ class PaymentHistoryScreen extends HookConsumerWidget {
       showBackButton: true,
       showAvatarButton: false,
       showNotificationButton: false,
-      body: RefreshIndicator(
-        color: AppColors.blueGray,
-        onRefresh: () => notifier.loadPayments(
-          fromDate: historyState.fromDate,
-          toDate: historyState.toDate,
-          status: historyState.status,
-        ),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16.w,
-                  MediaQuery.of(context).padding.top + kToolbarHeight,
-                  16.w,
-                  12.h,
-                ),
-                child: _FilterRow(
-                  selectedStatus: historyState.status,
-                  onStatusChanged: (value) {
-                    notifier.loadPayments(
-                      fromDate: historyState.fromDate,
-                      toDate: historyState.toDate,
-                      status: value?.isEmpty ?? true ? null : value,
-                    );
-                  },
-                ),
-              ),
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            color: AppColors.blueGray,
+            onRefresh: () => notifier.loadPayments(
+              fromDate: historyState.fromDate,
+              toDate: historyState.toDate,
+              status: historyState.status,
             ),
-            if (historyState.isLoading && historyState.items.isEmpty)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.blueGray),
-                ),
-              )
-            else if (historyState.error != null &&
-                historyState.items.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: _ErrorState(
-                  message: historyState.error!,
-                  onRetry: () => notifier.loadPayments(
-                    fromDate: historyState.fromDate,
-                    toDate: historyState.toDate,
-                    status: historyState.status,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      16.w,
+                      MediaQuery.of(context).padding.top + kToolbarHeight,
+                      16.w,
+                      12.h,
+                    ),
+                    child: _FilterRow(
+                      selectedStatus: historyState.status,
+                      onStatusChanged: (value) {
+                        notifier.loadPayments(
+                          fromDate: historyState.fromDate,
+                          toDate: historyState.toDate,
+                          status: value?.isEmpty ?? true ? null : value,
+                        );
+                      },
+                    ),
                   ),
                 ),
-              )
-            else if (historyState.items.isEmpty)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: _EmptyState(),
-              )
-            else
-              SliverList.builder(
-                itemCount: historyState.items.length +
-                    (historyState.hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == historyState.items.length) {
-                    notifier.loadMore();
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.blueGray,
-                        ),
+                if (historyState.isLoading && historyState.items.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child:
+                          CircularProgressIndicator(color: AppColors.blueGray),
+                    ),
+                  )
+                else if (historyState.error != null &&
+                    historyState.items.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _ErrorState(
+                      message: historyState.error!,
+                      onRetry: () => notifier.loadPayments(
+                        fromDate: historyState.fromDate,
+                        toDate: historyState.toDate,
+                        status: historyState.status,
                       ),
-                    );
-                  }
-                  final payment = historyState.items[index];
-                  return _PaymentHistoryItem(payment: payment);
-                },
+                    ),
+                  )
+                else if (historyState.items.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _EmptyState(),
+                  )
+                else
+                  SliverList.builder(
+                    itemCount: historyState.items.length +
+                        (historyState.hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == historyState.items.length) {
+                        notifier.loadMore();
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.blueGray,
+                            ),
+                          ),
+                        );
+                      }
+                      final payment = historyState.items[index];
+                      return _PaymentHistoryItem(
+                        payment: payment,
+                        onTap: () => onPaymentTap(payment),
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+          // Loading overlay when fetching payment details
+          if (isLoadingPayment.value)
+            Container(
+              color: Colors.black.withValues(alpha: 0.3),
+              child: const Center(
+                child: CircularProgressIndicator(color: AppColors.blueGray),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -182,9 +240,13 @@ class _FilterRow extends StatelessWidget {
 }
 
 class _PaymentHistoryItem extends StatelessWidget {
-  const _PaymentHistoryItem({required this.payment});
+  const _PaymentHistoryItem({
+    required this.payment,
+    this.onTap,
+  });
 
   final Payment payment;
+  final VoidCallback? onTap;
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
@@ -235,111 +297,127 @@ class _PaymentHistoryItem extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-      child: Container(
-        padding: EdgeInsets.all(14.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+          child: Container(
+            padding: EdgeInsets.all(14.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                statusIcon,
-                color: statusColor,
-                size: 22.sp,
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40.w,
+                  height: 40.w,
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    statusIcon,
+                    color: statusColor,
+                    size: 22.sp,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          payment.description ?? 'Subscription payment',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              payment.description ?? 'Subscription payment',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
                           ),
-                        ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '#${payment.orderCode}',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(height: 4.h),
                       Text(
-                        '#${payment.orderCode}',
+                        _formatDate(payment.createdAt),
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: Colors.black54,
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    _formatDate(payment.createdAt),
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          payment.status,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: statusColor,
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              payment.status,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: statusColor,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      Text(
-                        payment.amountPaid ??
-                            payment.amountDue ??
-                            payment.amountPaid ??
-                            '',
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
+                          Row(
+                            children: [
+                              Text(
+                                payment.status.toLowerCase() == 'paid'
+                                    ? (payment.amountPaid ?? '')
+                                    : (payment.amountDue ?? ''),
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                size: 18.sp,
+                                color: Colors.black38,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

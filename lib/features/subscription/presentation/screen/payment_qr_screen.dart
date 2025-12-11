@@ -25,12 +25,14 @@ class PaymentQrScreen extends ConsumerStatefulWidget {
     required this.paymentId,
     this.planName,
     this.price,
+    this.initialPayment,
   });
 
   final String qrCode;
   final String paymentId;
   final String? planName;
   final String? price;
+  final Payment? initialPayment;
 
   @override
   ConsumerState<PaymentQrScreen> createState() => _PaymentQrScreenState();
@@ -40,19 +42,31 @@ class _PaymentQrScreenState extends ConsumerState<PaymentQrScreen> {
   final GlobalKey _qrKey = GlobalKey();
   bool _isSaving = false;
 
+  /// Check if the initial payment is already completed (Paid, Expired, Cancelled)
+  bool get _isInitiallyCompleted {
+    final initial = widget.initialPayment;
+    if (initial == null) return false;
+    return initial.isPaid || initial.isExpired || initial.isCancelled;
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Start polling for payment status
-      ref.read(paymentNotifierProvider.notifier).startPolling();
+      // Only start polling if payment is pending (not already completed)
+      if (!_isInitiallyCompleted) {
+        ref.read(paymentNotifierProvider.notifier).setPaymentId(widget.paymentId);
+        ref.read(paymentNotifierProvider.notifier).startPolling();
+      }
     });
   }
 
   @override
   void dispose() {
     // Stop polling when leaving the screen
-    ref.read(paymentNotifierProvider.notifier).stopPolling();
+    if (!_isInitiallyCompleted) {
+      ref.read(paymentNotifierProvider.notifier).stopPolling();
+    }
     super.dispose();
   }
 
@@ -134,7 +148,10 @@ class _PaymentQrScreenState extends ConsumerState<PaymentQrScreen> {
   @override
   Widget build(BuildContext context) {
     final paymentState = ref.watch(paymentNotifierProvider);
-    final payment = paymentState.payment;
+    // Use initialPayment if available and completed, otherwise use provider state
+    final payment = _isInitiallyCompleted 
+        ? widget.initialPayment 
+        : (paymentState.payment ?? widget.initialPayment);
     final isPaid = payment?.isPaid ?? false;
     final isCancelled = payment?.isCancelled ?? false;
     final isExpired = payment?.isExpired ?? false;

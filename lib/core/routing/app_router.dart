@@ -31,6 +31,7 @@ import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
 import '../../features/subscription/presentation/screen/subscription_screen.dart';
 import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
 import '../../features/subscription/presentation/screen/payment_history_screen.dart';
+import '../../features/subscription/data/models/payment_models.dart';
 import '../../features/food_scan/presentation/screen/food_scan_screen.dart';
 import '../../features/food_scan/presentation/screen/food_scan_results_screen.dart';
 import '../../features/food_scan/data/models/scanned_food_reference.dart';
@@ -311,6 +312,7 @@ GoRouter createAppRouter() {
             paymentId: extra?['paymentId'] ?? '',
             planName: extra?['planName'],
             price: extra?['price'],
+            initialPayment: extra?['initialPayment'] as Payment?,
           );
         },
       ),

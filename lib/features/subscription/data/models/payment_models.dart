@@ -35,6 +35,8 @@ class Payment with _$Payment {
     String? amountDue,
     String? amountPaid,
     required String status,
+    String? qrCode,
+    String? checkoutUrl,
     DateTime? createdAt,
     DateTime? expiresAt,
     DateTime? paidAt,
