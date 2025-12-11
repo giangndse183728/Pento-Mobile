@@ -61,7 +61,7 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
             _lastErrorMessage = message;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              ToastHelper.showError(context, message);
+              ToastHelper.showError(context, "Failed to load food items. Please try again.");
             });
           }
           return Center(

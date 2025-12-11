@@ -64,7 +64,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           // Show error message
           ToastHelper.showError(
             context,
-            error.toString(),
+             "Login failed. Please try again.",
           );
         },
         loading: () {},

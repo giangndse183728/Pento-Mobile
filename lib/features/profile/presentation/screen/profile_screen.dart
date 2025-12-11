@@ -111,8 +111,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           }
         },
         error: (error, stack) {
-          // Only show error if we were loading (operation in progress)
-          // Don't show error if it was a successful update that had an error parsing
           final wasLoading = previous?.isLoading ?? false;
           if (wasLoading) {
             ToastHelper.showError(
