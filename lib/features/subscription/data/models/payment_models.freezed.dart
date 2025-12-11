@@ -396,6 +396,8 @@ mixin _$Payment {
   String? get amountDue => throw _privateConstructorUsedError;
   String? get amountPaid => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
+  String? get qrCode => throw _privateConstructorUsedError;
+  String? get checkoutUrl => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get expiresAt => throw _privateConstructorUsedError;
   DateTime? get paidAt => throw _privateConstructorUsedError;
@@ -424,6 +426,8 @@ abstract class $PaymentCopyWith<$Res> {
     String? amountDue,
     String? amountPaid,
     String status,
+    String? qrCode,
+    String? checkoutUrl,
     DateTime? createdAt,
     DateTime? expiresAt,
     DateTime? paidAt,
@@ -454,6 +458,8 @@ class _$PaymentCopyWithImpl<$Res, $Val extends Payment>
     Object? amountDue = freezed,
     Object? amountPaid = freezed,
     Object? status = null,
+    Object? qrCode = freezed,
+    Object? checkoutUrl = freezed,
     Object? createdAt = freezed,
     Object? expiresAt = freezed,
     Object? paidAt = freezed,
@@ -490,6 +496,14 @@ class _$PaymentCopyWithImpl<$Res, $Val extends Payment>
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                       as String,
+            qrCode: freezed == qrCode
+                ? _value.qrCode
+                : qrCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            checkoutUrl: freezed == checkoutUrl
+                ? _value.checkoutUrl
+                : checkoutUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -532,6 +546,8 @@ abstract class _$$PaymentImplCopyWith<$Res> implements $PaymentCopyWith<$Res> {
     String? amountDue,
     String? amountPaid,
     String status,
+    String? qrCode,
+    String? checkoutUrl,
     DateTime? createdAt,
     DateTime? expiresAt,
     DateTime? paidAt,
@@ -561,6 +577,8 @@ class __$$PaymentImplCopyWithImpl<$Res>
     Object? amountDue = freezed,
     Object? amountPaid = freezed,
     Object? status = null,
+    Object? qrCode = freezed,
+    Object? checkoutUrl = freezed,
     Object? createdAt = freezed,
     Object? expiresAt = freezed,
     Object? paidAt = freezed,
@@ -597,6 +615,14 @@ class __$$PaymentImplCopyWithImpl<$Res>
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
                   as String,
+        qrCode: freezed == qrCode
+            ? _value.qrCode
+            : qrCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        checkoutUrl: freezed == checkoutUrl
+            ? _value.checkoutUrl
+            : checkoutUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -633,6 +659,8 @@ class _$PaymentImpl implements _Payment {
     this.amountDue,
     this.amountPaid,
     required this.status,
+    this.qrCode,
+    this.checkoutUrl,
     this.createdAt,
     this.expiresAt,
     this.paidAt,
@@ -658,6 +686,10 @@ class _$PaymentImpl implements _Payment {
   @override
   final String status;
   @override
+  final String? qrCode;
+  @override
+  final String? checkoutUrl;
+  @override
   final DateTime? createdAt;
   @override
   final DateTime? expiresAt;
@@ -670,7 +702,7 @@ class _$PaymentImpl implements _Payment {
 
   @override
   String toString() {
-    return 'Payment(paymentId: $paymentId, orderCode: $orderCode, description: $description, providerDescription: $providerDescription, amountDue: $amountDue, amountPaid: $amountPaid, status: $status, createdAt: $createdAt, expiresAt: $expiresAt, paidAt: $paidAt, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason)';
+    return 'Payment(paymentId: $paymentId, orderCode: $orderCode, description: $description, providerDescription: $providerDescription, amountDue: $amountDue, amountPaid: $amountPaid, status: $status, qrCode: $qrCode, checkoutUrl: $checkoutUrl, createdAt: $createdAt, expiresAt: $expiresAt, paidAt: $paidAt, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason)';
   }
 
   @override
@@ -691,6 +723,9 @@ class _$PaymentImpl implements _Payment {
             (identical(other.amountPaid, amountPaid) ||
                 other.amountPaid == amountPaid) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.qrCode, qrCode) || other.qrCode == qrCode) &&
+            (identical(other.checkoutUrl, checkoutUrl) ||
+                other.checkoutUrl == checkoutUrl) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.expiresAt, expiresAt) ||
@@ -713,6 +748,8 @@ class _$PaymentImpl implements _Payment {
     amountDue,
     amountPaid,
     status,
+    qrCode,
+    checkoutUrl,
     createdAt,
     expiresAt,
     paidAt,
@@ -743,6 +780,8 @@ abstract class _Payment implements Payment {
     final String? amountDue,
     final String? amountPaid,
     required final String status,
+    final String? qrCode,
+    final String? checkoutUrl,
     final DateTime? createdAt,
     final DateTime? expiresAt,
     final DateTime? paidAt,
@@ -766,6 +805,10 @@ abstract class _Payment implements Payment {
   String? get amountPaid;
   @override
   String get status;
+  @override
+  String? get qrCode;
+  @override
+  String? get checkoutUrl;
   @override
   DateTime? get createdAt;
   @override

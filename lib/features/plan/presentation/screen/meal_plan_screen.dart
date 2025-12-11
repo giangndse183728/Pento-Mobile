@@ -34,10 +34,14 @@ class MealPlanScreen extends HookConsumerWidget {
       title: 'Meal Plan',
       forcePillMode: true,
       actions: [
-        CircleIconButton(
-          icon: Icons.shopping_cart_outlined,
-          onTap: () => context.push(AppRoutes.grocery),
-        ),
+          CircleIconButton(
+            icon: Icons.shopping_cart_outlined,
+            onTap: () => context.push(AppRoutes.grocery),
+          ),
+          CircleIconButton(
+            icon: Icons.notifications_outlined,
+            onTap: () => context.push(AppRoutes.notifications),
+          ),
       ],
       body: Stack(
         children: [

@@ -60,7 +60,7 @@ class _CreateHouseholdScreenState extends ConsumerState<CreateHouseholdScreen> {
       if (mounted) {
         ToastHelper.showError(
           context,
-          e.toString(),
+          "Failed to create a household. Please try again.",
         );
       }
     }

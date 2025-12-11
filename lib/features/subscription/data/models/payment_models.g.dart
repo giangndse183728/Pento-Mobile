@@ -67,6 +67,8 @@ _$PaymentImpl _$$PaymentImplFromJson(Map<String, dynamic> json) =>
       amountDue: json['amountDue'] as String?,
       amountPaid: json['amountPaid'] as String?,
       status: json['status'] as String,
+      qrCode: json['qrCode'] as String?,
+      checkoutUrl: json['checkoutUrl'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -91,6 +93,8 @@ Map<String, dynamic> _$$PaymentImplToJson(_$PaymentImpl instance) =>
       'amountDue': instance.amountDue,
       'amountPaid': instance.amountPaid,
       'status': instance.status,
+      'qrCode': instance.qrCode,
+      'checkoutUrl': instance.checkoutUrl,
       'createdAt': instance.createdAt?.toIso8601String(),
       'expiresAt': instance.expiresAt?.toIso8601String(),
       'paidAt': instance.paidAt?.toIso8601String(),

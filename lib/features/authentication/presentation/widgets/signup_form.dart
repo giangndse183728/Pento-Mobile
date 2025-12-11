@@ -69,10 +69,10 @@ class _SignupFormState extends ConsumerState<SignupForm> {
           }
         },
         error: (error, stack) {
-          // Show error message
+          final errorMessage = error.toString();
           ToastHelper.showError(
             context,
-            error.toString(),
+            errorMessage.isNotEmpty ? errorMessage : 'Signup failed. Please try again.',
           );
         },
         loading: () {},
@@ -247,12 +247,7 @@ class _SignupFields extends StatelessWidget {
           isPassword: true,
           controller: passwordController,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter a password';
-            }
-            if (value.length < 6) {
-              return 'Password must be at least 6 characters';
-            }
+            if (value == null || value.isEmpty || value.length < 6 || !value.contains(RegExp(r'[A-Z]')) || !value.contains(RegExp(r'[a-z]')) || !value.contains(RegExp(r'[0-9]')) || !value.contains(RegExp(r'[!@#$%^&*()_+\-=\[\]{}|;:,.<>?/~`]'))) return value == null || value.isEmpty ? 'Please enter a password' : 'Must be 6+ chars with uppercase, lowercase,\nnumber, and special character';
             return null;
           },
         ),

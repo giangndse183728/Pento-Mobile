@@ -22,12 +22,27 @@ class ScannedFoodReference with _$ScannedFoodReference {
     int typicalShelfLifeDaysFreezer,
     String? unitType,
     dynamic imageUrl,
+    String? barcode,
     String? referenceId,
     @Default(false) bool isExistingReference,
   }) = _ScannedFoodReference;
 
   factory ScannedFoodReference.fromJson(Map<String, dynamic> json) =>
       _$ScannedFoodReferenceFromJson(json);
+}
+
+/// Response model for barcode scanning
+@freezed
+class ScanBarcodeResponse with _$ScanBarcodeResponse {
+  const factory ScanBarcodeResponse({
+    @Default(false) bool success,
+    ScannedFoodReference? item,
+    String? createdId,
+    String? error,
+  }) = _ScanBarcodeResponse;
+
+  factory ScanBarcodeResponse.fromJson(Map<String, dynamic> json) =>
+      _$ScanBarcodeResponseFromJson(json);
 }
 
 @freezed

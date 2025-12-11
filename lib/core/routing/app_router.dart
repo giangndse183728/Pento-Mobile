@@ -18,7 +18,7 @@ import '../../features/household/presentation/screen/household_detail_screen.dar
 import '../../features/profile/presentation/screen/profile_screen.dart';
 import '../../features/compartment/presentation/screen/compartment_screen.dart';
 import '../../features/compartment/presentation/screen/add_food_screen.dart';
-import '../../features/compartment/presentation/screen/barcode_scanner_screen.dart';
+import '../../features/food_scan/presentation/screen/barcode_scanner_screen.dart';
 import '../../features/compartment/presentation/screen/food_item_detail_screen.dart';
 import '../../features/compartment/presentation/screen/food_items_screen.dart';
 import '../../features/recipe/presentation/screen/recipe_screen.dart';
@@ -31,12 +31,14 @@ import '../../features/chatbot/presentation/screen/chatbot_screen.dart';
 import '../../features/subscription/presentation/screen/subscription_screen.dart';
 import '../../features/subscription/presentation/screen/payment_qr_screen.dart';
 import '../../features/subscription/presentation/screen/payment_history_screen.dart';
+import '../../features/subscription/data/models/payment_models.dart';
 import '../../features/food_scan/presentation/screen/food_scan_screen.dart';
 import '../../features/food_scan/presentation/screen/food_scan_results_screen.dart';
 import '../../features/food_scan/data/models/scanned_food_reference.dart';
 import '../../features/achievement/presentation/screen/achievement_screen.dart';
 import '../../features/achievement/presentation/screen/achievement_detail_screen.dart';
 import '../../features/trade/presentation/screen/my_posts_screen.dart';
+import '../../features/notification/presentation/screen/notifications_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
 import '../services/secure_storage_service.dart';
@@ -310,6 +312,7 @@ GoRouter createAppRouter() {
             paymentId: extra?['paymentId'] ?? '',
             planName: extra?['planName'],
             price: extra?['price'],
+            initialPayment: extra?['initialPayment'] as Payment?,
           );
         },
       ),
@@ -381,6 +384,12 @@ GoRouter createAppRouter() {
       path: AppRoutes.wishlist,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const WishlistScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.notifications,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const NotificationsScreen(),
       ),
     ),
 

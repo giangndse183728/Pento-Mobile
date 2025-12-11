@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/household_models.dart';
 
 class HouseholdMembersSection extends StatelessWidget {
   const HouseholdMembersSection({
     super.key,
     this.members,
+    this.currentUserId,
+    this.onKickMember,
   });
 
   final List<HouseholdMember>? members;
+  final String? currentUserId;
+  final Future<void> Function(String userId)? onKickMember;
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +32,26 @@ class HouseholdMembersSection extends StatelessWidget {
           style: AppTextStyles.sectionHeader(),
         ),
         SizedBox(height: 16.h),
-        ...members!.map((member) => _MemberCard(member: member)),
+        ...members!.map((member) => _MemberCard(
+          member: member,
+          currentUserId: currentUserId,
+          onKickMember: onKickMember,
+        )),
       ],
     );
   }
 }
 
 class _MemberCard extends StatelessWidget {
-  const _MemberCard({required this.member});
+  const _MemberCard({
+    required this.member,
+    this.currentUserId,
+    this.onKickMember,
+  });
 
   final HouseholdMember member;
+  final String? currentUserId;
+  final Future<void> Function(String userId)? onKickMember;
 
   String get _fullName {
     final firstName = member.firstName;
@@ -60,9 +76,22 @@ class _MemberCard extends StatelessWidget {
     return 'U';
   }
 
+  bool get _isHouseholdHead {
+    final roles = member.roles?.toLowerCase() ?? '';
+    return roles.contains('head') || roles.contains('owner') || roles.contains('admin');
+  }
+
+  bool get _canKickMember {
+    if (onKickMember == null) return false;
+    if (currentUserId == null) return false;
+    if (member.userId == currentUserId) return false;
+    if (_isHouseholdHead) return false;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final cardContent = Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -186,6 +215,92 @@ class _MemberCard extends StatelessWidget {
         ],
       ),
     );
+
+    if (!_canKickMember) {
+      return cardContent;
+    }
+
+    return Slidable(
+      key: ValueKey(member.userId),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => _handleKickMember(context),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: Icons.person_remove_outlined,
+            label: 'Remove',
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(16.r),
+              bottomRight: Radius.circular(16.r),
+            ),
+          ),
+        ],
+      ),
+      child: cardContent,
+    );
+  }
+
+  Future<void> _handleKickMember(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Remove Member',
+              style: AppTextStyles.sectionHeader(),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Are you sure you want to remove ${member.firstName} ${member.lastName} from this household?',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.blueGray,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
+                  child: Text(
+                    'Remove',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && onKickMember != null) {
+      await onKickMember!(member.userId);
+    }
   }
 }
 

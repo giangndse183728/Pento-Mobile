@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../../authentication/presentation/providers/user_session_provider.dart';
 import '../../data/models/household_models.dart';
 import '../../data/repositories/household_repository.dart';
 
@@ -56,6 +57,32 @@ class HouseholdProvider extends _$HouseholdProvider {
     state = await AsyncValue.guard(() async {
       return await _repository.getCurrentHousehold();
     });
+  }
+
+  /// Leave the current household
+  Future<void> leaveHousehold() async {
+    await _repository.leaveHousehold();
+    // After leaving, set state to null (no household)
+    state = const AsyncValue.data(null);
+    // Update user session to clear householdId
+    final session = ref.read(userSessionNotifierProvider);
+    if (session != null && session.userId != null) {
+      ref.read(userSessionNotifierProvider.notifier).updateProfileData(
+        userId: session.userId!,
+        email: session.email,
+        preferredUsername: session.preferredUsername,
+        avatarUrl: session.avatarUrl,
+        name: session.name,
+        householdId: null, // Clear householdId
+      );
+    }
+  }
+
+  /// Kick a member from the household
+  Future<void> kickHouseholdMember(String userId) async {
+    await _repository.kickHouseholdMember(userId);
+    // After kicking, refresh the household to get updated member list
+    await refresh();
   }
 }
 

@@ -263,7 +263,7 @@ class _AddGroceryListItemSheetState
         return;
       }
       Navigator.of(context).pop();
-      ToastHelper.showSuccess(context, 'Item added to list');
+      ToastHelper.showSuccess(context, 'Item added to grocery list');
     } on NetworkException catch (e) {
       if (!mounted) {
         return;

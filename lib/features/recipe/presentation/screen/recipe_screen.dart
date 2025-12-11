@@ -52,12 +52,12 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
       padding: EdgeInsets.zero,
       actions: [
         CircleIconButton(
-          icon: Icons.shopping_cart_outlined,
-          onTap: () => context.push(AppRoutes.grocery),
-        ),
-        CircleIconButton(
           icon: Icons.heart_broken_outlined,
           onTap: () => context.push(AppRoutes.wishlist),
+        ),
+        CircleIconButton(
+          icon: Icons.notifications_outlined,
+          onTap: () => context.push(AppRoutes.notifications),
         ),
       ],
       body: RefreshIndicator(
