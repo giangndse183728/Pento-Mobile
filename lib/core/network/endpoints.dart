@@ -134,12 +134,20 @@ class ApiEndpoints {
   static const String getMyPosts = '/trades/offers/me';
   static const String getPostById = '/trades/offers/{offerId}/requests';
   static const String acceptTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/accept';
+  static const String rejectTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/reject';
 
   //Trade Session
   static const String getTradeSessionDetail = '/trades/sessions/{sessionId}';
   static const String getAllTradeSession = '/trades/sessions';
+  
   static const String sendTradeSessionMessage = '/trades/sessions/{tradeSessionId}/messages';
-  static const String getTradeSessionItems = '/trades/sessions/{sessionId}/items';
+
+  static const String confirmTradeSessionItem = '/trades/sessions/{tradeSessionId}/confirm';
+  static const String addTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
+  static const String updateTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
+  static const String removeTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
+
+
 
   // SignalR Hub
   static const String messageHub = '$baseUrl/message-hub';

@@ -30,23 +30,25 @@ class TradeSessions extends _$TradeSessions {
 class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   late final TradeOfferRepository _repository;
   StreamSubscription<TradeMessageResponse>? _messageSubscription;
+  StreamSubscription<TradeConfirmationResponse>? _confirmationSubscription;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
     _repository = TradeOfferRepository();
     
     // Set up SignalR connection and listener
-    _setupSignalRListener();
+    _setupSignalRListeners();
     
     // Clean up when provider is disposed
     ref.onDispose(() {
       _messageSubscription?.cancel();
+      _confirmationSubscription?.cancel();
     });
     
     return await _loadDetail();
   }
 
-  void _setupSignalRListener() {
+  void _setupSignalRListeners() {
     final signalR = SignalRService.instance;
     
     // Listen for incoming messages
@@ -56,6 +58,12 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       if (response.sessionId == sessionId) {
         _addMessageToState(response);
       }
+    });
+    
+    // Listen for confirmation updates
+    _confirmationSubscription?.cancel();
+    _confirmationSubscription = signalR.confirmationStream.listen((response) {
+      _updateConfirmationState(response);
     });
   }
 
@@ -90,6 +98,27 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     }
   }
 
+  void _updateConfirmationState(TradeConfirmationResponse response) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Update the confirmation status in the trade session
+    final updatedSession = currentState.tradeSession.copyWith(
+      confirmedByOfferUser: response.confirmedByOfferer 
+          ? currentState.tradeSession.confirmedByOfferUser 
+          : null,
+      confirmedByRequestUser: response.confirmedByRequester 
+          ? currentState.tradeSession.confirmedByRequestUser 
+          : null,
+    );
+
+    state = AsyncValue.data(
+      currentState.copyWith(
+        tradeSession: updatedSession,
+      ),
+    );
+  }
+
   Future<TradeSessionDetail> _loadDetail() async {
     final sessionId = this.sessionId;
     return await _repository.getTradeSessionDetail(sessionId: sessionId);
@@ -112,6 +141,19 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     
     // Note: We don't refresh here since SignalR will push the message back
     // The _addMessageToState will handle adding it to the UI
+  }
+
+  /// Toggle confirmation for the current user
+  Future<void> toggleConfirmation() async {
+    final sessionId = this.sessionId;
+    
+    await _repository.confirmTradeSession(
+      tradeSessionId: sessionId,
+    );
+    
+    // SignalR will push the update via TradeSessionConfirm
+    // But we also refresh to get the latest state with user info
+    await refresh();
   }
 
   /// Connect to SignalR and join this session

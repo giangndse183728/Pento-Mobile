@@ -28,6 +28,7 @@ class _TradeSessionDetailScreenState
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isConnected = false;
+  bool _isConfirming = false;
   StreamSubscription<bool>? _connectionSubscription;
 
   @override
@@ -98,6 +99,30 @@ class _TradeSessionDetailScreenState
         .sendMessage(message);
   }
 
+  Future<void> _handleToggleConfirmation() async {
+    if (_isConfirming) return;
+    
+    setState(() => _isConfirming = true);
+    try {
+      await ref
+          .read(tradeSessionDetailNotifierProvider(widget.sessionId).notifier)
+          .toggleConfirmation();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update status: $e'),
+            backgroundColor: AppColors.dangerRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isConfirming = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncDetail = ref.watch(
@@ -105,6 +130,7 @@ class _TradeSessionDetailScreenState
     );
     final userSession = ref.watch(userSessionNotifierProvider);
     final currentUserId = userSession?.userId;
+    final currentHouseholdId = userSession?.householdId;
 
     return Scaffold(
       backgroundColor: AppColors.iceberg,
@@ -112,102 +138,125 @@ class _TradeSessionDetailScreenState
       body: asyncDetail.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => _buildErrorState(e),
-        data: (detail) => Column(
-          children: [
-            // Connection status indicator
-            if (!_isConnected)
+        data: (detail) {
+          final confirmedByOfferer = 
+              detail.tradeSession.confirmedByOfferUser != null;
+          final confirmedByRequester = 
+              detail.tradeSession.confirmedByRequestUser != null;
+          
+          return Column(
+            children: [
+              // Connection status indicator
+              if (!_isConnected)
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
+                  color: AppColors.warningSun.withValues(alpha: 0.15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 12.w,
+                        height: 12.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.warningSun,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Connecting to chat...',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.warningSun,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              // Tab bar
               Container(
-                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
-                color: AppColors.warningSun.withValues(alpha: 0.15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 12.w,
-                      height: 12.w,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.warningSun,
+                color: Colors.white,
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: AppColors.blueGray,
+                  unselectedLabelColor: AppColors.blueGray.withValues(alpha: 0.5),
+                  indicatorColor: AppColors.blueGray,
+                  indicatorWeight: 3,
+                  labelStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  tabs: [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat_bubble_rounded, size: 18.sp),
+                          SizedBox(width: 8.w),
+                          const Text('Messages'),
+                          if (_isConnected) ...[
+                            SizedBox(width: 6.w),
+                            Container(
+                              width: 8.w,
+                              height: 8.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.mintLeaf,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Connecting to chat...',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppColors.warningSun,
-                        fontWeight: FontWeight.w500,
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.swap_horiz_rounded, size: 18.sp),
+                          SizedBox(width: 8.w),
+                          const Text('Trade Items'),
+                          // Show ready indicator if both confirmed
+                          if (confirmedByOfferer && confirmedByRequester) ...[
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 16.sp,
+                              color: AppColors.mintLeaf,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            // Tab bar
-            Container(
-              color: Colors.white,
-              child: TabBar(
-                controller: _tabController,
-                labelColor: AppColors.blueGray,
-                unselectedLabelColor: AppColors.blueGray.withValues(alpha: 0.5),
-                indicatorColor: AppColors.blueGray,
-                indicatorWeight: 3,
-                labelStyle: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+              // Tab views
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    TradeSessionChatWidget(
+                      messages: detail.messages,
+                      onSendMessage: _handleSendMessage,
+                      currentUserId: currentUserId,
+                      confirmedByOfferer: confirmedByOfferer,
+                      confirmedByRequester: confirmedByRequester,
+                      offerHouseholdName: detail.tradeSession.offerHouseholdName,
+                      requestHouseholdName: detail.tradeSession.requestHouseholdName,
+                    ),
+                    TradeSessionItemsWidget(
+                      detail: detail,
+                      currentHouseholdId: currentHouseholdId,
+                      onToggleConfirmation: _handleToggleConfirmation,
+                      isConfirming: _isConfirming,
+                    ),
+                  ],
                 ),
-                tabs: [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.chat_bubble_rounded, size: 18.sp),
-                        SizedBox(width: 8.w),
-                        const Text('Messages'),
-                        if (_isConnected) ...[
-                          SizedBox(width: 6.w),
-                          Container(
-                            width: 8.w,
-                            height: 8.w,
-                            decoration: BoxDecoration(
-                              color: AppColors.mintLeaf,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.swap_horiz_rounded, size: 18.sp),
-                        SizedBox(width: 8.w),
-                        const Text('Trade Items'),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-            ),
-            // Tab views
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  TradeSessionChatWidget(
-                    messages: detail.messages,
-                    onSendMessage: _handleSendMessage,
-                    currentUserId: currentUserId,
-                  ),
-                  TradeSessionItemsWidget(
-                    detail: detail,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -234,42 +283,72 @@ class _TradeSessionDetailScreenState
       title: asyncDetail.when(
         loading: () => const Text('Loading...'),
         error: (_, __) => const Text('Trade Session'),
-        data: (detail) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${detail.tradeSession.offerHouseholdName} ↔ ${detail.tradeSession.requestHouseholdName}',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
+        data: (detail) {
+          final bothConfirmed = 
+              detail.tradeSession.confirmedByOfferUser != null &&
+              detail.tradeSession.confirmedByRequestUser != null;
+          
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      '${detail.tradeSession.offerHouseholdName} ↔ ${detail.tradeSession.requestHouseholdName}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (bothConfirmed) ...[
+                    SizedBox(width: 6.w),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.mintLeaf,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        'READY',
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 2.h),
-            Row(
-              children: [
-                Container(
-                  width: 8.w,
-                  height: 8.w,
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(detail.tradeSession.status),
-                    shape: BoxShape.circle,
+              SizedBox(height: 2.h),
+              Row(
+                children: [
+                  Container(
+                    width: 8.w,
+                    height: 8.w,
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(detail.tradeSession.status),
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                SizedBox(width: 4.w),
-                Text(
-                  detail.tradeSession.status,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: AppColors.blueGray,
+                  SizedBox(width: 4.w),
+                  Text(
+                    detail.tradeSession.status,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.blueGray,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
       actions: [
         IconButton(

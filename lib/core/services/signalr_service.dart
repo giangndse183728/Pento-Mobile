@@ -59,6 +59,17 @@ class TradeMessageUser {
   }
 }
 
+/// Response model for trade session confirmation from SignalR
+class TradeConfirmationResponse {
+  final bool confirmedByOfferer;
+  final bool confirmedByRequester;
+
+  TradeConfirmationResponse({
+    required this.confirmedByOfferer,
+    required this.confirmedByRequester,
+  });
+}
+
 /// SignalR service for real-time trade session messaging
 class SignalRService {
   SignalRService._();
@@ -75,6 +86,10 @@ class SignalRService {
   // Stream controller for incoming messages
   final _messageController = StreamController<TradeMessageResponse>.broadcast();
   Stream<TradeMessageResponse> get messageStream => _messageController.stream;
+  
+  // Stream controller for confirmation updates
+  final _confirmationController = StreamController<TradeConfirmationResponse>.broadcast();
+  Stream<TradeConfirmationResponse> get confirmationStream => _confirmationController.stream;
   
   // Connection state stream
   final _connectionStateController = StreamController<bool>.broadcast();
@@ -131,6 +146,9 @@ class SignalRService {
 
       // Register handler for incoming trade messages
       _hubConnection!.on('TradeMessageSent', _handleTradeMessage);
+      
+      // Register handler for trade session confirmation
+      _hubConnection!.on('TradeSessionConfirm', _handleTradeConfirmation);
 
       // Start connection
       await _hubConnection!.start();
@@ -167,6 +185,30 @@ class SignalRService {
       }
     } catch (e) {
       _logger.severe('Error parsing trade message: $e');
+    }
+  }
+
+  /// Handle trade session confirmation from SignalR
+  void _handleTradeConfirmation(List<Object?>? arguments) {
+    if (arguments == null || arguments.length < 2) {
+      _logger.warning('Received invalid trade confirmation');
+      return;
+    }
+
+    try {
+      _logger.info('Received trade confirmation: $arguments');
+      
+      final confirmedByOfferer = arguments[0] as bool? ?? false;
+      final confirmedByRequester = arguments[1] as bool? ?? false;
+      
+      final confirmation = TradeConfirmationResponse(
+        confirmedByOfferer: confirmedByOfferer,
+        confirmedByRequester: confirmedByRequester,
+      );
+      
+      _confirmationController.add(confirmation);
+    } catch (e) {
+      _logger.severe('Error parsing trade confirmation: $e');
     }
   }
 
@@ -217,6 +259,7 @@ class SignalRService {
   /// Dispose resources
   void dispose() {
     _messageController.close();
+    _confirmationController.close();
     _connectionStateController.close();
     disconnect();
   }

@@ -177,4 +177,16 @@ class TradeOfferRepository {
       onSuccess: (_) => null,
     );
   }
+
+  Future<void> confirmTradeSession({
+    required String tradeSessionId,
+  }) async {
+    final endpoint = ApiEndpoints.confirmTradeSessionItem
+        .replaceAll('{tradeSessionId}', tradeSessionId);
+
+    await _network.patch<void>(
+      endpoint,
+      onSuccess: (_) => null,
+    );
+  }
 }

@@ -11,12 +11,20 @@ class TradeSessionChatWidget extends StatefulWidget {
     required this.onSendMessage,
     required this.currentUserId,
     this.isSending = false,
+    this.confirmedByOfferer = false,
+    this.confirmedByRequester = false,
+    this.offerHouseholdName,
+    this.requestHouseholdName,
   });
 
   final List<TradeSessionMessage> messages;
   final Future<void> Function(String message) onSendMessage;
   final String? currentUserId;
   final bool isSending;
+  final bool confirmedByOfferer;
+  final bool confirmedByRequester;
+  final String? offerHouseholdName;
+  final String? requestHouseholdName;
 
   @override
   State<TradeSessionChatWidget> createState() => _TradeSessionChatWidgetState();
@@ -83,9 +91,12 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
   Widget build(BuildContext context) {
     final messages = widget.messages.toList()
       ..sort((a, b) => b.sentOn.compareTo(a.sentOn));
+    final bothConfirmed = widget.confirmedByOfferer && widget.confirmedByRequester;
 
     return Column(
       children: [
+        // Confirmation status banner
+        _buildConfirmationBanner(bothConfirmed),
         // Messages list
         Expanded(
           child: messages.isEmpty
@@ -109,6 +120,85 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
         // Message input
         _buildMessageInput(),
       ],
+    );
+  }
+
+  Widget _buildConfirmationBanner(bool bothConfirmed) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: bothConfirmed
+            ? AppColors.mintLeaf.withValues(alpha: 0.1)
+            : AppColors.iceberg,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.powderBlue.withValues(alpha: 0.3),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Offerer status
+          _buildMiniStatus(
+            widget.offerHouseholdName ?? 'Offerer',
+            widget.confirmedByOfferer,
+          ),
+          SizedBox(width: 8.w),
+          Icon(
+            Icons.swap_horiz_rounded,
+            size: 16.sp,
+            color: AppColors.blueGray,
+          ),
+          SizedBox(width: 8.w),
+          // Requester status
+          _buildMiniStatus(
+            widget.requestHouseholdName ?? 'Requester',
+            widget.confirmedByRequester,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniStatus(String name, bool isReady) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: isReady
+            ? AppColors.mintLeaf.withValues(alpha: 0.15)
+            : Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: isReady
+              ? AppColors.mintLeaf.withValues(alpha: 0.3)
+              : AppColors.powderBlue.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isReady ? Icons.check_circle_rounded : Icons.schedule_rounded,
+            size: 14.sp,
+            color: isReady ? AppColors.mintLeaf : AppColors.blueGray,
+          ),
+          SizedBox(width: 4.w),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 80.w),
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+                color: isReady ? AppColors.mintLeaf : AppColors.blueGray,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
