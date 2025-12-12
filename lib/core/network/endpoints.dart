@@ -133,8 +133,14 @@ class ApiEndpoints {
   static const String createTradeRequestItem = '/trades/requests/items';
   static const String getMyPosts = '/trades/offers/me';
   static const String getPostById = '/trades/offers/{offerId}/requests';
+  static const String acceptTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/accept';
 
+  //Trade Session
+  static const String getTradeSessionDetail = '/trades/sessions/{sessionId}';
+  static const String getAllTradeSession = '/trades/sessions';
+  static const String sendTradeSessionMessage = '/trades/sessions/{tradeSessionId}/messages';
+  static const String getTradeSessionItems = '/trades/sessions/{sessionId}/items';
 
-  
-
+  // SignalR Hub
+  static const String messageHub = '$baseUrl/message-hub';
 }
