@@ -54,7 +54,6 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     // Listen for incoming messages
     _messageSubscription?.cancel();
     _messageSubscription = signalR.messageStream.listen((response) {
-      // Only process messages for this session
       if (response.sessionId == sessionId) {
         _addMessageToState(response);
       }
@@ -102,13 +101,18 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     final currentState = state.valueOrNull;
     if (currentState == null) return;
 
-    // Update the confirmation status in the trade session
+    const placeholderUser = TradeSessionUser(
+      userId: '',
+      firstName: 'User',
+      lastName: '',
+    );
+
     final updatedSession = currentState.tradeSession.copyWith(
       confirmedByOfferUser: response.confirmedByOfferer 
-          ? currentState.tradeSession.confirmedByOfferUser 
+          ? (currentState.tradeSession.confirmedByOfferUser ?? placeholderUser)
           : null,
       confirmedByRequestUser: response.confirmedByRequester 
-          ? currentState.tradeSession.confirmedByRequestUser 
+          ? (currentState.tradeSession.confirmedByRequestUser ?? placeholderUser)
           : null,
     );
 
@@ -131,16 +135,12 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
   Future<void> sendMessage(String messageText) async {
     final sessionId = this.sessionId;
-    
-    // Send message via API
-    // SignalR will handle the real-time update via TradeMessageSent
+ 
     await _repository.sendTradeSessionMessage(
       tradeSessionId: sessionId,
       messageText: messageText,
     );
     
-    // Note: We don't refresh here since SignalR will push the message back
-    // The _addMessageToState will handle adding it to the UI
   }
 
   /// Toggle confirmation for the current user
@@ -151,9 +151,6 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       tradeSessionId: sessionId,
     );
     
-    // SignalR will push the update via TradeSessionConfirm
-    // But we also refresh to get the latest state with user info
-    await refresh();
   }
 
   /// Connect to SignalR and join this session

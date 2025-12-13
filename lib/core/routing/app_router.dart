@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
@@ -288,12 +289,6 @@ GoRouter createAppRouter() {
       ),
     ),
     GoRoute(
-      path: AppRoutes.chatbot,
-      pageBuilder: GoTransitions.fadeUpwards.build(
-        child: const ChatbotScreen(),
-      ),
-    ),
-    GoRoute(
       path: AppRoutes.subscription,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const SubscriptionScreen(),
@@ -428,7 +423,7 @@ GoRouter createAppRouter() {
 ShellRoute(
       builder: (context, state, child) {
         return MainLayout(
-          items: kDefaultNavItems,
+          items: Platform.isIOS ? kIOSNavItems : kDefaultNavItems,
           pages: [child], 
         );
       },
@@ -448,6 +443,10 @@ ShellRoute(
         GoRoute(
           path: AppRoutes.recipe,
           builder: (context, state) => const RecipeScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.chatbot,
+          builder: (context, state) => const ChatbotScreen(),
         ),
       ],
     ),

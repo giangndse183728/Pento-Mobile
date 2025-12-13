@@ -53,9 +53,6 @@ class TradeSessionItemsWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Confirmation status banner
-                _buildConfirmationStatus(),
-                SizedBox(height: 16.h),
                 // Trade summary
                 _buildTradeSummary(),
                 SizedBox(height: 20.h),
@@ -90,142 +87,9 @@ class TradeSessionItemsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildConfirmationStatus() {
+  Widget _buildTradeSummary() {
     final bothConfirmed = _isOffererConfirmed && _isRequesterConfirmed;
     
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: bothConfirmed 
-            ? AppColors.mintLeaf.withValues(alpha: 0.15)
-            : AppColors.warningSun.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: bothConfirmed
-              ? AppColors.mintLeaf.withValues(alpha: 0.3)
-              : AppColors.warningSun.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                bothConfirmed 
-                    ? Icons.check_circle_rounded 
-                    : Icons.pending_rounded,
-                size: 20.sp,
-                color: bothConfirmed ? AppColors.mintLeaf : AppColors.warningSun,
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                bothConfirmed 
-                    ? 'Both parties confirmed!' 
-                    : 'Waiting for confirmation',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: bothConfirmed ? AppColors.mintLeaf : AppColors.warningSun,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildPartyStatus(
-                  detail.tradeSession.offerHouseholdName,
-                  _isOffererConfirmed,
-                  detail.tradeSession.confirmedByOfferUser,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: _buildPartyStatus(
-                  detail.tradeSession.requestHouseholdName,
-                  _isRequesterConfirmed,
-                  detail.tradeSession.confirmedByRequestUser,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPartyStatus(
-    String householdName,
-    bool isConfirmed,
-    TradeSessionUser? confirmedUser,
-  ) {
-    return Container(
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        children: [
-          Text(
-            householdName,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 6.h),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-            decoration: BoxDecoration(
-              color: isConfirmed 
-                  ? AppColors.mintLeaf.withValues(alpha: 0.15)
-                  : AppColors.blueGray.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  isConfirmed ? Icons.check_rounded : Icons.schedule_rounded,
-                  size: 14.sp,
-                  color: isConfirmed ? AppColors.mintLeaf : AppColors.blueGray,
-                ),
-                SizedBox(width: 4.w),
-                Text(
-                  isConfirmed ? 'Ready' : 'Pending',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isConfirmed ? AppColors.mintLeaf : AppColors.blueGray,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isConfirmed && confirmedUser != null) ...[
-            SizedBox(height: 4.h),
-            Text(
-              'by ${confirmedUser.firstName}',
-              style: TextStyle(
-                fontSize: 10.sp,
-                color: AppColors.blueGray,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTradeSummary() {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -237,128 +101,209 @@ class TradeSessionItemsWidget extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16.r),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Offer side
-          Expanded(
-            child: Column(
-              children: [
-                if (_isOffererConfirmed)
-                  Container(
-                    margin: EdgeInsets.only(bottom: 6.h),
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.mintLeaf,
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
-                      '✓ READY',
-                      style: TextStyle(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                Text(
-                  detail.tradeSession.offerHouseholdName,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+          // Status text at top
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                bothConfirmed 
+                    ? Icons.check_circle_rounded 
+                    : Icons.pending_rounded,
+                size: 18.sp,
+                color: Colors.white,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                bothConfirmed 
+                    ? 'Both parties confirmed!' 
+                    : 'Waiting for confirmation',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
-                SizedBox(height: 8.h),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
-                  ),
+              ),
+            ],
+          ),  
+          SizedBox(height: 16.h),
+          // Trade summary with swap icon
+          Row(
+            children: [
+              // Offer side
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Text(
-                    '${detail.tradeSession.totalOfferedItems} items',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Swap icon
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.swap_horiz_rounded,
-              size: 28.sp,
-              color: Colors.white,
-            ),
-          ),
-          // Request side
-          Expanded(
-            child: Column(
-              children: [
-                if (_isRequesterConfirmed)
-                  Container(
-                    margin: EdgeInsets.only(bottom: 6.h),
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.mintLeaf,
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
-                      '✓ READY',
-                      style: TextStyle(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                Text(
-                  detail.tradeSession.requestHouseholdName,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _isOffererConfirmed 
+                              ? AppColors.mintLeaf.withValues(alpha: 0.15)
+                              : AppColors.blueGray.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _isOffererConfirmed 
+                                  ? Icons.check_rounded 
+                                  : Icons.schedule_rounded,
+                              size: 12.sp,
+                              color: _isOffererConfirmed 
+                                  ? AppColors.mintLeaf 
+                                  : AppColors.blueGray,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              _isOffererConfirmed ? 'Ready' : 'Pending',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: _isOffererConfirmed 
+                                    ? AppColors.mintLeaf 
+                                    : AppColors.blueGray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        detail.tradeSession.offerHouseholdName,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 8.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 4.h,
+                        ),
+                        child: Text(
+                          '${detail.tradeSession.totalOfferedItems} items',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blueGray,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 8.h),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
-                  ),
+              ),
+              // Swap icon
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 8.w),
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.swap_horiz_rounded,
+                  size: 28.sp,
+                  color: Colors.white,
+                ),
+              ),
+              // Request side
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8.r),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: Text(
-                    '${detail.tradeSession.totalRequestedItems} items',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _isRequesterConfirmed 
+                              ? AppColors.mintLeaf.withValues(alpha: 0.15)
+                              : AppColors.blueGray.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _isRequesterConfirmed 
+                                  ? Icons.check_rounded 
+                                  : Icons.schedule_rounded,
+                              size: 12.sp,
+                              color: _isRequesterConfirmed 
+                                  ? Colors.green 
+                                  : AppColors.blueGray,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              _isRequesterConfirmed ? 'Ready' : 'Pending',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: _isRequesterConfirmed 
+                                    ? Colors.green 
+                                    : AppColors.blueGray,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        detail.tradeSession.requestHouseholdName,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 8.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 4.h,
+                        ),
+                        child: Text(
+                          '${detail.tradeSession.totalRequestedItems} items',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blueGray,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -387,7 +332,7 @@ class TradeSessionItemsWidget extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: _isCurrentUserConfirmed 
                   ? AppColors.blueGray 
-                  : AppColors.mintLeaf,
+                  : Colors.green,
               foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(vertical: 14.h),
               shape: RoundedRectangleBorder(
