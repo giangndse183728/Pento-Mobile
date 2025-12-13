@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/utils/toast_helper.dart';
+import '../../../../core/utils/quantity_formatter.dart';
+import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_text_form_field.dart';
+import '../../../unit/data/models/unit_model.dart';
+import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../../data/models/trade_offers_model.dart';
+import '../providers/trade_sessions_provider.dart';
 
-class TradeSessionItemsWidget extends StatelessWidget {
+class TradeSessionItemsWidget extends ConsumerWidget {
   const TradeSessionItemsWidget({
     super.key,
     required this.detail,
@@ -43,7 +52,7 @@ class TradeSessionItemsWidget extends StatelessWidget {
       detail.tradeSession.confirmedByRequestUser != null;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final offeredItems =
         detail.items.where((item) => item.from == 'Offer').toList();
     final requestedItems =
@@ -63,6 +72,7 @@ class TradeSessionItemsWidget extends StatelessWidget {
                 // Offered items
                 _buildItemsSection(
                   context,
+                  ref,
                   'Offered Items',
                   detail.tradeSession.offerHouseholdName,
                   Icons.arrow_upward_rounded,
@@ -75,6 +85,7 @@ class TradeSessionItemsWidget extends StatelessWidget {
                 // Requested items
                 _buildItemsSection(
                   context,
+                  ref,
                   'Requested Items',
                   detail.tradeSession.requestHouseholdName,
                   Icons.arrow_downward_rounded,
@@ -386,6 +397,7 @@ class TradeSessionItemsWidget extends StatelessWidget {
 
   Widget _buildItemsSection(
     BuildContext context,
+    WidgetRef ref,
     String title,
     String subtitle,
     IconData icon,
@@ -533,12 +545,18 @@ class TradeSessionItemsWidget extends StatelessWidget {
             ),
           )
         else
-          ...items.map((item) => _buildItemCard(item, color)),
+          ...items.map((item) => _buildItemCard(context, ref, item, color, canAddItems)),
       ],
     );
   }
 
-  Widget _buildItemCard(TradeSessionItem item, Color accentColor) {
+  Widget _buildItemCard(
+    BuildContext context,
+    WidgetRef ref,
+    TradeSessionItem item,
+    Color accentColor,
+    bool canEdit,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.all(12.w),
@@ -653,7 +671,80 @@ class TradeSessionItemsWidget extends StatelessWidget {
               ],
             ),
           ),
+          // 3-dot menu (only if can edit and session is ongoing)
+          if (canEdit && detail.tradeSession.status == 'Ongoing')
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert_rounded,
+                size: 20.sp,
+                color: AppColors.blueGray,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_rounded, size: 18.sp, color: AppColors.blueGray),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Edit',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.blueGray,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_rounded, size: 18.sp, color: AppColors.dangerRed),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.dangerRed,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) {
+                if (value == 'edit') {
+                  TradeSessionItemsWidget._showEditItemDialog(
+                    context,
+                    ref,
+                    item,
+                    sessionId,
+                  );
+                } else if (value == 'delete') {
+                  // TODO: Implement delete
+                }
+              },
+            ),
         ],
+      ),
+    );
+  }
+
+  static void _showEditItemDialog(
+    BuildContext context,
+    WidgetRef ref,
+    TradeSessionItem item,
+    String sessionId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => _EditTradeSessionItemDialog(
+        item: item,
+        sessionId: sessionId,
       ),
     );
   }
@@ -672,6 +763,301 @@ class TradeSessionItemsWidget extends StatelessWidget {
         Icons.restaurant_rounded,
         size: 28.w,
         color: AppColors.blueGray,
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Edit Trade Session Item Dialog
+// ============================================================================
+
+class _EditTradeSessionItemDialog extends ConsumerStatefulWidget {
+  const _EditTradeSessionItemDialog({
+    required this.item,
+    required this.sessionId,
+  });
+
+  final TradeSessionItem item;
+  final String sessionId;
+
+  @override
+  ConsumerState<_EditTradeSessionItemDialog> createState() =>
+      _EditTradeSessionItemDialogState();
+}
+
+class _EditTradeSessionItemDialogState
+    extends ConsumerState<_EditTradeSessionItemDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _quantityController;
+  Unit? _selectedUnit;
+  String? _unitError;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantityController = TextEditingController(
+      text: formatQuantity(widget.item.quantity),
+    );
+  }
+
+  @override
+  void dispose() {
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_selectedUnit == null) {
+      setState(() {
+        _unitError = 'Please select a unit';
+      });
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final quantity = double.tryParse(
+            _quantityController.text.replaceAll(',', ''),
+          ) ??
+          0.0;
+
+      await ref
+          .read(tradeSessionDetailNotifierProvider(widget.sessionId).notifier)
+          .updateItems([
+        {
+          'tradeItemId': widget.item.tradeItemId,
+          'quantity': quantity,
+          'unitId': _selectedUnit!.id,
+        },
+      ]);
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ToastHelper.showSuccess(
+          context,
+          'Item updated successfully',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(
+          context,
+          'Failed to update item: ${e.toString()}',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppDialog(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(
+                  Icons.edit_rounded,
+                  size: 24.sp,
+                  color: AppColors.blueGray,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'Edit Item',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, size: 20.sp),
+                  onPressed: () => Navigator.of(context).pop(),
+                  color: AppColors.blueGray,
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            // Item name
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: AppColors.iceberg,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Row(
+                children: [
+                  if (widget.item.imageUrl != null)
+                    Container(
+                      width: 40.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.network(
+                          widget.item.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox(),
+                        ),
+                      ),
+                    ),
+                  if (widget.item.imageUrl != null) SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      widget.item.name,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20.h),
+            // Quantity field
+            AppTextFormField(
+              controller: _quantityController,
+              labelText: 'Quantity',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'^\d+\.?\d{0,2}'),
+                ),
+              ],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Required';
+                }
+                final qty = double.tryParse(
+                  value.replaceAll(',', ''),
+                );
+                if (qty == null || qty <= 0) {
+                  return 'Must be > 0';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16.h),
+            // Unit field
+            UnitSelectField(
+              labelText: 'Unit',
+              selectedUnitId: _selectedUnit?.id ?? widget.item.unitId,
+              defaultUnitAbbreviation: widget.item.unitAbbreviation,
+              onUnitSelected: (unit) {
+                setState(() {
+                  _selectedUnit = unit;
+                  _unitError = null;
+                });
+              },
+            ),
+            if (_unitError != null) ...[
+              SizedBox(height: 6.h),
+              Row(
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 14.sp,
+                    color: AppColors.dangerRed,
+                  ),
+                  SizedBox(width: 4.w),
+                  Text(
+                    _unitError!,
+                    style: TextStyle(
+                      color: AppColors.dangerRed,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            SizedBox(height: 24.h),
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.blueGray,
+                      side: BorderSide(color: AppColors.blueGray),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.blueGray,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor:
+                          AppColors.blueGray.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      elevation: 0,
+                    ),
+                    child: _isSubmitting
+                        ? SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'Update',
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

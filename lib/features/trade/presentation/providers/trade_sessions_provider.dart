@@ -32,6 +32,8 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   StreamSubscription<TradeMessageResponse>? _messageSubscription;
   StreamSubscription<TradeConfirmationResponse>? _confirmationSubscription;
   StreamSubscription<TradeSessionItemsAddedResponse>? _itemsAddedSubscription;
+  StreamSubscription<TradeSessionItemsUpdatedResponse>? _itemsUpdatedSubscription;
+  StreamSubscription<TradeItemUpdatedResponse>? _itemUpdatedSubscription;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
@@ -45,6 +47,8 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       _messageSubscription?.cancel();
       _confirmationSubscription?.cancel();
       _itemsAddedSubscription?.cancel();
+      _itemsUpdatedSubscription?.cancel();
+      _itemUpdatedSubscription?.cancel();
     });
     
     return await _loadDetail();
@@ -73,6 +77,20 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       if (response.sessionId == sessionId) {
         _addItemsFromSignalR(response.items);
       }
+    });
+
+    // Listen for items updated updates
+    _itemsUpdatedSubscription?.cancel();
+    _itemsUpdatedSubscription = signalR.itemsUpdatedStream.listen((response) {
+      if (response.sessionId == sessionId) {
+        _updateItemsFromSignalR(response.items);
+      }
+    });
+
+    // Listen for single item updated updates
+    _itemUpdatedSubscription?.cancel();
+    _itemUpdatedSubscription = signalR.itemUpdatedStream.listen((response) {
+      _updateSingleItemFromSignalR(response);
     });
   }
 
@@ -188,6 +206,103 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     _addItemsToState(newItems);
   }
 
+  void _updateItemsFromSignalR(List<TradeSessionItemResponse> signalRItems) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Convert SignalR items to TradeSessionItem
+    final updatedItems = signalRItems.map((item) {
+      return TradeSessionItem(
+        tradeItemId: item.tradeItemId,
+        foodItemId: item.foodItemId,
+        name: item.name,
+        originalName: item.originalName,
+        imageUrl: item.imageUrl,
+        foodGroup: item.foodGroup,
+        quantity: item.quantity,
+        unitAbbreviation: item.unitAbbreviation,
+        unitId: item.unitId,
+        expirationDate: item.expirationDate,
+        from: item.from,
+      );
+    }).toList();
+
+    _updateItemsInState(updatedItems);
+  }
+
+  void _updateItemsInState(List<TradeSessionItem> updatedItems) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Create a map of updated items by tradeItemId
+    final updatedItemsMap = {
+      for (var item in updatedItems) item.tradeItemId: item
+    };
+
+    // Update existing items or add new ones
+    final existingItems = currentState.items.map((item) {
+      return updatedItemsMap[item.tradeItemId] ?? item;
+    }).toList();
+
+    // Add any new items that don't exist yet
+    final existingItemIds = existingItems.map((item) => item.tradeItemId).toSet();
+    final newItems = updatedItems.where(
+      (item) => !existingItemIds.contains(item.tradeItemId),
+    ).toList();
+
+    final finalItems = [...existingItems, ...newItems];
+    
+    // Update totals based on items
+    final offeredCount = finalItems.where((item) => item.from == 'Offer').length;
+    final requestedCount = finalItems.where((item) => item.from == 'Request').length;
+    
+    final updatedSession = currentState.tradeSession.copyWith(
+      totalOfferedItems: offeredCount,
+      totalRequestedItems: requestedCount,
+    );
+
+    state = AsyncValue.data(
+      currentState.copyWith(
+        items: finalItems,
+        tradeSession: updatedSession,
+      ),
+    );
+  }
+
+  void _updateSingleItemFromSignalR(TradeItemUpdatedResponse response) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Find the item to update
+    final itemIndex = currentState.items.indexWhere(
+      (item) => item.tradeItemId == response.tradeItemId,
+    );
+
+    if (itemIndex == -1) {
+      // Item not found, might need to refresh
+      return;
+    }
+
+    final existingItem = currentState.items[itemIndex];
+    
+    // Update the item with new quantity and unitId
+    // If unitId changed, we'll keep the existing unitAbbreviation for now
+    // It will be updated when the full item data is refreshed
+    final updatedItem = existingItem.copyWith(
+      quantity: response.quantity,
+      unitId: response.unitId,
+    );
+
+    final updatedItems = List<TradeSessionItem>.from(currentState.items);
+    updatedItems[itemIndex] = updatedItem;
+
+    state = AsyncValue.data(
+      currentState.copyWith(
+        items: updatedItems,
+      ),
+    );
+  }
+
   Future<TradeSessionDetail> _loadDetail() async {
     final sessionId = this.sessionId;
     return await _repository.getTradeSessionDetail(sessionId: sessionId);
@@ -246,5 +361,22 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
     // Update state with new items
     _addItemsToState(newItems);
+  }
+
+  /// Update items in the trade session
+  Future<void> updateItems(List<Map<String, dynamic>> items) async {
+    final sessionId = this.sessionId;
+    final currentState = state.valueOrNull;
+    
+    if (currentState == null) return;
+
+    // Call API to update items
+    final updatedItems = await _repository.updateTradeSessionItems(
+      tradeSessionId: sessionId,
+      items: items,
+    );
+
+    // Update state with updated items
+    _updateItemsInState(updatedItems);
   }
 }
