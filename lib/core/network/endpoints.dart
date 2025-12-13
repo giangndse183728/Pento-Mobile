@@ -143,6 +143,8 @@ class ApiEndpoints {
   static const String sendTradeSessionMessage = '/trades/sessions/{tradeSessionId}/messages';
 
   static const String confirmTradeSessionItem = '/trades/sessions/{tradeSessionId}/confirm';
+  static const String cancelTradeSession = '/trades/sessions/{tradeSessionId}/cancel';
+
   static const String addTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
   static const String updateTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
   static const String removeTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';

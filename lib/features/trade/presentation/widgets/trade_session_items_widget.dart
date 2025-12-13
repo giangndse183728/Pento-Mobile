@@ -46,18 +46,46 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     return false;
   }
 
-  bool get _isOffererConfirmed => 
-      detail.tradeSession.confirmedByOfferUser != null;
-  
-  bool get _isRequesterConfirmed => 
-      detail.tradeSession.confirmedByRequestUser != null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sessionDetailAsync = ref.watch(
+      tradeSessionDetailNotifierProvider(sessionId),
+    );
+    
+    // Listen for when both users become ready and refresh
+    ref.listen<AsyncValue<TradeSessionDetail>>(
+      tradeSessionDetailNotifierProvider(sessionId),
+      (previous, next) {
+        final previousDetail = previous?.valueOrNull;
+        final nextDetail = next.valueOrNull;
+        
+        if (previousDetail != null && nextDetail != null) {
+          final previousBothReady = previousDetail.tradeSession.confirmedByOfferUser != null &&
+              previousDetail.tradeSession.confirmedByRequestUser != null;
+          final nextBothReady = nextDetail.tradeSession.confirmedByOfferUser != null &&
+              nextDetail.tradeSession.confirmedByRequestUser != null;
+          
+          // If both users just became ready, refresh the page
+          if (!previousBothReady && nextBothReady) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref.read(tradeSessionDetailNotifierProvider(sessionId).notifier).refresh();
+            });
+          }
+        }
+      },
+    );
+    
+    // Use the latest detail from provider if available, otherwise use the passed detail
+    final currentDetail = sessionDetailAsync.valueOrNull ?? detail;
+    
+    final bothConfirmed = (currentDetail.tradeSession.confirmedByOfferUser != null &&
+        currentDetail.tradeSession.confirmedByRequestUser != null);
+    
     final offeredItems =
-        detail.items.where((item) => item.from == 'Offer').toList();
+        currentDetail.items.where((item) => item.from == 'Offer').toList();
     final requestedItems =
-        detail.items.where((item) => item.from == 'Request').toList();
+        currentDetail.items.where((item) => item.from == 'Request').toList();
 
     return Column(
       children: [
@@ -68,19 +96,20 @@ class TradeSessionItemsWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Trade summary
-                _buildTradeSummary(),
+                _buildTradeSummary(currentDetail),
                 SizedBox(height: 20.h),
                 // Offered items
                 _buildItemsSection(
                   context,
                   ref,
                   'Offered Items',
-                  detail.tradeSession.offerHouseholdName,
+                  currentDetail.tradeSession.offerHouseholdName,
                   Icons.arrow_upward_rounded,
                   AppColors.mintLeaf,
                   offeredItems,
-                  _isOffererConfirmed,
-                  _isOfferHousehold,
+                  currentDetail.tradeSession.confirmedByOfferUser != null,
+                  _isOfferHousehold && !bothConfirmed,
+                  bothConfirmed,
                 ),
                 SizedBox(height: 20.h),
                 // Requested items
@@ -88,27 +117,31 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                   context,
                   ref,
                   'Requested Items',
-                  detail.tradeSession.requestHouseholdName,
+                  currentDetail.tradeSession.requestHouseholdName,
                   Icons.arrow_downward_rounded,
                   AppColors.warningSun,
                   requestedItems,
-                  _isRequesterConfirmed,
-                  _isRequestHousehold,
+                  currentDetail.tradeSession.confirmedByRequestUser != null,
+                  _isRequestHousehold && !bothConfirmed,
+                  bothConfirmed,
                 ),
                 SizedBox(height: 100.h),
               ],
             ),
           ),
         ),
-        // Ready button at bottom
-        if (detail.tradeSession.status == 'Ongoing')
-          _buildReadyButton(),
+        // Ready and Cancel buttons at bottom
+        if (currentDetail.tradeSession.status == 'Ongoing')
+          _buildActionButtons(context, ref, bothConfirmed),
       ],
     );
   }
 
-  Widget _buildTradeSummary() {
-    final bothConfirmed = _isOffererConfirmed && _isRequesterConfirmed;
+  Widget _buildTradeSummary(TradeSessionDetail currentDetail) {
+    final bothConfirmed = (currentDetail.tradeSession.confirmedByOfferUser != null &&
+        currentDetail.tradeSession.confirmedByRequestUser != null);
+    final isOffererConfirmed = currentDetail.tradeSession.confirmedByOfferUser != null;
+    final isRequesterConfirmed = currentDetail.tradeSession.confirmedByRequestUser != null;
     
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -167,7 +200,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           vertical: 4.h,
                         ),
                         decoration: BoxDecoration(
-                          color: _isOffererConfirmed 
+                          color: isOffererConfirmed 
                               ? AppColors.mintLeaf.withValues(alpha: 0.15)
                               : AppColors.blueGray.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6.r),
@@ -177,21 +210,21 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _isOffererConfirmed 
+                              isOffererConfirmed 
                                   ? Icons.check_rounded 
                                   : Icons.schedule_rounded,
                               size: 12.sp,
-                              color: _isOffererConfirmed 
+                              color: isOffererConfirmed 
                                   ? AppColors.mintLeaf 
                                   : AppColors.blueGray,
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              _isOffererConfirmed ? 'Ready' : 'Pending',
+                              isOffererConfirmed ? 'Ready' : 'Pending',
                               style: TextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w600,
-                                color: _isOffererConfirmed 
+                                color: isOffererConfirmed 
                                     ? AppColors.mintLeaf 
                                     : AppColors.blueGray,
                               ),
@@ -201,7 +234,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        detail.tradeSession.offerHouseholdName,
+                        currentDetail.tradeSession.offerHouseholdName,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
@@ -218,7 +251,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           vertical: 4.h,
                         ),
                         child: Text(
-                          '${detail.tradeSession.totalOfferedItems} items',
+                          '${currentDetail.tradeSession.totalOfferedItems} items',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
@@ -260,7 +293,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           vertical: 4.h,
                         ),
                         decoration: BoxDecoration(
-                          color: _isRequesterConfirmed 
+                          color: isRequesterConfirmed 
                               ? AppColors.mintLeaf.withValues(alpha: 0.15)
                               : AppColors.blueGray.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6.r),
@@ -270,21 +303,21 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _isRequesterConfirmed 
+                              isRequesterConfirmed 
                                   ? Icons.check_rounded 
                                   : Icons.schedule_rounded,
                               size: 12.sp,
-                              color: _isRequesterConfirmed 
+                              color: isRequesterConfirmed 
                                   ? Colors.green 
                                   : AppColors.blueGray,
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              _isRequesterConfirmed ? 'Ready' : 'Pending',
+                              isRequesterConfirmed ? 'Ready' : 'Pending',
                               style: TextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w600,
-                                color: _isRequesterConfirmed 
+                                color: isRequesterConfirmed 
                                     ? Colors.green 
                                     : AppColors.blueGray,
                               ),
@@ -294,7 +327,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                       ),
                       SizedBox(height: 8.h),
                       Text(
-                        detail.tradeSession.requestHouseholdName,
+                        currentDetail.tradeSession.requestHouseholdName,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
@@ -311,7 +344,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                           vertical: 4.h,
                         ),
                         child: Text(
-                          '${detail.tradeSession.totalRequestedItems} items',
+                          '${currentDetail.tradeSession.totalRequestedItems} items',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
@@ -330,7 +363,11 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildReadyButton() {
+  Widget _buildActionButtons(
+    BuildContext context,
+    WidgetRef ref,
+    bool bothConfirmed,
+  ) {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -345,52 +382,205 @@ class TradeSessionItemsWidget extends ConsumerWidget {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: isConfirming ? null : onToggleConfirmation,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _isCurrentUserConfirmed 
-                  ? AppColors.blueGray 
-                  : Colors.green,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              elevation: 0,
-            ),
-            child: isConfirming
-                ? SizedBox(
-                    width: 24.w,
-                    height: 24.w,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _isCurrentUserConfirmed 
-                            ? Icons.close_rounded 
-                            : Icons.check_rounded,
-                        size: 22.sp,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        _isCurrentUserConfirmed 
-                            ? 'Cancel Ready' 
-                            : 'I\'m Ready to Trade',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
+        child: Row(
+          children: [
+            // Cancel button
+            Expanded(
+              child: OutlinedButton(
+                onPressed: (isConfirming || bothConfirmed) ? null : () {
+                  _showCancelDialog(context, ref);
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.dangerRed,
+                  side: BorderSide(
+                    color: (isConfirming || bothConfirmed)
+                        ? AppColors.dangerRed.withValues(alpha: 0.3)
+                        : AppColors.dangerRed,
+                    width: 1.5,
                   ),
-          ),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.cancel_outlined,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            // Confirm button
+            Expanded(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: (isConfirming || bothConfirmed) ? null : onToggleConfirmation,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isCurrentUserConfirmed 
+                      ? AppColors.blueGray 
+                      : Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  elevation: 0,
+                ),
+                child: isConfirming
+                    ? SizedBox(
+                        width: 24.w,
+                        height: 24.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _isCurrentUserConfirmed 
+                                ? Icons.close_rounded 
+                                : Icons.check_rounded,
+                            size: 22.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            _isCurrentUserConfirmed 
+                                ? 'Cancel Ready' 
+                                : 'I\'m Ready to Trade',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCancelDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.cancel_outlined,
+                  size: 24.sp,
+                  color: AppColors.dangerRed,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'Cancel Trade Session',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, size: 20.sp),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  color: AppColors.blueGray,
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Are you sure you want to cancel this trade session? This action cannot be undone.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(
+                    'No, Keep It',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.blueGray,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    try {
+                      await ref
+                          .read(tradeSessionDetailNotifierProvider(sessionId).notifier)
+                          .cancelSession();
+                      
+                      if (context.mounted) {
+                        ToastHelper.showSuccess(
+                          context,
+                          'Trade session cancelled',
+                        );
+                        // Navigate back after a short delay
+                        Future.delayed(const Duration(milliseconds: 500), () {
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        });
+                      }
+                    } on NetworkException catch (e) {
+                      if (context.mounted) {
+                        ToastHelper.showError(context, e.message);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ToastHelper.showError(
+                          context,
+                          'Failed to cancel session. Please try again.',
+                        );
+                      }
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.dangerRed,
+                  ),
+                  child: Text(
+                    'Yes, Cancel',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.dangerRed,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -406,6 +596,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     List<TradeSessionItem> items,
     bool isConfirmed,
     bool canAddItems,
+    bool bothConfirmed,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,11 +688,11 @@ class TradeSessionItemsWidget extends ConsumerWidget {
           ],
         ),
         SizedBox(height: 12.h),
-        if (canAddItems && detail.tradeSession.status == 'Ongoing')
+        if (canAddItems && !bothConfirmed)
           Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: OutlinedButton.icon(
-              onPressed: () {
+              onPressed: bothConfirmed ? null : () {
                 context.push(
                   AppRoutes.addTradeSessionItemsRoute(sessionId),
                 ).then((result) {
@@ -546,7 +737,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
             ),
           )
         else
-          ...items.map((item) => _buildItemCard(context, ref, item, color, canAddItems)),
+          ...items.map((item) => _buildItemCard(context, ref, item, color, canAddItems && !bothConfirmed, bothConfirmed)),
       ],
     );
   }
@@ -557,6 +748,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     TradeSessionItem item,
     Color accentColor,
     bool canEdit,
+    bool bothConfirmed,
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
@@ -672,8 +864,8 @@ class TradeSessionItemsWidget extends ConsumerWidget {
               ],
             ),
           ),
-          // 3-dot menu (only if can edit and session is ongoing)
-          if (canEdit && detail.tradeSession.status == 'Ongoing')
+          // 3-dot menu (only if can edit and both not confirmed)
+          if (canEdit)
             PopupMenuButton<String>(
               icon: Icon(
                 Icons.more_vert_rounded,

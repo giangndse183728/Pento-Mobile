@@ -109,6 +109,15 @@ class TradeItemsRemovedResponse {
   });
 }
 
+/// Response model for trade session cancelled from SignalR
+class TradeSessionCancelledResponse {
+  final String sessionId;
+
+  TradeSessionCancelledResponse({
+    required this.sessionId,
+  });
+}
+
 class TradeSessionItemResponse {
   final String tradeItemId;
   final String foodItemId;
@@ -218,6 +227,9 @@ class SignalRService {
   final _itemsRemovedController = StreamController<TradeItemsRemovedResponse>.broadcast();
   Stream<TradeItemsRemovedResponse> get itemsRemovedStream => _itemsRemovedController.stream;
   
+  final _sessionCancelledController = StreamController<TradeSessionCancelledResponse>.broadcast();
+  Stream<TradeSessionCancelledResponse> get sessionCancelledStream => _sessionCancelledController.stream;
+  
   // Connection state stream
   final _connectionStateController = StreamController<bool>.broadcast();
   Stream<bool> get connectionStateStream => _connectionStateController.stream;
@@ -288,6 +300,9 @@ class SignalRService {
 
       // Register handler for trade items removed
       _hubConnection!.on('TradeItemsRemoved', _handleTradeItemsRemoved);
+
+      // Register handler for trade session cancelled
+      _hubConnection!.on('TradeSessionCancelled', _handleTradeSessionCancelled);
 
       // Start connection
       await _hubConnection!.start();
@@ -599,6 +614,35 @@ class SignalRService {
     }
   }
 
+  void _handleTradeSessionCancelled(List<Object?>? arguments) {
+    if (arguments == null || arguments.isEmpty) {
+      _logger.warning('Received invalid trade session cancelled');
+      return;
+    }
+
+    try {
+      _logger.info('Received trade session cancelled: $arguments');
+      
+      final sessionId = arguments[0]?.toString() ?? '';
+      
+      if (sessionId.isEmpty) {
+        _logger.warning('Session ID is empty in trade session cancelled event');
+        return;
+      }
+      
+      _logger.info('Successfully parsed cancelled session ID: $sessionId');
+      
+      final response = TradeSessionCancelledResponse(
+        sessionId: sessionId,
+      );
+      
+      _sessionCancelledController.add(response);
+    } catch (e, stackTrace) {
+      _logger.severe('Error parsing trade session cancelled: $e');
+      _logger.severe('Stack trace: $stackTrace');
+    }
+  }
+
   /// Join a trade session group to receive messages
   Future<void> joinSession(String sessionId) async {
     if (!_isConnected || _hubConnection == null) {
@@ -651,6 +695,7 @@ class SignalRService {
     _itemsUpdatedController.close();
     _itemUpdatedController.close();
     _itemsRemovedController.close();
+    _sessionCancelledController.close();
     _connectionStateController.close();
     disconnect();
   }

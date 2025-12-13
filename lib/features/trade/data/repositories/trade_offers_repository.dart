@@ -190,6 +190,18 @@ class TradeOfferRepository {
     );
   }
 
+  Future<void> cancelTradeSession({
+    required String tradeSessionId,
+  }) async {
+    final endpoint = ApiEndpoints.cancelTradeSession
+        .replaceAll('{tradeSessionId}', tradeSessionId);
+
+    await _network.post<void>(
+      endpoint,
+      onSuccess: (_) => null,
+    );
+  }
+
   Future<List<TradeSessionItem>> addTradeSessionItems({
     required String tradeSessionId,
     required List<Map<String, dynamic>> items,

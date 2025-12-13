@@ -36,6 +36,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   StreamSubscription<TradeSessionItemsUpdatedResponse>? _itemsUpdatedSubscription;
   StreamSubscription<TradeItemUpdatedResponse>? _itemUpdatedSubscription;
   StreamSubscription<TradeItemsRemovedResponse>? _itemsRemovedSubscription;
+  StreamSubscription<TradeSessionCancelledResponse>? _sessionCancelledSubscription;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
@@ -52,6 +53,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       _itemsUpdatedSubscription?.cancel();
       _itemUpdatedSubscription?.cancel();
       _itemsRemovedSubscription?.cancel();
+      _sessionCancelledSubscription?.cancel();
     });
     
     return await _loadDetail();
@@ -100,6 +102,14 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     _itemsRemovedSubscription?.cancel();
     _itemsRemovedSubscription = signalR.itemsRemovedStream.listen((response) {
       _removeItemsFromSignalR(response.tradeItemIds);
+    });
+
+    // Listen for session cancelled updates
+    _sessionCancelledSubscription?.cancel();
+    _sessionCancelledSubscription = signalR.sessionCancelledStream.listen((response) {
+      if (response.sessionId == sessionId) {
+        _handleSessionCancelled();
+      }
     });
   }
 
@@ -465,5 +475,33 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       tradeSessionId: sessionId,
       tradeItemIds: tradeItemIds,
     );
+  }
+
+  void _handleSessionCancelled() {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Update session status to Cancelled
+    final updatedSession = currentState.tradeSession.copyWith(
+      status: 'Cancelled',
+    );
+
+    state = AsyncValue.data(
+      currentState.copyWith(
+        tradeSession: updatedSession,
+      ),
+    );
+  }
+
+  /// Cancel the trade session
+  Future<void> cancelSession() async {
+    final sessionId = this.sessionId;
+    
+    // Call API to cancel session
+    await _repository.cancelTradeSession(
+      tradeSessionId: sessionId,
+    );
+    
+    // The state will be updated via SignalR
   }
 }
