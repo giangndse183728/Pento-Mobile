@@ -245,4 +245,22 @@ class TradeOfferRepository {
 
     return result;
   }
+
+  Future<void> removeTradeSessionItems({
+    required String tradeSessionId,
+    required List<String> tradeItemIds,
+  }) async {
+    final endpoint = ApiEndpoints.removeTradeSessionItem
+        .replaceAll('{tradeSessionId}', tradeSessionId);
+
+    final queryParams = <String, dynamic>{
+      'tradeItemIds': tradeItemIds,
+    };
+
+    await _network.delete<void>(
+      endpoint,
+      queryParameters: queryParams,
+      onSuccess: (_) => null,
+    );
+  }
 }

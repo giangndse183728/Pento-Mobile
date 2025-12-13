@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../../../core/utils/quantity_formatter.dart';
@@ -725,7 +726,12 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                     sessionId,
                   );
                 } else if (value == 'delete') {
-                  // TODO: Implement delete
+                  TradeSessionItemsWidget._showDeleteItemDialog(
+                    context,
+                    ref,
+                    item,
+                    sessionId,
+                  );
                 }
               },
             ),
@@ -747,6 +753,115 @@ class TradeSessionItemsWidget extends ConsumerWidget {
         sessionId: sessionId,
       ),
     );
+  }
+
+  static Future<void> _showDeleteItemDialog(
+    BuildContext context,
+    WidgetRef ref,
+    TradeSessionItem item,
+    String sessionId,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.delete_outline_rounded,
+                  size: 24.sp,
+                  color: AppColors.dangerRed,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'Delete Item',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, size: 20.sp),
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  color: AppColors.blueGray,
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Are you sure you want to remove "${item.name}" from this trade session?',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.blueGray,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.dangerRed,
+                  ),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.dangerRed,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await ref
+          .read(tradeSessionDetailNotifierProvider(sessionId).notifier)
+          .removeItems([item.tradeItemId]);
+
+      if (context.mounted) {
+        ToastHelper.showSuccess(
+          context,
+          'Item removed successfully',
+        );
+      }
+    } on NetworkException catch (e) {
+      if (context.mounted) {
+        ToastHelper.showError(context, e.message);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ToastHelper.showError(
+          context,
+          'Failed to remove item. Please try again.',
+        );
+      }
+    }
   }
 
   Widget _buildFoodPlaceholder() {

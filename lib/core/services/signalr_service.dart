@@ -4,7 +4,6 @@ import '../network/endpoints.dart';
 import '../utils/logging.dart';
 import 'token_provider.dart';
 
-/// Response model for trade messages from SignalR
 class TradeMessageResponse {
   final String messageId;
   final String sessionId;
@@ -59,7 +58,6 @@ class TradeMessageUser {
   }
 }
 
-/// Response model for trade session confirmation from SignalR
 class TradeConfirmationResponse {
   final bool confirmedByOfferer;
   final bool confirmedByRequester;
@@ -70,7 +68,6 @@ class TradeConfirmationResponse {
   });
 }
 
-/// Response model for trade session items added from SignalR
 class TradeSessionItemsAddedResponse {
   final String sessionId;
   final List<TradeSessionItemResponse> items;
@@ -81,7 +78,6 @@ class TradeSessionItemsAddedResponse {
   });
 }
 
-/// Response model for trade session items updated from SignalR
 class TradeSessionItemsUpdatedResponse {
   final String sessionId;
   final List<TradeSessionItemResponse> items;
@@ -92,7 +88,6 @@ class TradeSessionItemsUpdatedResponse {
   });
 }
 
-/// Response model for single trade item updated from SignalR
 class TradeItemUpdatedResponse {
   final String tradeItemId;
   final double quantity;
@@ -102,6 +97,15 @@ class TradeItemUpdatedResponse {
     required this.tradeItemId,
     required this.quantity,
     required this.unitId,
+  });
+}
+
+
+class TradeItemsRemovedResponse {
+  final List<String> tradeItemIds;
+
+  TradeItemsRemovedResponse({
+    required this.tradeItemIds,
   });
 }
 
@@ -211,6 +215,9 @@ class SignalRService {
   final _itemUpdatedController = StreamController<TradeItemUpdatedResponse>.broadcast();
   Stream<TradeItemUpdatedResponse> get itemUpdatedStream => _itemUpdatedController.stream;
   
+  final _itemsRemovedController = StreamController<TradeItemsRemovedResponse>.broadcast();
+  Stream<TradeItemsRemovedResponse> get itemsRemovedStream => _itemsRemovedController.stream;
+  
   // Connection state stream
   final _connectionStateController = StreamController<bool>.broadcast();
   Stream<bool> get connectionStateStream => _connectionStateController.stream;
@@ -278,6 +285,9 @@ class SignalRService {
 
       // Register handler for single trade item updated
       _hubConnection!.on('TradeItemUpdated', _handleTradeItemUpdated);
+
+      // Register handler for trade items removed
+      _hubConnection!.on('TradeItemsRemoved', _handleTradeItemsRemoved);
 
       // Start connection
       await _hubConnection!.start();
@@ -546,6 +556,49 @@ class SignalRService {
     }
   }
 
+  void _handleTradeItemsRemoved(List<Object?>? arguments) {
+    if (arguments == null || arguments.isEmpty) {
+      _logger.warning('Received invalid trade items removed');
+      return;
+    }
+
+    try {
+      _logger.info('Received trade items removed: $arguments');
+      
+      final tradeItemIdsData = arguments[0];
+      List<String> tradeItemIds = [];
+      
+      if (tradeItemIdsData is List) {
+        for (var item in tradeItemIdsData) {
+          if (item != null) {
+            tradeItemIds.add(item.toString());
+          }
+        }
+      } else if (tradeItemIdsData is String) {
+        tradeItemIds = [tradeItemIdsData];
+      } else {
+        _logger.warning('Trade item IDs data is unexpected type: ${tradeItemIdsData.runtimeType}');
+        return;
+      }
+      
+      if (tradeItemIds.isEmpty) {
+        _logger.warning('No trade item IDs parsed from SignalR response');
+        return;
+      }
+      
+      _logger.info('Successfully parsed ${tradeItemIds.length} removed trade item IDs');
+      
+      final response = TradeItemsRemovedResponse(
+        tradeItemIds: tradeItemIds,
+      );
+      
+      _itemsRemovedController.add(response);
+    } catch (e, stackTrace) {
+      _logger.severe('Error parsing trade items removed: $e');
+      _logger.severe('Stack trace: $stackTrace');
+    }
+  }
+
   /// Join a trade session group to receive messages
   Future<void> joinSession(String sessionId) async {
     if (!_isConnected || _hubConnection == null) {
@@ -597,6 +650,7 @@ class SignalRService {
     _itemsAddedController.close();
     _itemsUpdatedController.close();
     _itemUpdatedController.close();
+    _itemsRemovedController.close();
     _connectionStateController.close();
     disconnect();
   }

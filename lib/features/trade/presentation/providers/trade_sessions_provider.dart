@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/services/signalr_service.dart';
+import '../../../unit/presentation/providers/unit_provider.dart';
 import '../../data/models/trade_offers_model.dart';
 import '../../data/repositories/trade_offers_repository.dart';
 
@@ -34,6 +35,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   StreamSubscription<TradeSessionItemsAddedResponse>? _itemsAddedSubscription;
   StreamSubscription<TradeSessionItemsUpdatedResponse>? _itemsUpdatedSubscription;
   StreamSubscription<TradeItemUpdatedResponse>? _itemUpdatedSubscription;
+  StreamSubscription<TradeItemsRemovedResponse>? _itemsRemovedSubscription;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
@@ -49,6 +51,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       _itemsAddedSubscription?.cancel();
       _itemsUpdatedSubscription?.cancel();
       _itemUpdatedSubscription?.cancel();
+      _itemsRemovedSubscription?.cancel();
     });
     
     return await _loadDetail();
@@ -91,6 +94,12 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     _itemUpdatedSubscription?.cancel();
     _itemUpdatedSubscription = signalR.itemUpdatedStream.listen((response) {
       _updateSingleItemFromSignalR(response);
+    });
+
+    // Listen for items removed updates
+    _itemsRemovedSubscription?.cancel();
+    _itemsRemovedSubscription = signalR.itemsRemovedStream.listen((response) {
+      _removeItemsFromSignalR(response.tradeItemIds);
     });
   }
 
@@ -285,20 +294,63 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
     final existingItem = currentState.items[itemIndex];
     
-    // Update the item with new quantity and unitId
-    // If unitId changed, we'll keep the existing unitAbbreviation for now
-    // It will be updated when the full item data is refreshed
+    String unitAbbreviation = existingItem.unitAbbreviation;
+    if (existingItem.unitId != response.unitId) {
+      final unitsAsync = ref.read(unitsProvider);
+      if (unitsAsync.hasValue) {
+        final units = unitsAsync.value!;
+        final unit = units.firstWhere(
+          (u) => u.id == response.unitId,
+          orElse: () => units.firstWhere(
+            (u) => u.id == existingItem.unitId,
+            orElse: () => units.first,
+          ),
+        );
+        unitAbbreviation = unit.abbreviation;
+      }
+    }
+    
     final updatedItem = existingItem.copyWith(
       quantity: response.quantity,
       unitId: response.unitId,
+      unitAbbreviation: unitAbbreviation,
     );
 
-    final updatedItems = List<TradeSessionItem>.from(currentState.items);
-    updatedItems[itemIndex] = updatedItem;
+    final updatedItems = [
+      ...currentState.items.sublist(0, itemIndex),
+      updatedItem,
+      ...currentState.items.sublist(itemIndex + 1),
+    ];
+
+    final newState = currentState.copyWith(
+      items: updatedItems,
+    );
+
+    state = AsyncValue.data(newState);
+  }
+
+  void _removeItemsFromSignalR(List<String> tradeItemIds) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Filter out removed items
+    final remainingItems = currentState.items.where(
+      (item) => !tradeItemIds.contains(item.tradeItemId),
+    ).toList();
+
+    // Update totals based on remaining items
+    final offeredCount = remainingItems.where((item) => item.from == 'Offer').length;
+    final requestedCount = remainingItems.where((item) => item.from == 'Request').length;
+    
+    final updatedSession = currentState.tradeSession.copyWith(
+      totalOfferedItems: offeredCount,
+      totalRequestedItems: requestedCount,
+    );
 
     state = AsyncValue.data(
       currentState.copyWith(
-        items: updatedItems,
+        items: remainingItems,
+        tradeSession: updatedSession,
       ),
     );
   }
@@ -378,5 +430,40 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
     // Update state with updated items
     _updateItemsInState(updatedItems);
+  }
+
+  /// Remove items from the trade session
+  Future<void> removeItems(List<String> tradeItemIds) async {
+    final sessionId = this.sessionId;
+    final currentState = state.valueOrNull;
+    
+    if (currentState == null) return;
+
+    // Optimistically remove items from state
+    final remainingItems = currentState.items.where(
+      (item) => !tradeItemIds.contains(item.tradeItemId),
+    ).toList();
+
+    // Update totals based on remaining items
+    final offeredCount = remainingItems.where((item) => item.from == 'Offer').length;
+    final requestedCount = remainingItems.where((item) => item.from == 'Request').length;
+    
+    final updatedSession = currentState.tradeSession.copyWith(
+      totalOfferedItems: offeredCount,
+      totalRequestedItems: requestedCount,
+    );
+
+    state = AsyncValue.data(
+      currentState.copyWith(
+        items: remainingItems,
+        tradeSession: updatedSession,
+      ),
+    );
+
+    // Call API to remove items
+    await _repository.removeTradeSessionItems(
+      tradeSessionId: sessionId,
+      tradeItemIds: tradeItemIds,
+    );
   }
 }
