@@ -70,7 +70,97 @@ class TradeConfirmationResponse {
   });
 }
 
-/// SignalR service for real-time trade session messaging
+/// Response model for trade session items added from SignalR
+class TradeSessionItemsAddedResponse {
+  final String sessionId;
+  final List<TradeSessionItemResponse> items;
+
+  TradeSessionItemsAddedResponse({
+    required this.sessionId,
+    required this.items,
+  });
+}
+
+class TradeSessionItemResponse {
+  final String tradeItemId;
+  final String foodItemId;
+  final String name;
+  final String originalName;
+  final String? imageUrl;
+  final String foodGroup;
+  final double quantity;
+  final String unitAbbreviation;
+  final String unitId;
+  final String expirationDate;
+  final String from;
+
+  TradeSessionItemResponse({
+    required this.tradeItemId,
+    required this.foodItemId,
+    required this.name,
+    required this.originalName,
+    this.imageUrl,
+    required this.foodGroup,
+    required this.quantity,
+    required this.unitAbbreviation,
+    required this.unitId,
+    required this.expirationDate,
+    required this.from,
+  });
+
+  factory TradeSessionItemResponse.fromJson(Map<String, dynamic> json) {
+    // Helper to safely convert to String
+    String _toString(dynamic value) {
+      if (value == null) return '';
+      if (value is String) return value;
+      if (value is int || value is num) return value.toString();
+      if (value is DateTime) return value.toIso8601String();
+      return value.toString();
+    }
+
+    // Helper to safely convert expirationDate
+    String _parseExpirationDate(dynamic value) {
+      if (value == null) return '';
+      if (value is String) return value;
+      if (value is DateTime) return value.toIso8601String();
+      if (value is int) {
+        // Handle timestamp
+        try {
+          return DateTime.fromMillisecondsSinceEpoch(value).toIso8601String();
+        } catch (_) {
+          return value.toString();
+        }
+      }
+      return value.toString();
+    }
+
+    // Helper to convert enum int to string (0 = Offer, 1 = Request)
+    String _parseFromEnum(dynamic value) {
+      if (value == null) return 'Offer';
+      if (value is String) return value;
+      if (value is int) {
+        // Backend enum: 0 = Offer, 1 = Request
+        return value == 0 ? 'Offer' : 'Request';
+      }
+      return _toString(value);
+    }
+
+    return TradeSessionItemResponse(
+      tradeItemId: _toString(json['tradeItemId']),
+      foodItemId: _toString(json['foodItemId']),
+      name: _toString(json['name']),
+      originalName: _toString(json['originalName']),
+      imageUrl: json['imageUrl'] != null ? _toString(json['imageUrl']) : null,
+      foodGroup: _toString(json['foodGroup']),
+      quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
+      unitAbbreviation: _toString(json['unitAbbreviation']),
+      unitId: _toString(json['unitId']),
+      expirationDate: _parseExpirationDate(json['expirationDate']),
+      from: _parseFromEnum(json['from']),
+    );
+  }
+}
+
 class SignalRService {
   SignalRService._();
 
@@ -90,6 +180,10 @@ class SignalRService {
   // Stream controller for confirmation updates
   final _confirmationController = StreamController<TradeConfirmationResponse>.broadcast();
   Stream<TradeConfirmationResponse> get confirmationStream => _confirmationController.stream;
+  
+  // Stream controller for items added updates
+  final _itemsAddedController = StreamController<TradeSessionItemsAddedResponse>.broadcast();
+  Stream<TradeSessionItemsAddedResponse> get itemsAddedStream => _itemsAddedController.stream;
   
   // Connection state stream
   final _connectionStateController = StreamController<bool>.broadcast();
@@ -149,6 +243,9 @@ class SignalRService {
       
       // Register handler for trade session confirmation
       _hubConnection!.on('TradeSessionConfirm', _handleTradeConfirmation);
+
+      // Register handler for trade session items added
+      _hubConnection!.on('TradeSessionItemsAdded', _handleTradeSessionItemsAdded);
 
       // Start connection
       await _hubConnection!.start();
@@ -212,6 +309,91 @@ class SignalRService {
     }
   }
 
+  /// Handle trade session items added from SignalR
+  void _handleTradeSessionItemsAdded(List<Object?>? arguments) {
+    if (arguments == null || arguments.length < 2) {
+      _logger.warning('Received invalid trade session items added');
+      return;
+    }
+
+    try {
+      _logger.info('Received trade session items added: $arguments');
+      
+      final sessionId = arguments[0]?.toString() ?? '';
+      final itemsData = arguments[1];
+      
+      List<TradeSessionItemResponse> items = [];
+      
+      if (itemsData is List) {
+        _logger.info('Items data is List with ${itemsData.length} items');
+        for (var i = 0; i < itemsData.length; i++) {
+          try {
+            final item = itemsData[i];
+            if (item == null) continue;
+            
+            Map<String, dynamic> itemMap;
+            if (item is Map) {
+              itemMap = Map<String, dynamic>.from(item);
+            } else {
+              _logger.warning('Item at index $i is not a Map: ${item.runtimeType}');
+              continue;
+            }
+            
+            _logger.info('Parsing item $i: $itemMap');
+            final parsedItem = TradeSessionItemResponse.fromJson(itemMap);
+            items.add(parsedItem);
+          } catch (e, stackTrace) {
+            _logger.severe('Error parsing item at index $i: $e');
+            _logger.severe('Stack trace: $stackTrace');
+            // Continue with other items
+          }
+        }
+      } else if (itemsData is Map) {
+        // Handle single item or wrapped in map
+        final itemMap = Map<String, dynamic>.from(itemsData);
+        if (itemMap.containsKey('items') && itemMap['items'] is List) {
+          final itemsList = itemMap['items'] as List;
+          for (var item in itemsList) {
+            if (item is Map) {
+              try {
+                items.add(TradeSessionItemResponse.fromJson(
+                  Map<String, dynamic>.from(item),
+                ));
+              } catch (e) {
+                _logger.severe('Error parsing wrapped item: $e');
+              }
+            }
+          }
+        } else {
+          try {
+            items.add(TradeSessionItemResponse.fromJson(itemMap));
+          } catch (e) {
+            _logger.severe('Error parsing single item: $e');
+          }
+        }
+      } else {
+        _logger.warning('Items data is unexpected type: ${itemsData.runtimeType}');
+      }
+      
+      if (items.isEmpty) {
+        _logger.warning('No items parsed from SignalR response');
+        return;
+      }
+      
+      _logger.info('Successfully parsed ${items.length} items');
+      
+      final response = TradeSessionItemsAddedResponse(
+        sessionId: sessionId,
+        items: items,
+      );
+      
+      _itemsAddedController.add(response);
+    } catch (e, stackTrace) {
+      _logger.severe('Error parsing trade session items added: $e');
+      _logger.severe('Stack trace: $stackTrace');
+    }
+  }
+
   /// Join a trade session group to receive messages
   Future<void> joinSession(String sessionId) async {
     if (!_isConnected || _hubConnection == null) {
@@ -260,6 +442,7 @@ class SignalRService {
   void dispose() {
     _messageController.close();
     _confirmationController.close();
+    _itemsAddedController.close();
     _connectionStateController.close();
     disconnect();
   }

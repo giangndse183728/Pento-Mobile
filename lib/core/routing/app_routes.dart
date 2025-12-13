@@ -44,6 +44,7 @@ class AppRoutes {
   static const String postRequests = '/my-posts/requests';
   static const String tradeSessions = '/trade-sessions';
   static const String tradeSessionDetail = '/trade-sessions/detail';
+  static const String addTradeSessionItems = '/trade-sessions/add-items';
   static const String wishlist = '/wishlist';
   static const String notifications = '/notifications';
   
@@ -69,4 +70,7 @@ class AppRoutes {
   
   static String tradeSessionDetailRoute(String sessionId) =>
       '/trade-sessions/detail/$sessionId';
+  
+  static String addTradeSessionItemsRoute(String sessionId) =>
+      '/trade-sessions/add-items/$sessionId';
 }

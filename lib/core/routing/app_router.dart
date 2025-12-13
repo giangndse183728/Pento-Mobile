@@ -10,6 +10,7 @@ import '../../features/trade/presentation/screen/trade_offers_screen.dart';
 import '../../features/compartment/presentation/screen/select_food_items_screen.dart';
 import '../../features/trade/presentation/screen/create_trade_post_screen.dart';
 import '../../features/trade/presentation/screen/select_food_items_for_trade_request_screen.dart';
+import '../../features/trade/presentation/screen/add_trade_session_items_screen.dart';
 import '../../features/authentication/presentation/screen/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/household/presentation/screen/household_screen.dart';
@@ -403,6 +404,15 @@ GoRouter createAppRouter() {
         builder: (context, state) {
           final sessionId = state.pathParameters['sessionId'] ?? '';
           return TradeSessionDetailScreen(sessionId: sessionId);
+        },
+      ),
+    ),
+    GoRoute(
+      path: '${AppRoutes.addTradeSessionItems}/:sessionId',
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId'] ?? '';
+          return AddTradeSessionItemsScreen(tradeSessionId: sessionId);
         },
       ),
     ),

@@ -250,6 +250,7 @@ class _TradeSessionDetailScreenState
                       currentHouseholdId: currentHouseholdId,
                       onToggleConfirmation: _handleToggleConfirmation,
                       isConfirming: _isConfirming,
+                      sessionId: widget.sessionId,
                     ),
                   ],
                 ),

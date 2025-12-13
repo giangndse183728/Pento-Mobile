@@ -189,4 +189,32 @@ class TradeOfferRepository {
       onSuccess: (_) => null,
     );
   }
+
+  Future<List<TradeSessionItem>> addTradeSessionItems({
+    required String tradeSessionId,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    final endpoint = ApiEndpoints.addTradeSessionItem
+        .replaceAll('{tradeSessionId}', tradeSessionId);
+
+    final payload = <String, dynamic>{
+      'items': items,
+    };
+
+    final result = await _network.post<List<TradeSessionItem>>(
+      endpoint,
+      data: payload,
+      onSuccess: (data) {
+        if (data == null) return <TradeSessionItem>[];
+        
+        final List<dynamic> items = data as List<dynamic>;
+        return items
+            .whereType<Map<String, dynamic>>()
+            .map((json) => TradeSessionItem.fromJson(json))
+            .toList();
+      },
+    );
+
+    return result;
+  }
 }

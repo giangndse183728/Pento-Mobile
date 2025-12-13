@@ -31,6 +31,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   late final TradeOfferRepository _repository;
   StreamSubscription<TradeMessageResponse>? _messageSubscription;
   StreamSubscription<TradeConfirmationResponse>? _confirmationSubscription;
+  StreamSubscription<TradeSessionItemsAddedResponse>? _itemsAddedSubscription;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
@@ -43,6 +44,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     ref.onDispose(() {
       _messageSubscription?.cancel();
       _confirmationSubscription?.cancel();
+      _itemsAddedSubscription?.cancel();
     });
     
     return await _loadDetail();
@@ -63,6 +65,14 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     _confirmationSubscription?.cancel();
     _confirmationSubscription = signalR.confirmationStream.listen((response) {
       _updateConfirmationState(response);
+    });
+
+    // Listen for items added updates
+    _itemsAddedSubscription?.cancel();
+    _itemsAddedSubscription = signalR.itemsAddedStream.listen((response) {
+      if (response.sessionId == sessionId) {
+        _addItemsFromSignalR(response.items);
+      }
     });
   }
 
@@ -123,6 +133,61 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     );
   }
 
+  void _addItemsToState(List<TradeSessionItem> newItems) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Merge new items with existing items, avoiding duplicates
+    final existingItemIds = currentState.items.map((item) => item.tradeItemId).toSet();
+    final itemsToAdd = newItems.where(
+      (item) => !existingItemIds.contains(item.tradeItemId),
+    ).toList();
+
+    if (itemsToAdd.isNotEmpty) {
+      final updatedItems = [...currentState.items, ...itemsToAdd];
+      
+      // Update totals based on items
+      final offeredCount = updatedItems.where((item) => item.from == 'Offer').length;
+      final requestedCount = updatedItems.where((item) => item.from == 'Request').length;
+      
+      final updatedSession = currentState.tradeSession.copyWith(
+        totalOfferedItems: offeredCount,
+        totalRequestedItems: requestedCount,
+      );
+
+      state = AsyncValue.data(
+        currentState.copyWith(
+          items: updatedItems,
+          tradeSession: updatedSession,
+        ),
+      );
+    }
+  }
+
+  void _addItemsFromSignalR(List<TradeSessionItemResponse> signalRItems) {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    // Convert SignalR items to TradeSessionItem
+    final newItems = signalRItems.map((item) {
+      return TradeSessionItem(
+        tradeItemId: item.tradeItemId,
+        foodItemId: item.foodItemId,
+        name: item.name,
+        originalName: item.originalName,
+        imageUrl: item.imageUrl,
+        foodGroup: item.foodGroup,
+        quantity: item.quantity,
+        unitAbbreviation: item.unitAbbreviation,
+        unitId: item.unitId,
+        expirationDate: item.expirationDate,
+        from: item.from,
+      );
+    }).toList();
+
+    _addItemsToState(newItems);
+  }
+
   Future<TradeSessionDetail> _loadDetail() async {
     final sessionId = this.sessionId;
     return await _repository.getTradeSessionDetail(sessionId: sessionId);
@@ -164,5 +229,22 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   Future<void> disconnectFromSession() async {
     final signalR = SignalRService.instance;
     await signalR.leaveSession();
+  }
+
+  /// Add items to the trade session
+  Future<void> addItems(List<Map<String, dynamic>> items) async {
+    final sessionId = this.sessionId;
+    final currentState = state.valueOrNull;
+    
+    if (currentState == null) return;
+
+    // Optimistically update state
+    final newItems = await _repository.addTradeSessionItems(
+      tradeSessionId: sessionId,
+      items: items,
+    );
+
+    // Update state with new items
+    _addItemsToState(newItems);
   }
 }

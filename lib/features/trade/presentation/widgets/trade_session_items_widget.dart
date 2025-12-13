@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../data/models/trade_offers_model.dart';
 
 class TradeSessionItemsWidget extends StatelessWidget {
@@ -10,12 +12,14 @@ class TradeSessionItemsWidget extends StatelessWidget {
     required this.currentHouseholdId,
     required this.onToggleConfirmation,
     this.isConfirming = false,
+    required this.sessionId,
   });
 
   final TradeSessionDetail detail;
   final String? currentHouseholdId;
   final VoidCallback onToggleConfirmation;
   final bool isConfirming;
+  final String sessionId;
 
   bool get _isOfferHousehold => 
       currentHouseholdId == detail.tradeSession.offerHouseholdId;
@@ -58,22 +62,26 @@ class TradeSessionItemsWidget extends StatelessWidget {
                 SizedBox(height: 20.h),
                 // Offered items
                 _buildItemsSection(
+                  context,
                   'Offered Items',
                   detail.tradeSession.offerHouseholdName,
                   Icons.arrow_upward_rounded,
                   AppColors.mintLeaf,
                   offeredItems,
                   _isOffererConfirmed,
+                  _isOfferHousehold,
                 ),
                 SizedBox(height: 20.h),
                 // Requested items
                 _buildItemsSection(
+                  context,
                   'Requested Items',
                   detail.tradeSession.requestHouseholdName,
                   Icons.arrow_downward_rounded,
                   AppColors.warningSun,
                   requestedItems,
                   _isRequesterConfirmed,
+                  _isRequestHousehold,
                 ),
                 SizedBox(height: 100.h),
               ],
@@ -377,12 +385,14 @@ class TradeSessionItemsWidget extends StatelessWidget {
   }
 
   Widget _buildItemsSection(
+    BuildContext context,
     String title,
     String subtitle,
     IconData icon,
     Color color,
     List<TradeSessionItem> items,
     bool isConfirmed,
+    bool canAddItems,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,6 +484,37 @@ class TradeSessionItemsWidget extends StatelessWidget {
           ],
         ),
         SizedBox(height: 12.h),
+        if (canAddItems && detail.tradeSession.status == 'Ongoing')
+          Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: OutlinedButton.icon(
+              onPressed: () {
+                context.push(
+                  AppRoutes.addTradeSessionItemsRoute(sessionId),
+                ).then((result) {
+                  if (result == true) {
+                    // Items were added, refresh is handled by SignalR
+                  }
+                });
+              },
+              icon: Icon(Icons.add_rounded, size: 18.sp),
+              label: Text(
+                'Add Items',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: color,
+                side: BorderSide(color: color, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              ),
+            ),
+          ),
         if (items.isEmpty)
           Container(
             padding: EdgeInsets.all(20.w),
