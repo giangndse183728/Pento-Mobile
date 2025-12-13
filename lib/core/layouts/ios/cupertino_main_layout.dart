@@ -73,11 +73,11 @@ class _CupertinoMainLayoutState extends State<CupertinoMainLayout> {
       case 1: // Plan
         return const CNSymbol('fork.knife');
       case 2: // Recipe
-        return const CNSymbol('recipe-book');
+        return const CNSymbol('book.closed');
       case 3: // Trade
-        return const CNSymbol('trade');
+        return const CNSymbol('arrow.left.arrow.right');
       case 4: // Chatbot
-        return const CNSymbol('robot');
+        return const CNSymbol('bubble.left.and.bubble.right');
       default:
         return const CNSymbol('circle');
     }
