@@ -41,6 +41,10 @@ class AppRoutes {
   static const String achievement = '/achievement';
   static const String achievementDetail = '/achievement/:milestoneId';
   static const String myPosts = '/my-posts';
+  static const String postRequests = '/my-posts/requests';
+  static const String tradeSessions = '/trade-sessions';
+  static const String tradeSessionDetail = '/trade-sessions/detail';
+  static const String addTradeSessionItems = '/trade-sessions/add-items';
   static const String wishlist = '/wishlist';
   static const String notifications = '/notifications';
   
@@ -56,4 +60,17 @@ class AppRoutes {
   static String achievementDetailRoute(String milestoneId) =>
       '/achievement/$milestoneId';
   
+  static String postRequestsRoute(String offerId, {String? postTitle}) {
+    final base = '/my-posts/requests/$offerId';
+    if (postTitle != null) {
+      return '$base?title=${Uri.encodeComponent(postTitle)}';
+    }
+    return base;
+  }
+  
+  static String tradeSessionDetailRoute(String sessionId) =>
+      '/trade-sessions/detail/$sessionId';
+  
+  static String addTradeSessionItemsRoute(String sessionId) =>
+      '/trade-sessions/add-items/$sessionId';
 }

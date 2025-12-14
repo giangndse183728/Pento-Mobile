@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cupertino_native/cupertino_native.dart';
+import 'package:go_router/go_router.dart';
 import '../bottom_nav_items.dart';
+import '../../routing/app_routes.dart';
 
 class CupertinoMainLayout extends StatefulWidget {
   const CupertinoMainLayout({super.key, required this.items, required this.pages, this.initialIndex = 0});
@@ -15,17 +17,37 @@ class CupertinoMainLayout extends StatefulWidget {
 
 class _CupertinoMainLayoutState extends State<CupertinoMainLayout> {
   late int _currentIndex;
+  static const List<String> _paths = [
+    AppRoutes.pantry,
+    AppRoutes.meal,
+    AppRoutes.recipe,
+    AppRoutes.posts,
+    AppRoutes.chatbot,
+  ];
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex.clamp(0, widget.pages.length - 1);
+    _currentIndex = widget.initialIndex.clamp(0, widget.items.length - 1);
+  }
+
+  void _updateIndexFromRoute(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    final index = _paths.indexWhere((path) => location == path || location.startsWith(path));
+    if (index != -1 && index != _currentIndex) {
+      setState(() => _currentIndex = index);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Update index based on current route
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateIndexFromRoute(context);
+    });
+
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: widget.pages),
+      body: IndexedStack(index: 0, children: widget.pages),
       bottomNavigationBar: CNTabBar(
         items: [
           for (int i = 0; i < widget.items.length; i++)
@@ -35,24 +57,27 @@ class _CupertinoMainLayoutState extends State<CupertinoMainLayout> {
             ),
         ],
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          if (index < 0 || index >= _paths.length) return;
+          context.go(_paths[index]);
+          setState(() => _currentIndex = index);
+        },
       ),
     );
   }
 
   CNSymbol _symbolForItem(NavItem item, int index) {
-    final String label = item.label.toLowerCase();
-    if (label.contains('pantry')) return const CNSymbol('cabinet');
-    if (label.contains('meal') || label.contains('food')) return const CNSymbol('fork.knife');
-    if (label.contains('post') || label.contains('chat') || label.contains('feed')) return const CNSymbol('text.bubble');
-    if (label.contains('cart')) return const CNSymbol('cart');
     switch (index) {
-      case 0:
-        return const CNSymbol('house');
-      case 1:
-        return const CNSymbol('magnifyingglass');
-      case 2:
-        return const CNSymbol('square.grid.2x2');
+      case 0: // Pantry
+        return const CNSymbol('cabinet');
+      case 1: // Plan
+        return const CNSymbol('fork.knife');
+      case 2: // Recipe
+        return const CNSymbol('book.closed');
+      case 3: // Trade
+        return const CNSymbol('arrow.left.arrow.right');
+      case 4: // Chatbot
+        return const CNSymbol('bubble.left.and.bubble.right');
       default:
         return const CNSymbol('circle');
     }

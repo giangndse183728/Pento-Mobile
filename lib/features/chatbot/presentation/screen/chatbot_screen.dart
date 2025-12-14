@@ -448,7 +448,7 @@ class _ChatInputBar extends StatelessWidget {
         16.w,
         12.h,
         16.w,
-        bottomPadding + 12.h,
+        bottomPadding + 90.h,
       ),
       decoration: BoxDecoration(
         color: AppColors.iceberg,
@@ -474,7 +474,7 @@ class _ChatInputBar extends StatelessWidget {
                 fillColor: Colors.white,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
-                  vertical: 12.h,
+                  vertical: 14.h,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.r),

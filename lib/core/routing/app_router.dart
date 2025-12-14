@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
@@ -9,6 +10,7 @@ import '../../features/trade/presentation/screen/trade_offers_screen.dart';
 import '../../features/compartment/presentation/screen/select_food_items_screen.dart';
 import '../../features/trade/presentation/screen/create_trade_post_screen.dart';
 import '../../features/trade/presentation/screen/select_food_items_for_trade_request_screen.dart';
+import '../../features/trade/presentation/screen/add_trade_session_items_screen.dart';
 import '../../features/authentication/presentation/screen/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/household/presentation/screen/household_screen.dart';
@@ -38,6 +40,9 @@ import '../../features/food_scan/data/models/scanned_food_reference.dart';
 import '../../features/achievement/presentation/screen/achievement_screen.dart';
 import '../../features/achievement/presentation/screen/achievement_detail_screen.dart';
 import '../../features/trade/presentation/screen/my_posts_screen.dart';
+import '../../features/trade/presentation/screen/post_requests_screen.dart';
+import '../../features/trade/presentation/screen/trade_sessions_screen.dart';
+import '../../features/trade/presentation/screen/trade_session_detail_screen.dart';
 import '../../features/notification/presentation/screen/notifications_screen.dart';
 import '../../features/authentication/presentation/providers/user_session_provider.dart';
 import '../../features/profile/presentation/providers/profile_initializer_provider.dart';
@@ -285,12 +290,6 @@ GoRouter createAppRouter() {
       ),
     ),
     GoRoute(
-      path: AppRoutes.chatbot,
-      pageBuilder: GoTransitions.fadeUpwards.build(
-        child: const ChatbotScreen(),
-      ),
-    ),
-    GoRoute(
       path: AppRoutes.subscription,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const SubscriptionScreen(),
@@ -381,6 +380,43 @@ GoRouter createAppRouter() {
       ),
     ),
     GoRoute(
+      path: '${AppRoutes.postRequests}/:offerId',
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final offerId = state.pathParameters['offerId'] ?? '';
+          final postTitle = state.uri.queryParameters['title'];
+          return PostRequestsScreen(
+            offerId: offerId,
+            postTitle: postTitle,
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.tradeSessions,
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        child: const TradeSessionsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '${AppRoutes.tradeSessionDetail}/:sessionId',
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId'] ?? '';
+          return TradeSessionDetailScreen(sessionId: sessionId);
+        },
+      ),
+    ),
+    GoRoute(
+      path: '${AppRoutes.addTradeSessionItems}/:sessionId',
+      pageBuilder: GoTransitions.fadeUpwards.build(
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId'] ?? '';
+          return AddTradeSessionItemsScreen(tradeSessionId: sessionId);
+        },
+      ),
+    ),
+    GoRoute(
       path: AppRoutes.wishlist,
       pageBuilder: GoTransitions.fadeUpwards.build(
         child: const WishlistScreen(),
@@ -397,7 +433,7 @@ GoRouter createAppRouter() {
 ShellRoute(
       builder: (context, state, child) {
         return MainLayout(
-          items: kDefaultNavItems,
+          items: Platform.isIOS ? kIOSNavItems : kDefaultNavItems,
           pages: [child], 
         );
       },
@@ -417,6 +453,10 @@ ShellRoute(
         GoRoute(
           path: AppRoutes.recipe,
           builder: (context, state) => const RecipeScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.chatbot,
+          builder: (context, state) => const ChatbotScreen(),
         ),
       ],
     ),
