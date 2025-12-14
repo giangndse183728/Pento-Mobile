@@ -48,6 +48,7 @@ class _CreateTradePostScreenState
   DateTime? _endDate;
   String _pickupOption = 'InPerson';
   final Map<String, _SelectedFoodItem> _selectedItemsMap = {};
+  bool _isSubmitting = false;
 
   Set<String> get _selectedItemIds => _selectedItemsMap.keys.toSet();
 
@@ -149,6 +150,10 @@ class _CreateTradePostScreenState
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -181,6 +186,10 @@ class _CreateTradePostScreenState
         return;
       }
     }
+
+    setState(() {
+      _isSubmitting = true;
+    });
 
     try {
       final repository = TradeOfferRepository();
@@ -235,6 +244,12 @@ class _CreateTradePostScreenState
           context,
           'Failed to create trade post: ${e.toString()}',
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
       }
     }
   }
@@ -320,7 +335,7 @@ class _CreateTradePostScreenState
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: _submit,
+                    onPressed: _isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.blueGray,
                       foregroundColor: Colors.white,
@@ -329,21 +344,35 @@ class _CreateTradePostScreenState
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28.r),
                       ),
+                      disabledBackgroundColor:
+                          AppColors.blueGray.withValues(alpha: 0.5),
+                      disabledForegroundColor: Colors.white70,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_circle_outline, size: 20.sp),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'Create Trade Post (${_selectedItemsMap.length})',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
+                    child: _isSubmitting
+                        ? SizedBox(
+                            height: 20.sp,
+                            width: 20.sp,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_circle_outline, size: 20.sp),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Create Trade Post (${_selectedItemsMap.length})',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -599,11 +628,11 @@ class _PickupOptionSelector extends StatelessWidget {
         ),
         SizedBox(width: 8.w),
         _PickupOptionChip(
-          label: 'Both',
-          value: 'Both',
+          label: 'Flexible',
+          value: 'Flexible',
           icon: Icons.all_inclusive_rounded,
-          isSelected: selectedOption == 'Both',
-          onTap: () => onChanged('Both'),
+          isSelected: selectedOption == 'Flexible',
+          onTap: () => onChanged('Flexible'),
         ),
       ],
     );

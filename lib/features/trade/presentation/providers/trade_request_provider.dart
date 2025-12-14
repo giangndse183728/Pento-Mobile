@@ -48,7 +48,10 @@ class TradeOffers extends _$TradeOffers {
   }
 
   Future<TradeOfferState> _loadFirstPage() async {
-    final response = await _repository.getTradeOffers();
+    final response = await _repository.getTradeOffers(
+      isMine: false,
+      isMyHousehold: false,
+    );
     return response.toTradeOfferState();
   }
 
@@ -75,6 +78,8 @@ class TradeOffers extends _$TradeOffers {
       final response = await _repository.getTradeOffers(
         pageNumber: currentData.currentPage + 1,
         pageSize: currentData.pageSize,
+        isMine: false,
+        isMyHousehold: true,
       );
 
       final merged = [

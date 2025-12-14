@@ -2272,20 +2272,22 @@ TradeRequest _$TradeRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TradeRequest {
-  @JsonKey(name: 'requestId')
-  String get requestId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'userId')
-  String get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'firstName')
-  String get firstName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatarUrl')
-  String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tradeRequestId')
+  String get tradeRequestId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tradeOfferId')
+  String get tradeOfferId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'offerHouseholdName')
+  String get offerHouseholdName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'requestHouseholdName')
+  String get requestHouseholdName => throw _privateConstructorUsedError;
   @JsonKey(name: 'status')
   String get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'createdOn')
   DateTime get createdOn => throw _privateConstructorUsedError;
-  @JsonKey(name: 'items')
-  List<TradeRequestItem> get items => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updatedOn')
+  DateTime get updatedOn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'totalItems')
+  int get totalItems => throw _privateConstructorUsedError;
 
   /// Serializes this TradeRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -2305,13 +2307,14 @@ abstract class $TradeRequestCopyWith<$Res> {
   ) = _$TradeRequestCopyWithImpl<$Res, TradeRequest>;
   @useResult
   $Res call({
-    @JsonKey(name: 'requestId') String requestId,
-    @JsonKey(name: 'userId') String userId,
-    @JsonKey(name: 'firstName') String firstName,
-    @JsonKey(name: 'avatarUrl') String? avatarUrl,
+    @JsonKey(name: 'tradeRequestId') String tradeRequestId,
+    @JsonKey(name: 'tradeOfferId') String tradeOfferId,
+    @JsonKey(name: 'offerHouseholdName') String offerHouseholdName,
+    @JsonKey(name: 'requestHouseholdName') String requestHouseholdName,
     @JsonKey(name: 'status') String status,
     @JsonKey(name: 'createdOn') DateTime createdOn,
-    @JsonKey(name: 'items') List<TradeRequestItem> items,
+    @JsonKey(name: 'updatedOn') DateTime updatedOn,
+    @JsonKey(name: 'totalItems') int totalItems,
   });
 }
 
@@ -2330,32 +2333,33 @@ class _$TradeRequestCopyWithImpl<$Res, $Val extends TradeRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? requestId = null,
-    Object? userId = null,
-    Object? firstName = null,
-    Object? avatarUrl = freezed,
+    Object? tradeRequestId = null,
+    Object? tradeOfferId = null,
+    Object? offerHouseholdName = null,
+    Object? requestHouseholdName = null,
     Object? status = null,
     Object? createdOn = null,
-    Object? items = null,
+    Object? updatedOn = null,
+    Object? totalItems = null,
   }) {
     return _then(
       _value.copyWith(
-            requestId: null == requestId
-                ? _value.requestId
-                : requestId // ignore: cast_nullable_to_non_nullable
+            tradeRequestId: null == tradeRequestId
+                ? _value.tradeRequestId
+                : tradeRequestId // ignore: cast_nullable_to_non_nullable
                       as String,
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
+            tradeOfferId: null == tradeOfferId
+                ? _value.tradeOfferId
+                : tradeOfferId // ignore: cast_nullable_to_non_nullable
                       as String,
-            firstName: null == firstName
-                ? _value.firstName
-                : firstName // ignore: cast_nullable_to_non_nullable
+            offerHouseholdName: null == offerHouseholdName
+                ? _value.offerHouseholdName
+                : offerHouseholdName // ignore: cast_nullable_to_non_nullable
                       as String,
-            avatarUrl: freezed == avatarUrl
-                ? _value.avatarUrl
-                : avatarUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            requestHouseholdName: null == requestHouseholdName
+                ? _value.requestHouseholdName
+                : requestHouseholdName // ignore: cast_nullable_to_non_nullable
+                      as String,
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
@@ -2364,10 +2368,14 @@ class _$TradeRequestCopyWithImpl<$Res, $Val extends TradeRequest>
                 ? _value.createdOn
                 : createdOn // ignore: cast_nullable_to_non_nullable
                       as DateTime,
-            items: null == items
-                ? _value.items
-                : items // ignore: cast_nullable_to_non_nullable
-                      as List<TradeRequestItem>,
+            updatedOn: null == updatedOn
+                ? _value.updatedOn
+                : updatedOn // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            totalItems: null == totalItems
+                ? _value.totalItems
+                : totalItems // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -2384,13 +2392,14 @@ abstract class _$$TradeRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'requestId') String requestId,
-    @JsonKey(name: 'userId') String userId,
-    @JsonKey(name: 'firstName') String firstName,
-    @JsonKey(name: 'avatarUrl') String? avatarUrl,
+    @JsonKey(name: 'tradeRequestId') String tradeRequestId,
+    @JsonKey(name: 'tradeOfferId') String tradeOfferId,
+    @JsonKey(name: 'offerHouseholdName') String offerHouseholdName,
+    @JsonKey(name: 'requestHouseholdName') String requestHouseholdName,
     @JsonKey(name: 'status') String status,
     @JsonKey(name: 'createdOn') DateTime createdOn,
-    @JsonKey(name: 'items') List<TradeRequestItem> items,
+    @JsonKey(name: 'updatedOn') DateTime updatedOn,
+    @JsonKey(name: 'totalItems') int totalItems,
   });
 }
 
@@ -2408,32 +2417,33 @@ class __$$TradeRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? requestId = null,
-    Object? userId = null,
-    Object? firstName = null,
-    Object? avatarUrl = freezed,
+    Object? tradeRequestId = null,
+    Object? tradeOfferId = null,
+    Object? offerHouseholdName = null,
+    Object? requestHouseholdName = null,
     Object? status = null,
     Object? createdOn = null,
-    Object? items = null,
+    Object? updatedOn = null,
+    Object? totalItems = null,
   }) {
     return _then(
       _$TradeRequestImpl(
-        requestId: null == requestId
-            ? _value.requestId
-            : requestId // ignore: cast_nullable_to_non_nullable
+        tradeRequestId: null == tradeRequestId
+            ? _value.tradeRequestId
+            : tradeRequestId // ignore: cast_nullable_to_non_nullable
                   as String,
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
+        tradeOfferId: null == tradeOfferId
+            ? _value.tradeOfferId
+            : tradeOfferId // ignore: cast_nullable_to_non_nullable
                   as String,
-        firstName: null == firstName
-            ? _value.firstName
-            : firstName // ignore: cast_nullable_to_non_nullable
+        offerHouseholdName: null == offerHouseholdName
+            ? _value.offerHouseholdName
+            : offerHouseholdName // ignore: cast_nullable_to_non_nullable
                   as String,
-        avatarUrl: freezed == avatarUrl
-            ? _value.avatarUrl
-            : avatarUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        requestHouseholdName: null == requestHouseholdName
+            ? _value.requestHouseholdName
+            : requestHouseholdName // ignore: cast_nullable_to_non_nullable
+                  as String,
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
@@ -2442,10 +2452,14 @@ class __$$TradeRequestImplCopyWithImpl<$Res>
             ? _value.createdOn
             : createdOn // ignore: cast_nullable_to_non_nullable
                   as DateTime,
-        items: null == items
-            ? _value._items
-            : items // ignore: cast_nullable_to_non_nullable
-                  as List<TradeRequestItem>,
+        updatedOn: null == updatedOn
+            ? _value.updatedOn
+            : updatedOn // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        totalItems: null == totalItems
+            ? _value.totalItems
+            : totalItems // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -2455,48 +2469,47 @@ class __$$TradeRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TradeRequestImpl implements _TradeRequest {
   const _$TradeRequestImpl({
-    @JsonKey(name: 'requestId') required this.requestId,
-    @JsonKey(name: 'userId') required this.userId,
-    @JsonKey(name: 'firstName') required this.firstName,
-    @JsonKey(name: 'avatarUrl') this.avatarUrl,
+    @JsonKey(name: 'tradeRequestId') required this.tradeRequestId,
+    @JsonKey(name: 'tradeOfferId') required this.tradeOfferId,
+    @JsonKey(name: 'offerHouseholdName') required this.offerHouseholdName,
+    @JsonKey(name: 'requestHouseholdName') required this.requestHouseholdName,
     @JsonKey(name: 'status') required this.status,
     @JsonKey(name: 'createdOn') required this.createdOn,
-    @JsonKey(name: 'items') final List<TradeRequestItem> items = const [],
-  }) : _items = items;
+    @JsonKey(name: 'updatedOn') required this.updatedOn,
+    @JsonKey(name: 'totalItems') required this.totalItems,
+  });
 
   factory _$TradeRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$TradeRequestImplFromJson(json);
 
   @override
-  @JsonKey(name: 'requestId')
-  final String requestId;
+  @JsonKey(name: 'tradeRequestId')
+  final String tradeRequestId;
   @override
-  @JsonKey(name: 'userId')
-  final String userId;
+  @JsonKey(name: 'tradeOfferId')
+  final String tradeOfferId;
   @override
-  @JsonKey(name: 'firstName')
-  final String firstName;
+  @JsonKey(name: 'offerHouseholdName')
+  final String offerHouseholdName;
   @override
-  @JsonKey(name: 'avatarUrl')
-  final String? avatarUrl;
+  @JsonKey(name: 'requestHouseholdName')
+  final String requestHouseholdName;
   @override
   @JsonKey(name: 'status')
   final String status;
   @override
   @JsonKey(name: 'createdOn')
   final DateTime createdOn;
-  final List<TradeRequestItem> _items;
   @override
-  @JsonKey(name: 'items')
-  List<TradeRequestItem> get items {
-    if (_items is EqualUnmodifiableListView) return _items;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_items);
-  }
+  @JsonKey(name: 'updatedOn')
+  final DateTime updatedOn;
+  @override
+  @JsonKey(name: 'totalItems')
+  final int totalItems;
 
   @override
   String toString() {
-    return 'TradeRequest(requestId: $requestId, userId: $userId, firstName: $firstName, avatarUrl: $avatarUrl, status: $status, createdOn: $createdOn, items: $items)';
+    return 'TradeRequest(tradeRequestId: $tradeRequestId, tradeOfferId: $tradeOfferId, offerHouseholdName: $offerHouseholdName, requestHouseholdName: $requestHouseholdName, status: $status, createdOn: $createdOn, updatedOn: $updatedOn, totalItems: $totalItems)';
   }
 
   @override
@@ -2504,30 +2517,35 @@ class _$TradeRequestImpl implements _TradeRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$TradeRequestImpl &&
-            (identical(other.requestId, requestId) ||
-                other.requestId == requestId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.firstName, firstName) ||
-                other.firstName == firstName) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl) &&
+            (identical(other.tradeRequestId, tradeRequestId) ||
+                other.tradeRequestId == tradeRequestId) &&
+            (identical(other.tradeOfferId, tradeOfferId) ||
+                other.tradeOfferId == tradeOfferId) &&
+            (identical(other.offerHouseholdName, offerHouseholdName) ||
+                other.offerHouseholdName == offerHouseholdName) &&
+            (identical(other.requestHouseholdName, requestHouseholdName) ||
+                other.requestHouseholdName == requestHouseholdName) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.createdOn, createdOn) ||
                 other.createdOn == createdOn) &&
-            const DeepCollectionEquality().equals(other._items, _items));
+            (identical(other.updatedOn, updatedOn) ||
+                other.updatedOn == updatedOn) &&
+            (identical(other.totalItems, totalItems) ||
+                other.totalItems == totalItems));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    requestId,
-    userId,
-    firstName,
-    avatarUrl,
+    tradeRequestId,
+    tradeOfferId,
+    offerHouseholdName,
+    requestHouseholdName,
     status,
     createdOn,
-    const DeepCollectionEquality().hash(_items),
+    updatedOn,
+    totalItems,
   );
 
   /// Create a copy of TradeRequest
@@ -2546,30 +2564,33 @@ class _$TradeRequestImpl implements _TradeRequest {
 
 abstract class _TradeRequest implements TradeRequest {
   const factory _TradeRequest({
-    @JsonKey(name: 'requestId') required final String requestId,
-    @JsonKey(name: 'userId') required final String userId,
-    @JsonKey(name: 'firstName') required final String firstName,
-    @JsonKey(name: 'avatarUrl') final String? avatarUrl,
+    @JsonKey(name: 'tradeRequestId') required final String tradeRequestId,
+    @JsonKey(name: 'tradeOfferId') required final String tradeOfferId,
+    @JsonKey(name: 'offerHouseholdName')
+    required final String offerHouseholdName,
+    @JsonKey(name: 'requestHouseholdName')
+    required final String requestHouseholdName,
     @JsonKey(name: 'status') required final String status,
     @JsonKey(name: 'createdOn') required final DateTime createdOn,
-    @JsonKey(name: 'items') final List<TradeRequestItem> items,
+    @JsonKey(name: 'updatedOn') required final DateTime updatedOn,
+    @JsonKey(name: 'totalItems') required final int totalItems,
   }) = _$TradeRequestImpl;
 
   factory _TradeRequest.fromJson(Map<String, dynamic> json) =
       _$TradeRequestImpl.fromJson;
 
   @override
-  @JsonKey(name: 'requestId')
-  String get requestId;
+  @JsonKey(name: 'tradeRequestId')
+  String get tradeRequestId;
   @override
-  @JsonKey(name: 'userId')
-  String get userId;
+  @JsonKey(name: 'tradeOfferId')
+  String get tradeOfferId;
   @override
-  @JsonKey(name: 'firstName')
-  String get firstName;
+  @JsonKey(name: 'offerHouseholdName')
+  String get offerHouseholdName;
   @override
-  @JsonKey(name: 'avatarUrl')
-  String? get avatarUrl;
+  @JsonKey(name: 'requestHouseholdName')
+  String get requestHouseholdName;
   @override
   @JsonKey(name: 'status')
   String get status;
@@ -2577,8 +2598,11 @@ abstract class _TradeRequest implements TradeRequest {
   @JsonKey(name: 'createdOn')
   DateTime get createdOn;
   @override
-  @JsonKey(name: 'items')
-  List<TradeRequestItem> get items;
+  @JsonKey(name: 'updatedOn')
+  DateTime get updatedOn;
+  @override
+  @JsonKey(name: 'totalItems')
+  int get totalItems;
 
   /// Create a copy of TradeRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -2586,6 +2610,326 @@ abstract class _TradeRequest implements TradeRequest {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TradeRequestImplCopyWith<_$TradeRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+PaginatedTradeRequests _$PaginatedTradeRequestsFromJson(
+  Map<String, dynamic> json,
+) {
+  return _PaginatedTradeRequests.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PaginatedTradeRequests {
+  List<TradeRequest> get items => throw _privateConstructorUsedError;
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  int get pageSize => throw _privateConstructorUsedError;
+  int get totalCount => throw _privateConstructorUsedError;
+  bool get hasPrevious => throw _privateConstructorUsedError;
+  bool get hasNext => throw _privateConstructorUsedError;
+
+  /// Serializes this PaginatedTradeRequests to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PaginatedTradeRequests
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaginatedTradeRequestsCopyWith<PaginatedTradeRequests> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaginatedTradeRequestsCopyWith<$Res> {
+  factory $PaginatedTradeRequestsCopyWith(
+    PaginatedTradeRequests value,
+    $Res Function(PaginatedTradeRequests) then,
+  ) = _$PaginatedTradeRequestsCopyWithImpl<$Res, PaginatedTradeRequests>;
+  @useResult
+  $Res call({
+    List<TradeRequest> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class _$PaginatedTradeRequestsCopyWithImpl<
+  $Res,
+  $Val extends PaginatedTradeRequests
+>
+    implements $PaginatedTradeRequestsCopyWith<$Res> {
+  _$PaginatedTradeRequestsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PaginatedTradeRequests
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<TradeRequest>,
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pageSize: null == pageSize
+                ? _value.pageSize
+                : pageSize // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCount: null == totalCount
+                ? _value.totalCount
+                : totalCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasPrevious: null == hasPrevious
+                ? _value.hasPrevious
+                : hasPrevious // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasNext: null == hasNext
+                ? _value.hasNext
+                : hasNext // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PaginatedTradeRequestsImplCopyWith<$Res>
+    implements $PaginatedTradeRequestsCopyWith<$Res> {
+  factory _$$PaginatedTradeRequestsImplCopyWith(
+    _$PaginatedTradeRequestsImpl value,
+    $Res Function(_$PaginatedTradeRequestsImpl) then,
+  ) = __$$PaginatedTradeRequestsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    List<TradeRequest> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class __$$PaginatedTradeRequestsImplCopyWithImpl<$Res>
+    extends
+        _$PaginatedTradeRequestsCopyWithImpl<$Res, _$PaginatedTradeRequestsImpl>
+    implements _$$PaginatedTradeRequestsImplCopyWith<$Res> {
+  __$$PaginatedTradeRequestsImplCopyWithImpl(
+    _$PaginatedTradeRequestsImpl _value,
+    $Res Function(_$PaginatedTradeRequestsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PaginatedTradeRequests
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _$PaginatedTradeRequestsImpl(
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<TradeRequest>,
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pageSize: null == pageSize
+            ? _value.pageSize
+            : pageSize // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCount: null == totalCount
+            ? _value.totalCount
+            : totalCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasPrevious: null == hasPrevious
+            ? _value.hasPrevious
+            : hasPrevious // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasNext: null == hasNext
+            ? _value.hasNext
+            : hasNext // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PaginatedTradeRequestsImpl implements _PaginatedTradeRequests {
+  const _$PaginatedTradeRequestsImpl({
+    final List<TradeRequest> items = const [],
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.pageSize = 10,
+    this.totalCount = 0,
+    this.hasPrevious = false,
+    this.hasNext = false,
+  }) : _items = items;
+
+  factory _$PaginatedTradeRequestsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PaginatedTradeRequestsImplFromJson(json);
+
+  final List<TradeRequest> _items;
+  @override
+  @JsonKey()
+  List<TradeRequest> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  @JsonKey()
+  final int currentPage;
+  @override
+  @JsonKey()
+  final int totalPages;
+  @override
+  @JsonKey()
+  final int pageSize;
+  @override
+  @JsonKey()
+  final int totalCount;
+  @override
+  @JsonKey()
+  final bool hasPrevious;
+  @override
+  @JsonKey()
+  final bool hasNext;
+
+  @override
+  String toString() {
+    return 'PaginatedTradeRequests(items: $items, currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaginatedTradeRequestsImpl &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.pageSize, pageSize) ||
+                other.pageSize == pageSize) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.hasPrevious, hasPrevious) ||
+                other.hasPrevious == hasPrevious) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_items),
+    currentPage,
+    totalPages,
+    pageSize,
+    totalCount,
+    hasPrevious,
+    hasNext,
+  );
+
+  /// Create a copy of PaginatedTradeRequests
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaginatedTradeRequestsImplCopyWith<_$PaginatedTradeRequestsImpl>
+  get copyWith =>
+      __$$PaginatedTradeRequestsImplCopyWithImpl<_$PaginatedTradeRequestsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PaginatedTradeRequestsImplToJson(this);
+  }
+}
+
+abstract class _PaginatedTradeRequests implements PaginatedTradeRequests {
+  const factory _PaginatedTradeRequests({
+    final List<TradeRequest> items,
+    final int currentPage,
+    final int totalPages,
+    final int pageSize,
+    final int totalCount,
+    final bool hasPrevious,
+    final bool hasNext,
+  }) = _$PaginatedTradeRequestsImpl;
+
+  factory _PaginatedTradeRequests.fromJson(Map<String, dynamic> json) =
+      _$PaginatedTradeRequestsImpl.fromJson;
+
+  @override
+  List<TradeRequest> get items;
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  int get pageSize;
+  @override
+  int get totalCount;
+  @override
+  bool get hasPrevious;
+  @override
+  bool get hasNext;
+
+  /// Create a copy of PaginatedTradeRequests
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaginatedTradeRequestsImplCopyWith<_$PaginatedTradeRequestsImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 TradeSession _$TradeSessionFromJson(Map<String, dynamic> json) {
@@ -4904,5 +5248,643 @@ abstract class _TradeSessionDetail implements TradeSessionDetail {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TradeSessionDetailImplCopyWith<_$TradeSessionDetailImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+TradeRequestDetailItem _$TradeRequestDetailItemFromJson(
+  Map<String, dynamic> json,
+) {
+  return _TradeRequestDetailItem.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TradeRequestDetailItem {
+  @JsonKey(name: 'tradeItemId')
+  String get tradeItemId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'foodItemId')
+  String get foodItemId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
+  String get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'originalName')
+  String get originalName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'imageUrl')
+  String? get imageUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'foodGroup')
+  String get foodGroup => throw _privateConstructorUsedError;
+  @JsonKey(name: 'quantity')
+  double get quantity => throw _privateConstructorUsedError;
+  @JsonKey(name: 'unitAbbreviation')
+  String get unitAbbreviation => throw _privateConstructorUsedError;
+  @JsonKey(name: 'unitId')
+  String get unitId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'expirationDate')
+  String get expirationDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'from')
+  String get from => throw _privateConstructorUsedError;
+
+  /// Serializes this TradeRequestDetailItem to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of TradeRequestDetailItem
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $TradeRequestDetailItemCopyWith<TradeRequestDetailItem> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TradeRequestDetailItemCopyWith<$Res> {
+  factory $TradeRequestDetailItemCopyWith(
+    TradeRequestDetailItem value,
+    $Res Function(TradeRequestDetailItem) then,
+  ) = _$TradeRequestDetailItemCopyWithImpl<$Res, TradeRequestDetailItem>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeItemId') String tradeItemId,
+    @JsonKey(name: 'foodItemId') String foodItemId,
+    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'originalName') String originalName,
+    @JsonKey(name: 'imageUrl') String? imageUrl,
+    @JsonKey(name: 'foodGroup') String foodGroup,
+    @JsonKey(name: 'quantity') double quantity,
+    @JsonKey(name: 'unitAbbreviation') String unitAbbreviation,
+    @JsonKey(name: 'unitId') String unitId,
+    @JsonKey(name: 'expirationDate') String expirationDate,
+    @JsonKey(name: 'from') String from,
+  });
+}
+
+/// @nodoc
+class _$TradeRequestDetailItemCopyWithImpl<
+  $Res,
+  $Val extends TradeRequestDetailItem
+>
+    implements $TradeRequestDetailItemCopyWith<$Res> {
+  _$TradeRequestDetailItemCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of TradeRequestDetailItem
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeItemId = null,
+    Object? foodItemId = null,
+    Object? name = null,
+    Object? originalName = null,
+    Object? imageUrl = freezed,
+    Object? foodGroup = null,
+    Object? quantity = null,
+    Object? unitAbbreviation = null,
+    Object? unitId = null,
+    Object? expirationDate = null,
+    Object? from = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            tradeItemId: null == tradeItemId
+                ? _value.tradeItemId
+                : tradeItemId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            foodItemId: null == foodItemId
+                ? _value.foodItemId
+                : foodItemId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            originalName: null == originalName
+                ? _value.originalName
+                : originalName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            foodGroup: null == foodGroup
+                ? _value.foodGroup
+                : foodGroup // ignore: cast_nullable_to_non_nullable
+                      as String,
+            quantity: null == quantity
+                ? _value.quantity
+                : quantity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            unitAbbreviation: null == unitAbbreviation
+                ? _value.unitAbbreviation
+                : unitAbbreviation // ignore: cast_nullable_to_non_nullable
+                      as String,
+            unitId: null == unitId
+                ? _value.unitId
+                : unitId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            expirationDate: null == expirationDate
+                ? _value.expirationDate
+                : expirationDate // ignore: cast_nullable_to_non_nullable
+                      as String,
+            from: null == from
+                ? _value.from
+                : from // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$TradeRequestDetailItemImplCopyWith<$Res>
+    implements $TradeRequestDetailItemCopyWith<$Res> {
+  factory _$$TradeRequestDetailItemImplCopyWith(
+    _$TradeRequestDetailItemImpl value,
+    $Res Function(_$TradeRequestDetailItemImpl) then,
+  ) = __$$TradeRequestDetailItemImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeItemId') String tradeItemId,
+    @JsonKey(name: 'foodItemId') String foodItemId,
+    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'originalName') String originalName,
+    @JsonKey(name: 'imageUrl') String? imageUrl,
+    @JsonKey(name: 'foodGroup') String foodGroup,
+    @JsonKey(name: 'quantity') double quantity,
+    @JsonKey(name: 'unitAbbreviation') String unitAbbreviation,
+    @JsonKey(name: 'unitId') String unitId,
+    @JsonKey(name: 'expirationDate') String expirationDate,
+    @JsonKey(name: 'from') String from,
+  });
+}
+
+/// @nodoc
+class __$$TradeRequestDetailItemImplCopyWithImpl<$Res>
+    extends
+        _$TradeRequestDetailItemCopyWithImpl<$Res, _$TradeRequestDetailItemImpl>
+    implements _$$TradeRequestDetailItemImplCopyWith<$Res> {
+  __$$TradeRequestDetailItemImplCopyWithImpl(
+    _$TradeRequestDetailItemImpl _value,
+    $Res Function(_$TradeRequestDetailItemImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of TradeRequestDetailItem
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeItemId = null,
+    Object? foodItemId = null,
+    Object? name = null,
+    Object? originalName = null,
+    Object? imageUrl = freezed,
+    Object? foodGroup = null,
+    Object? quantity = null,
+    Object? unitAbbreviation = null,
+    Object? unitId = null,
+    Object? expirationDate = null,
+    Object? from = null,
+  }) {
+    return _then(
+      _$TradeRequestDetailItemImpl(
+        tradeItemId: null == tradeItemId
+            ? _value.tradeItemId
+            : tradeItemId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        foodItemId: null == foodItemId
+            ? _value.foodItemId
+            : foodItemId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        originalName: null == originalName
+            ? _value.originalName
+            : originalName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        foodGroup: null == foodGroup
+            ? _value.foodGroup
+            : foodGroup // ignore: cast_nullable_to_non_nullable
+                  as String,
+        quantity: null == quantity
+            ? _value.quantity
+            : quantity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        unitAbbreviation: null == unitAbbreviation
+            ? _value.unitAbbreviation
+            : unitAbbreviation // ignore: cast_nullable_to_non_nullable
+                  as String,
+        unitId: null == unitId
+            ? _value.unitId
+            : unitId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        expirationDate: null == expirationDate
+            ? _value.expirationDate
+            : expirationDate // ignore: cast_nullable_to_non_nullable
+                  as String,
+        from: null == from
+            ? _value.from
+            : from // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$TradeRequestDetailItemImpl implements _TradeRequestDetailItem {
+  const _$TradeRequestDetailItemImpl({
+    @JsonKey(name: 'tradeItemId') required this.tradeItemId,
+    @JsonKey(name: 'foodItemId') required this.foodItemId,
+    @JsonKey(name: 'name') required this.name,
+    @JsonKey(name: 'originalName') required this.originalName,
+    @JsonKey(name: 'imageUrl') this.imageUrl,
+    @JsonKey(name: 'foodGroup') required this.foodGroup,
+    @JsonKey(name: 'quantity') required this.quantity,
+    @JsonKey(name: 'unitAbbreviation') required this.unitAbbreviation,
+    @JsonKey(name: 'unitId') required this.unitId,
+    @JsonKey(name: 'expirationDate') required this.expirationDate,
+    @JsonKey(name: 'from') required this.from,
+  });
+
+  factory _$TradeRequestDetailItemImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TradeRequestDetailItemImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'tradeItemId')
+  final String tradeItemId;
+  @override
+  @JsonKey(name: 'foodItemId')
+  final String foodItemId;
+  @override
+  @JsonKey(name: 'name')
+  final String name;
+  @override
+  @JsonKey(name: 'originalName')
+  final String originalName;
+  @override
+  @JsonKey(name: 'imageUrl')
+  final String? imageUrl;
+  @override
+  @JsonKey(name: 'foodGroup')
+  final String foodGroup;
+  @override
+  @JsonKey(name: 'quantity')
+  final double quantity;
+  @override
+  @JsonKey(name: 'unitAbbreviation')
+  final String unitAbbreviation;
+  @override
+  @JsonKey(name: 'unitId')
+  final String unitId;
+  @override
+  @JsonKey(name: 'expirationDate')
+  final String expirationDate;
+  @override
+  @JsonKey(name: 'from')
+  final String from;
+
+  @override
+  String toString() {
+    return 'TradeRequestDetailItem(tradeItemId: $tradeItemId, foodItemId: $foodItemId, name: $name, originalName: $originalName, imageUrl: $imageUrl, foodGroup: $foodGroup, quantity: $quantity, unitAbbreviation: $unitAbbreviation, unitId: $unitId, expirationDate: $expirationDate, from: $from)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TradeRequestDetailItemImpl &&
+            (identical(other.tradeItemId, tradeItemId) ||
+                other.tradeItemId == tradeItemId) &&
+            (identical(other.foodItemId, foodItemId) ||
+                other.foodItemId == foodItemId) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.originalName, originalName) ||
+                other.originalName == originalName) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.foodGroup, foodGroup) ||
+                other.foodGroup == foodGroup) &&
+            (identical(other.quantity, quantity) ||
+                other.quantity == quantity) &&
+            (identical(other.unitAbbreviation, unitAbbreviation) ||
+                other.unitAbbreviation == unitAbbreviation) &&
+            (identical(other.unitId, unitId) || other.unitId == unitId) &&
+            (identical(other.expirationDate, expirationDate) ||
+                other.expirationDate == expirationDate) &&
+            (identical(other.from, from) || other.from == from));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    tradeItemId,
+    foodItemId,
+    name,
+    originalName,
+    imageUrl,
+    foodGroup,
+    quantity,
+    unitAbbreviation,
+    unitId,
+    expirationDate,
+    from,
+  );
+
+  /// Create a copy of TradeRequestDetailItem
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TradeRequestDetailItemImplCopyWith<_$TradeRequestDetailItemImpl>
+  get copyWith =>
+      __$$TradeRequestDetailItemImplCopyWithImpl<_$TradeRequestDetailItemImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TradeRequestDetailItemImplToJson(this);
+  }
+}
+
+abstract class _TradeRequestDetailItem implements TradeRequestDetailItem {
+  const factory _TradeRequestDetailItem({
+    @JsonKey(name: 'tradeItemId') required final String tradeItemId,
+    @JsonKey(name: 'foodItemId') required final String foodItemId,
+    @JsonKey(name: 'name') required final String name,
+    @JsonKey(name: 'originalName') required final String originalName,
+    @JsonKey(name: 'imageUrl') final String? imageUrl,
+    @JsonKey(name: 'foodGroup') required final String foodGroup,
+    @JsonKey(name: 'quantity') required final double quantity,
+    @JsonKey(name: 'unitAbbreviation') required final String unitAbbreviation,
+    @JsonKey(name: 'unitId') required final String unitId,
+    @JsonKey(name: 'expirationDate') required final String expirationDate,
+    @JsonKey(name: 'from') required final String from,
+  }) = _$TradeRequestDetailItemImpl;
+
+  factory _TradeRequestDetailItem.fromJson(Map<String, dynamic> json) =
+      _$TradeRequestDetailItemImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'tradeItemId')
+  String get tradeItemId;
+  @override
+  @JsonKey(name: 'foodItemId')
+  String get foodItemId;
+  @override
+  @JsonKey(name: 'name')
+  String get name;
+  @override
+  @JsonKey(name: 'originalName')
+  String get originalName;
+  @override
+  @JsonKey(name: 'imageUrl')
+  String? get imageUrl;
+  @override
+  @JsonKey(name: 'foodGroup')
+  String get foodGroup;
+  @override
+  @JsonKey(name: 'quantity')
+  double get quantity;
+  @override
+  @JsonKey(name: 'unitAbbreviation')
+  String get unitAbbreviation;
+  @override
+  @JsonKey(name: 'unitId')
+  String get unitId;
+  @override
+  @JsonKey(name: 'expirationDate')
+  String get expirationDate;
+  @override
+  @JsonKey(name: 'from')
+  String get from;
+
+  /// Create a copy of TradeRequestDetailItem
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TradeRequestDetailItemImplCopyWith<_$TradeRequestDetailItemImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+TradeRequestDetail _$TradeRequestDetailFromJson(Map<String, dynamic> json) {
+  return _TradeRequestDetail.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TradeRequestDetail {
+  @JsonKey(name: 'tradeRequest')
+  TradeRequest get tradeRequest => throw _privateConstructorUsedError;
+  @JsonKey(name: 'items')
+  List<TradeRequestDetailItem> get items => throw _privateConstructorUsedError;
+
+  /// Serializes this TradeRequestDetail to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $TradeRequestDetailCopyWith<TradeRequestDetail> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TradeRequestDetailCopyWith<$Res> {
+  factory $TradeRequestDetailCopyWith(
+    TradeRequestDetail value,
+    $Res Function(TradeRequestDetail) then,
+  ) = _$TradeRequestDetailCopyWithImpl<$Res, TradeRequestDetail>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeRequest') TradeRequest tradeRequest,
+    @JsonKey(name: 'items') List<TradeRequestDetailItem> items,
+  });
+
+  $TradeRequestCopyWith<$Res> get tradeRequest;
+}
+
+/// @nodoc
+class _$TradeRequestDetailCopyWithImpl<$Res, $Val extends TradeRequestDetail>
+    implements $TradeRequestDetailCopyWith<$Res> {
+  _$TradeRequestDetailCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? tradeRequest = null, Object? items = null}) {
+    return _then(
+      _value.copyWith(
+            tradeRequest: null == tradeRequest
+                ? _value.tradeRequest
+                : tradeRequest // ignore: cast_nullable_to_non_nullable
+                      as TradeRequest,
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<TradeRequestDetailItem>,
+          )
+          as $Val,
+    );
+  }
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TradeRequestCopyWith<$Res> get tradeRequest {
+    return $TradeRequestCopyWith<$Res>(_value.tradeRequest, (value) {
+      return _then(_value.copyWith(tradeRequest: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$TradeRequestDetailImplCopyWith<$Res>
+    implements $TradeRequestDetailCopyWith<$Res> {
+  factory _$$TradeRequestDetailImplCopyWith(
+    _$TradeRequestDetailImpl value,
+    $Res Function(_$TradeRequestDetailImpl) then,
+  ) = __$$TradeRequestDetailImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeRequest') TradeRequest tradeRequest,
+    @JsonKey(name: 'items') List<TradeRequestDetailItem> items,
+  });
+
+  @override
+  $TradeRequestCopyWith<$Res> get tradeRequest;
+}
+
+/// @nodoc
+class __$$TradeRequestDetailImplCopyWithImpl<$Res>
+    extends _$TradeRequestDetailCopyWithImpl<$Res, _$TradeRequestDetailImpl>
+    implements _$$TradeRequestDetailImplCopyWith<$Res> {
+  __$$TradeRequestDetailImplCopyWithImpl(
+    _$TradeRequestDetailImpl _value,
+    $Res Function(_$TradeRequestDetailImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? tradeRequest = null, Object? items = null}) {
+    return _then(
+      _$TradeRequestDetailImpl(
+        tradeRequest: null == tradeRequest
+            ? _value.tradeRequest
+            : tradeRequest // ignore: cast_nullable_to_non_nullable
+                  as TradeRequest,
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<TradeRequestDetailItem>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$TradeRequestDetailImpl implements _TradeRequestDetail {
+  const _$TradeRequestDetailImpl({
+    @JsonKey(name: 'tradeRequest') required this.tradeRequest,
+    @JsonKey(name: 'items') final List<TradeRequestDetailItem> items = const [],
+  }) : _items = items;
+
+  factory _$TradeRequestDetailImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TradeRequestDetailImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'tradeRequest')
+  final TradeRequest tradeRequest;
+  final List<TradeRequestDetailItem> _items;
+  @override
+  @JsonKey(name: 'items')
+  List<TradeRequestDetailItem> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  String toString() {
+    return 'TradeRequestDetail(tradeRequest: $tradeRequest, items: $items)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TradeRequestDetailImpl &&
+            (identical(other.tradeRequest, tradeRequest) ||
+                other.tradeRequest == tradeRequest) &&
+            const DeepCollectionEquality().equals(other._items, _items));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    tradeRequest,
+    const DeepCollectionEquality().hash(_items),
+  );
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TradeRequestDetailImplCopyWith<_$TradeRequestDetailImpl> get copyWith =>
+      __$$TradeRequestDetailImplCopyWithImpl<_$TradeRequestDetailImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TradeRequestDetailImplToJson(this);
+  }
+}
+
+abstract class _TradeRequestDetail implements TradeRequestDetail {
+  const factory _TradeRequestDetail({
+    @JsonKey(name: 'tradeRequest') required final TradeRequest tradeRequest,
+    @JsonKey(name: 'items') final List<TradeRequestDetailItem> items,
+  }) = _$TradeRequestDetailImpl;
+
+  factory _TradeRequestDetail.fromJson(Map<String, dynamic> json) =
+      _$TradeRequestDetailImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'tradeRequest')
+  TradeRequest get tradeRequest;
+  @override
+  @JsonKey(name: 'items')
+  List<TradeRequestDetailItem> get items;
+
+  /// Create a copy of TradeRequestDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TradeRequestDetailImplCopyWith<_$TradeRequestDetailImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

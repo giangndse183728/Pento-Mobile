@@ -180,29 +180,55 @@ Map<String, dynamic> _$$TradeRequestItemImplToJson(
 
 _$TradeRequestImpl _$$TradeRequestImplFromJson(Map<String, dynamic> json) =>
     _$TradeRequestImpl(
-      requestId: json['requestId'] as String,
-      userId: json['userId'] as String,
-      firstName: json['firstName'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
+      tradeRequestId: json['tradeRequestId'] as String,
+      tradeOfferId: json['tradeOfferId'] as String,
+      offerHouseholdName: json['offerHouseholdName'] as String,
+      requestHouseholdName: json['requestHouseholdName'] as String,
       status: json['status'] as String,
       createdOn: DateTime.parse(json['createdOn'] as String),
-      items:
-          (json['items'] as List<dynamic>?)
-              ?.map((e) => TradeRequestItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      updatedOn: DateTime.parse(json['updatedOn'] as String),
+      totalItems: (json['totalItems'] as num).toInt(),
     );
 
 Map<String, dynamic> _$$TradeRequestImplToJson(_$TradeRequestImpl instance) =>
     <String, dynamic>{
-      'requestId': instance.requestId,
-      'userId': instance.userId,
-      'firstName': instance.firstName,
-      'avatarUrl': instance.avatarUrl,
+      'tradeRequestId': instance.tradeRequestId,
+      'tradeOfferId': instance.tradeOfferId,
+      'offerHouseholdName': instance.offerHouseholdName,
+      'requestHouseholdName': instance.requestHouseholdName,
       'status': instance.status,
       'createdOn': instance.createdOn.toIso8601String(),
-      'items': instance.items,
+      'updatedOn': instance.updatedOn.toIso8601String(),
+      'totalItems': instance.totalItems,
     };
+
+_$PaginatedTradeRequestsImpl _$$PaginatedTradeRequestsImplFromJson(
+  Map<String, dynamic> json,
+) => _$PaginatedTradeRequestsImpl(
+  items:
+      (json['items'] as List<dynamic>?)
+          ?.map((e) => TradeRequest.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  currentPage: (json['currentPage'] as num?)?.toInt() ?? 1,
+  totalPages: (json['totalPages'] as num?)?.toInt() ?? 1,
+  pageSize: (json['pageSize'] as num?)?.toInt() ?? 10,
+  totalCount: (json['totalCount'] as num?)?.toInt() ?? 0,
+  hasPrevious: json['hasPrevious'] as bool? ?? false,
+  hasNext: json['hasNext'] as bool? ?? false,
+);
+
+Map<String, dynamic> _$$PaginatedTradeRequestsImplToJson(
+  _$PaginatedTradeRequestsImpl instance,
+) => <String, dynamic>{
+  'items': instance.items,
+  'currentPage': instance.currentPage,
+  'totalPages': instance.totalPages,
+  'pageSize': instance.pageSize,
+  'totalCount': instance.totalCount,
+  'hasPrevious': instance.hasPrevious,
+  'hasNext': instance.hasNext,
+};
 
 _$TradeSessionImpl _$$TradeSessionImplFromJson(Map<String, dynamic> json) =>
     _$TradeSessionImpl(
@@ -391,5 +417,59 @@ Map<String, dynamic> _$$TradeSessionDetailImplToJson(
 ) => <String, dynamic>{
   'tradeSession': instance.tradeSession,
   'messages': instance.messages,
+  'items': instance.items,
+};
+
+_$TradeRequestDetailItemImpl _$$TradeRequestDetailItemImplFromJson(
+  Map<String, dynamic> json,
+) => _$TradeRequestDetailItemImpl(
+  tradeItemId: json['tradeItemId'] as String,
+  foodItemId: json['foodItemId'] as String,
+  name: json['name'] as String,
+  originalName: json['originalName'] as String,
+  imageUrl: json['imageUrl'] as String?,
+  foodGroup: json['foodGroup'] as String,
+  quantity: (json['quantity'] as num).toDouble(),
+  unitAbbreviation: json['unitAbbreviation'] as String,
+  unitId: json['unitId'] as String,
+  expirationDate: json['expirationDate'] as String,
+  from: json['from'] as String,
+);
+
+Map<String, dynamic> _$$TradeRequestDetailItemImplToJson(
+  _$TradeRequestDetailItemImpl instance,
+) => <String, dynamic>{
+  'tradeItemId': instance.tradeItemId,
+  'foodItemId': instance.foodItemId,
+  'name': instance.name,
+  'originalName': instance.originalName,
+  'imageUrl': instance.imageUrl,
+  'foodGroup': instance.foodGroup,
+  'quantity': instance.quantity,
+  'unitAbbreviation': instance.unitAbbreviation,
+  'unitId': instance.unitId,
+  'expirationDate': instance.expirationDate,
+  'from': instance.from,
+};
+
+_$TradeRequestDetailImpl _$$TradeRequestDetailImplFromJson(
+  Map<String, dynamic> json,
+) => _$TradeRequestDetailImpl(
+  tradeRequest: TradeRequest.fromJson(
+    json['tradeRequest'] as Map<String, dynamic>,
+  ),
+  items:
+      (json['items'] as List<dynamic>?)
+          ?.map(
+            (e) => TradeRequestDetailItem.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$$TradeRequestDetailImplToJson(
+  _$TradeRequestDetailImpl instance,
+) => <String, dynamic>{
+  'tradeRequest': instance.tradeRequest,
   'items': instance.items,
 };

@@ -43,7 +43,7 @@ class TradeOfferCard extends StatelessWidget {
         return AppColors.mintLeaf;
       case 'delivery':
         return AppColors.blueGray;
-      case 'both':
+      case 'flexible':
         return AppColors.warningSun;
       default:
         return AppColors.blueGray;
@@ -56,7 +56,7 @@ class TradeOfferCard extends StatelessWidget {
         return Icons.handshake_rounded;
       case 'delivery':
         return Icons.delivery_dining_rounded;
-      case 'both':
+      case 'flexible':
         return Icons.all_inclusive_rounded;
       default:
         return Icons.local_shipping_rounded;
@@ -69,8 +69,8 @@ class TradeOfferCard extends StatelessWidget {
         return 'In Person';
       case 'delivery':
         return 'Delivery';
-      case 'both':
-        return 'Both';
+      case 'flexible':
+        return 'Flexible';
       default:
         return option;
     }
@@ -79,7 +79,6 @@ class TradeOfferCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pickupColor = _getPickupColor(tradeOffer.pickupOption);
-    // Calculate height based on number of items
     final itemCount = tradeOffer.items.length.clamp(0, 2);
     final baseHeight = 220.h;
     final itemHeight = itemCount * 56.h;

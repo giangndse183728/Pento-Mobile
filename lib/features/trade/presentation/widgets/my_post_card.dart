@@ -10,11 +10,17 @@ class MyPostCard extends StatelessWidget {
     required this.post,
     this.onTap,
     this.onDelete,
+    this.onCancel,
   });
 
-  final MyPost post;
+  final TradeOffer post;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? onCancel;
+
+  bool get _canCancel {
+    return !_isExpired() && _isActive();
+  }
 
   String _formatDate(DateTime date) {
     return DateFormat('MMM d').format(date);
@@ -70,7 +76,7 @@ class MyPostCard extends StatelessWidget {
         return AppColors.mintLeaf;
       case 'delivery':
         return AppColors.blueGray;
-      case 'both':
+      case 'flexible':
         return AppColors.warningSun;
       default:
         return AppColors.blueGray;
@@ -83,7 +89,7 @@ class MyPostCard extends StatelessWidget {
         return Icons.handshake_rounded;
       case 'delivery':
         return Icons.delivery_dining_rounded;
-      case 'both':
+      case 'flexible':
         return Icons.all_inclusive_rounded;
       default:
         return Icons.local_shipping_rounded;
@@ -96,8 +102,8 @@ class MyPostCard extends StatelessWidget {
         return 'In Person';
       case 'delivery':
         return 'Delivery';
-      case 'both':
-        return 'Both';
+      case 'flexible':
+        return 'Flexible';
       default:
         return option;
     }
@@ -144,7 +150,7 @@ class MyPostCard extends StatelessWidget {
                       end: Alignment.bottomRight,
                       colors: [
                         AppColors.blueGray,
-                        AppColors.babyBlue.withValues(alpha: 0.3),
+                        AppColors.babyBlue.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.only(
@@ -219,7 +225,26 @@ class MyPostCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if (onDelete != null) ...[
+                      if (_canCancel && onCancel != null) ...[
+                        SizedBox(width: 8.w),
+                        Material(
+                          color: AppColors.dangerRed.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: InkWell(
+                            onTap: onCancel,
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: Padding(
+                              padding: EdgeInsets.all(6.w),
+                              child: Icon(
+                                Icons.cancel_outlined,
+                                size: 18.sp,
+                                color: AppColors.dangerRed,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (onDelete != null && !_canCancel) ...[
                         SizedBox(width: 8.w),
                         Material(
                           color: AppColors.dangerRed.withValues(alpha: 0.1),
@@ -242,72 +267,97 @@ class MyPostCard extends StatelessWidget {
                   ),
                 ),
 
+                // Dashed divider
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  child: _DashedDivider(
+                    color: AppColors.powderBlue.withValues(alpha: 0.6),
+                    height: 2,
+                    dashWidth: 4,
+                    dashSpace: 4,
+                  ),
+                ),
+
                 // Main content
                 Padding(
                   padding: EdgeInsets.all(16.w),
                   child: Column(
                     children: [
-                      // Food item row
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Food image
-                          _buildFoodImage(),
-                          SizedBox(width: 14.w),
-                          // Food info
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  post.foodName,
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 8.h),
-                                // Quantity badge
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10.w,
-                                    vertical: 5.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.mintLeaf.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    border: Border.all(
-                                      color: AppColors.mintLeaf.withValues(alpha: 0.3),
+                      // Food items
+                      if (post.items.isEmpty)
+                        Text(
+                          'No items',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.blueGray.withValues(alpha: 0.7),
+                          ),
+                        )
+                      else
+                        ...post.items.map((item) => Padding(
+                              padding: EdgeInsets.only(bottom: 12.h),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Food image
+                                  _buildFoodImage(item),
+                                  SizedBox(width: 14.w),
+                                  // Food info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.foodName,
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.black87,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 8.h),
+                                        // Quantity badge
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10.w,
+                                            vertical: 5.h,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.mintLeaf
+                                                .withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(8.r),
+                                            border: Border.all(
+                                              color: AppColors.mintLeaf
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.scale_rounded,
+                                                size: 14.sp,
+                                                color: Colors.green.shade700,
+                                              ),
+                                              SizedBox(width: 4.w),
+                                              Text(
+                                                '${item.quantity} ${item.unitAbbreviation}',
+                                                style: TextStyle(
+                                                  fontSize: 13.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.green.shade700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.scale_rounded,
-                                        size: 14.sp,
-                                        color: Colors.green.shade700,
-                                      ),
-                                      SizedBox(width: 4.w),
-                                      Text(
-                                        '${post.quantity} ${post.unitAbbreviation}',
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.green.shade700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                                ],
+                              ),
+                            )),
 
                       SizedBox(height: 16.h),
 
@@ -403,7 +453,7 @@ class MyPostCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFoodImage() {
+  Widget _buildFoodImage(TradeOfferItem item) {
     return Container(
       width: 72.w,
       height: 72.w,
@@ -419,9 +469,9 @@ class MyPostCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14.r),
-        child: post.foodImageUri != null
+        child: item.foodImageUri != null
             ? Image.network(
-                post.foodImageUri!,
+                item.foodImageUri!,
                 width: 72.w,
                 height: 72.w,
                 fit: BoxFit.cover,
@@ -453,6 +503,50 @@ class MyPostCard extends StatelessWidget {
         size: 32.w,
         color: AppColors.blueGray,
       ),
+    );
+  }
+}
+
+// ============================================================================
+// Dashed Divider Widget
+// ============================================================================
+
+class _DashedDivider extends StatelessWidget {
+  const _DashedDivider({
+    required this.color,
+    this.height = 1,
+    this.dashWidth = 4,
+    this.dashSpace = 3,
+  });
+
+  final Color color;
+  final double height;
+  final double dashWidth;
+  final double dashSpace;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.constrainWidth();
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.start,
+          direction: Axis.horizontal,
+          children: List.generate(
+            dashCount,
+            (_) => Container(
+              width: dashWidth,
+              height: height,
+              margin: EdgeInsets.only(right: dashSpace),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(height / 2),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -2,34 +2,44 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/trade_offers_model.dart';
 import '../../data/repositories/trade_offers_repository.dart';
 
-part 'post_requests_provider.g.dart';
+part 'my_requests_provider.g.dart';
 
-@riverpod
-class PostRequests extends _$PostRequests {
+@Riverpod(keepAlive: true)
+class MyRequests extends _$MyRequests {
   late final TradeOfferRepository _repository;
   int _currentPage = 1;
-  static const int _pageSize = 10;
+  static const int _pageSize = 12;
+  String? _selectedStatus;
 
   @override
-  FutureOr<PaginatedTradeRequests> build(String offerId) async {
+  FutureOr<PaginatedTradeRequests> build() async {
     _repository = TradeOfferRepository();
     _currentPage = 1;
     return await _loadRequests();
   }
 
   Future<PaginatedTradeRequests> _loadRequests() async {
-    final offerId = this.offerId;
-    return await _repository.getPostRequests(
-      offerId: offerId,
+    return await _repository.getMyTradeRequests(
       pageNumber: _currentPage,
       pageSize: _pageSize,
+      status: _selectedStatus,
     );
   }
 
   Future<void> refresh() async {
+    _currentPage = 1;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(_loadRequests);
   }
+
+  Future<void> setStatusFilter(String? status) async {
+    _selectedStatus = status;
+    _currentPage = 1;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_loadRequests);
+  }
+
+  String? get selectedStatus => _selectedStatus;
 
   Future<void> goToNextPage() async {
     final currentState = state.valueOrNull;
@@ -47,20 +57,6 @@ class PostRequests extends _$PostRequests {
       state = const AsyncValue.loading();
       state = await AsyncValue.guard(_loadRequests);
     }
-  }
-
-  Future<void> acceptRequest({
-    required String tradeRequestId,
-  }) async {
-    final offerId = this.offerId;
-    
-    await _repository.acceptTradeRequest(
-      tradeOfferId: offerId,
-      tradeRequestId: tradeRequestId,
-    );
-
-    // Refresh the list after accepting
-    await refresh();
   }
 }
 

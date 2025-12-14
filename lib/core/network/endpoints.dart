@@ -129,12 +129,18 @@ class ApiEndpoints {
 
   //Trade 
   static const String getTradeOffers = '/trades/offers';
+  static const String getTradeRequests = '/trades/requests';
+  static const String getTradeRequestsDetail = '/trades/requests/{tradeRequestId}';
   static const String createTradeOffer = '/trades/offers/items';
   static const String createTradeRequestItem = '/trades/requests/items';
-  static const String getMyPosts = '/trades/offers/me';
-  static const String getPostById = '/trades/offers/{offerId}/requests';
+  
+  static const String cancelTradeRequest = '/trades/requests/{tradeRequestId}/cancel';
+  static const String cancelTradeOffer = '/trades/offers/{tradeOfferId}/cancel';
+
   static const String acceptTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/accept';
   static const String rejectTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/reject';
+
+
 
   //Trade Session
   static const String getTradeSessionDetail = '/trades/sessions/{sessionId}';

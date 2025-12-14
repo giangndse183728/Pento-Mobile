@@ -6,7 +6,7 @@ part of 'post_requests_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postRequestsHash() => r'32d8c3724bb3555e7d4c6efc52e1a2e3a115fb8c';
+String _$postRequestsHash() => r'f69de19637529f96359b6d63f1ff99aac298de6a';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,10 +30,10 @@ class _SystemHash {
 }
 
 abstract class _$PostRequests
-    extends BuildlessAutoDisposeAsyncNotifier<List<TradeRequest>> {
+    extends BuildlessAutoDisposeAsyncNotifier<PaginatedTradeRequests> {
   late final String offerId;
 
-  FutureOr<List<TradeRequest>> build(String offerId);
+  FutureOr<PaginatedTradeRequests> build(String offerId);
 }
 
 /// See also [PostRequests].
@@ -41,7 +41,7 @@ abstract class _$PostRequests
 const postRequestsProvider = PostRequestsFamily();
 
 /// See also [PostRequests].
-class PostRequestsFamily extends Family<AsyncValue<List<TradeRequest>>> {
+class PostRequestsFamily extends Family<AsyncValue<PaginatedTradeRequests>> {
   /// See also [PostRequests].
   const PostRequestsFamily();
 
@@ -75,7 +75,10 @@ class PostRequestsFamily extends Family<AsyncValue<List<TradeRequest>>> {
 /// See also [PostRequests].
 class PostRequestsProvider
     extends
-        AutoDisposeAsyncNotifierProviderImpl<PostRequests, List<TradeRequest>> {
+        AutoDisposeAsyncNotifierProviderImpl<
+          PostRequests,
+          PaginatedTradeRequests
+        > {
   /// See also [PostRequests].
   PostRequestsProvider(String offerId)
     : this._internal(
@@ -104,7 +107,7 @@ class PostRequestsProvider
   final String offerId;
 
   @override
-  FutureOr<List<TradeRequest>> runNotifierBuild(
+  FutureOr<PaginatedTradeRequests> runNotifierBuild(
     covariant PostRequests notifier,
   ) {
     return notifier.build(offerId);
@@ -127,7 +130,7 @@ class PostRequestsProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<PostRequests, List<TradeRequest>>
+  AutoDisposeAsyncNotifierProviderElement<PostRequests, PaginatedTradeRequests>
   createElement() {
     return _PostRequestsProviderElement(this);
   }
@@ -149,7 +152,7 @@ class PostRequestsProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin PostRequestsRef
-    on AutoDisposeAsyncNotifierProviderRef<List<TradeRequest>> {
+    on AutoDisposeAsyncNotifierProviderRef<PaginatedTradeRequests> {
   /// The parameter `offerId` of this provider.
   String get offerId;
 }
@@ -158,7 +161,7 @@ class _PostRequestsProviderElement
     extends
         AutoDisposeAsyncNotifierProviderElement<
           PostRequests,
-          List<TradeRequest>
+          PaginatedTradeRequests
         >
     with PostRequestsRef {
   _PostRequestsProviderElement(super.provider);

@@ -120,17 +120,34 @@ class TradeRequestItem with _$TradeRequestItem {
 @freezed
 class TradeRequest with _$TradeRequest {
   const factory TradeRequest({
-    @JsonKey(name: 'requestId') required String requestId,
-    @JsonKey(name: 'userId') required String userId,
-    @JsonKey(name: 'firstName') required String firstName,
-    @JsonKey(name: 'avatarUrl') String? avatarUrl,
+    @JsonKey(name: 'tradeRequestId') required String tradeRequestId,
+    @JsonKey(name: 'tradeOfferId') required String tradeOfferId,
+    @JsonKey(name: 'offerHouseholdName') required String offerHouseholdName,
+    @JsonKey(name: 'requestHouseholdName') required String requestHouseholdName,
     @JsonKey(name: 'status') required String status,
     @JsonKey(name: 'createdOn') required DateTime createdOn,
-    @JsonKey(name: 'items') @Default([]) List<TradeRequestItem> items,
+    @JsonKey(name: 'updatedOn') required DateTime updatedOn,
+    @JsonKey(name: 'totalItems') required int totalItems,
   }) = _TradeRequest;
 
   factory TradeRequest.fromJson(Map<String, dynamic> json) =>
       _$TradeRequestFromJson(json);
+}
+
+@freezed
+class PaginatedTradeRequests with _$PaginatedTradeRequests {
+  const factory PaginatedTradeRequests({
+    @Default([]) List<TradeRequest> items,
+    @Default(1) int currentPage,
+    @Default(1) int totalPages,
+    @Default(10) int pageSize,
+    @Default(0) int totalCount,
+    @Default(false) bool hasPrevious,
+    @Default(false) bool hasNext,
+  }) = _PaginatedTradeRequests;
+
+  factory PaginatedTradeRequests.fromJson(Map<String, dynamic> json) =>
+      _$PaginatedTradeRequestsFromJson(json);
 }
 
 // Trade Session Models
@@ -243,5 +260,36 @@ class TradeSessionDetail with _$TradeSessionDetail {
 
   factory TradeSessionDetail.fromJson(Map<String, dynamic> json) =>
       _$TradeSessionDetailFromJson(json);
+}
+
+@freezed
+class TradeRequestDetailItem with _$TradeRequestDetailItem {
+  const factory TradeRequestDetailItem({
+    @JsonKey(name: 'tradeItemId') required String tradeItemId,
+    @JsonKey(name: 'foodItemId') required String foodItemId,
+    @JsonKey(name: 'name') required String name,
+    @JsonKey(name: 'originalName') required String originalName,
+    @JsonKey(name: 'imageUrl') String? imageUrl,
+    @JsonKey(name: 'foodGroup') required String foodGroup,
+    @JsonKey(name: 'quantity') required double quantity,
+    @JsonKey(name: 'unitAbbreviation') required String unitAbbreviation,
+    @JsonKey(name: 'unitId') required String unitId,
+    @JsonKey(name: 'expirationDate') required String expirationDate,
+    @JsonKey(name: 'from') required String from,
+  }) = _TradeRequestDetailItem;
+
+  factory TradeRequestDetailItem.fromJson(Map<String, dynamic> json) =>
+      _$TradeRequestDetailItemFromJson(json);
+}
+
+@freezed
+class TradeRequestDetail with _$TradeRequestDetail {
+  const factory TradeRequestDetail({
+    @JsonKey(name: 'tradeRequest') required TradeRequest tradeRequest,
+    @JsonKey(name: 'items') @Default([]) List<TradeRequestDetailItem> items,
+  }) = _TradeRequestDetail;
+
+  factory TradeRequestDetail.fromJson(Map<String, dynamic> json) =>
+      _$TradeRequestDetailFromJson(json);
 }
 

@@ -10,11 +10,20 @@ class TradeOfferRepository {
   Future<PaginatedTradeOffers> getTradeOffers({
     int pageNumber = 1,
     int pageSize = defaultPageSize,
+    bool? isMine,
+    bool? isMyHousehold,
   }) async {
     final queryParams = <String, dynamic>{
       'pageNumber': pageNumber,
       'pageSize': pageSize,
     };
+
+    if (isMine != null) {
+      queryParams['isMine'] = isMine;
+    }
+    if (isMyHousehold != null) {
+      queryParams['isMyHousehold'] = isMyHousehold;
+    }
 
     final queryString = queryParams.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
@@ -68,38 +77,85 @@ class TradeOfferRepository {
     );
   }
 
-  Future<List<MyPost>> getMyPosts() async {
-    final result = await _network.get<List<MyPost>>(
-      ApiEndpoints.getMyPosts,
+  Future<PaginatedTradeOffers> getMyPosts({
+    int pageNumber = 1,
+    int pageSize = defaultPageSize,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'isMine': true,
+      'isMyHousehold': true,
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+
+    final result = await _network.get<PaginatedTradeOffers>(
+      '${ApiEndpoints.getTradeOffers}?$queryString',
       onSuccess: (data) {
-        if (data == null) return <MyPost>[];
-        
-        final List<dynamic> items = data as List<dynamic>;
-        return items
-            .whereType<Map<String, dynamic>>()
-            .map((json) => MyPost.fromJson(json))
-            .toList();
+        return PaginatedTradeOffers.fromJson(
+          data as Map<String, dynamic>,
+        );
       },
     );
 
     return result;
   }
 
-  Future<List<TradeRequest>> getPostRequests({
+  Future<PaginatedTradeRequests> getPostRequests({
     required String offerId,
+    int pageNumber = 1,
+    int pageSize = 10,
   }) async {
-    final endpoint = ApiEndpoints.getPostById.replaceAll('{offerId}', offerId);
-    
-    final result = await _network.get<List<TradeRequest>>(
-      endpoint,
+    final queryParams = <String, dynamic>{
+      'offerId': offerId,
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+
+    final result = await _network.get<PaginatedTradeRequests>(
+      '${ApiEndpoints.getTradeRequests}?$queryString',
       onSuccess: (data) {
-        if (data == null) return <TradeRequest>[];
-        
-        final List<dynamic> items = data as List<dynamic>;
-        return items
-            .whereType<Map<String, dynamic>>()
-            .map((json) => TradeRequest.fromJson(json))
-            .toList();
+        return PaginatedTradeRequests.fromJson(
+          data as Map<String, dynamic>,
+        );
+      },
+    );
+
+    return result;
+  }
+
+  Future<PaginatedTradeRequests> getMyTradeRequests({
+    int pageNumber = 1,
+    int pageSize = 12,
+    String? status,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'isMine': true,
+      'pageNumber': pageNumber,
+      'pageSize': pageSize,
+    };
+
+    if (status != null && status.isNotEmpty) {
+      queryParams['status'] = status;
+    }
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+
+    final result = await _network.get<PaginatedTradeRequests>(
+      '${ApiEndpoints.getTradeRequests}?$queryString',
+      onSuccess: (data) {
+        return PaginatedTradeRequests.fromJson(
+          data as Map<String, dynamic>,
+        );
       },
     );
 
@@ -118,6 +174,48 @@ class TradeOfferRepository {
       endpoint,
       onSuccess: (_) => null,
     );
+  }
+
+  Future<void> cancelTradeRequest({
+    required String tradeRequestId,
+  }) async {
+    final endpoint = ApiEndpoints.cancelTradeRequest
+        .replaceAll('{tradeRequestId}', tradeRequestId);
+
+    await _network.delete<void>(
+      endpoint,
+      onSuccess: (_) => null,
+    );
+  }
+
+  Future<void> cancelTradeOffer({
+    required String tradeOfferId,
+  }) async {
+    final endpoint = ApiEndpoints.cancelTradeOffer
+        .replaceAll('{tradeOfferId}', tradeOfferId);
+
+    await _network.delete<void>(
+      endpoint,
+      onSuccess: (_) => null,
+    );
+  }
+
+  Future<TradeRequestDetail> getTradeRequestDetail({
+    required String tradeRequestId,
+  }) async {
+    final endpoint = ApiEndpoints.getTradeRequestsDetail
+        .replaceAll('{tradeRequestId}', tradeRequestId);
+
+    final result = await _network.get<TradeRequestDetail>(
+      endpoint,
+      onSuccess: (data) {
+        return TradeRequestDetail.fromJson(
+          data as Map<String, dynamic>,
+        );
+      },
+    );
+
+    return result;
   }
 
   // Trade Session Methods
@@ -196,7 +294,7 @@ class TradeOfferRepository {
     final endpoint = ApiEndpoints.cancelTradeSession
         .replaceAll('{tradeSessionId}', tradeSessionId);
 
-    await _network.post<void>(
+    await _network.delete<void>(
       endpoint,
       onSuccess: (_) => null,
     );
