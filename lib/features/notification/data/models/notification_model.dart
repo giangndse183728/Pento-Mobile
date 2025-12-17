@@ -19,3 +19,19 @@ class NotificationItem with _$NotificationItem {
       _$NotificationItemFromJson(json);
 }
 
+@freezed
+class PaginatedNotifications with _$PaginatedNotifications {
+  const factory PaginatedNotifications({
+    @Default([]) List<NotificationItem> items,
+    @Default(1) int currentPage,
+    @Default(1) int totalPages,
+    @Default(10) int pageSize,
+    @Default(0) int totalCount,
+    @Default(false) bool hasPrevious,
+    @Default(false) bool hasNext,
+  }) = _PaginatedNotifications;
+
+  factory PaginatedNotifications.fromJson(Map<String, dynamic> json) =>
+      _$PaginatedNotificationsFromJson(json);
+}
+

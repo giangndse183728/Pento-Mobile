@@ -302,3 +302,323 @@ abstract class _NotificationItem implements NotificationItem {
   _$$NotificationItemImplCopyWith<_$NotificationItemImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+PaginatedNotifications _$PaginatedNotificationsFromJson(
+  Map<String, dynamic> json,
+) {
+  return _PaginatedNotifications.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PaginatedNotifications {
+  List<NotificationItem> get items => throw _privateConstructorUsedError;
+  int get currentPage => throw _privateConstructorUsedError;
+  int get totalPages => throw _privateConstructorUsedError;
+  int get pageSize => throw _privateConstructorUsedError;
+  int get totalCount => throw _privateConstructorUsedError;
+  bool get hasPrevious => throw _privateConstructorUsedError;
+  bool get hasNext => throw _privateConstructorUsedError;
+
+  /// Serializes this PaginatedNotifications to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PaginatedNotifications
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PaginatedNotificationsCopyWith<PaginatedNotifications> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PaginatedNotificationsCopyWith<$Res> {
+  factory $PaginatedNotificationsCopyWith(
+    PaginatedNotifications value,
+    $Res Function(PaginatedNotifications) then,
+  ) = _$PaginatedNotificationsCopyWithImpl<$Res, PaginatedNotifications>;
+  @useResult
+  $Res call({
+    List<NotificationItem> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class _$PaginatedNotificationsCopyWithImpl<
+  $Res,
+  $Val extends PaginatedNotifications
+>
+    implements $PaginatedNotificationsCopyWith<$Res> {
+  _$PaginatedNotificationsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PaginatedNotifications
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            items: null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                      as List<NotificationItem>,
+            currentPage: null == currentPage
+                ? _value.currentPage
+                : currentPage // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalPages: null == totalPages
+                ? _value.totalPages
+                : totalPages // ignore: cast_nullable_to_non_nullable
+                      as int,
+            pageSize: null == pageSize
+                ? _value.pageSize
+                : pageSize // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCount: null == totalCount
+                ? _value.totalCount
+                : totalCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hasPrevious: null == hasPrevious
+                ? _value.hasPrevious
+                : hasPrevious // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            hasNext: null == hasNext
+                ? _value.hasNext
+                : hasNext // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PaginatedNotificationsImplCopyWith<$Res>
+    implements $PaginatedNotificationsCopyWith<$Res> {
+  factory _$$PaginatedNotificationsImplCopyWith(
+    _$PaginatedNotificationsImpl value,
+    $Res Function(_$PaginatedNotificationsImpl) then,
+  ) = __$$PaginatedNotificationsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    List<NotificationItem> items,
+    int currentPage,
+    int totalPages,
+    int pageSize,
+    int totalCount,
+    bool hasPrevious,
+    bool hasNext,
+  });
+}
+
+/// @nodoc
+class __$$PaginatedNotificationsImplCopyWithImpl<$Res>
+    extends
+        _$PaginatedNotificationsCopyWithImpl<$Res, _$PaginatedNotificationsImpl>
+    implements _$$PaginatedNotificationsImplCopyWith<$Res> {
+  __$$PaginatedNotificationsImplCopyWithImpl(
+    _$PaginatedNotificationsImpl _value,
+    $Res Function(_$PaginatedNotificationsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PaginatedNotifications
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? items = null,
+    Object? currentPage = null,
+    Object? totalPages = null,
+    Object? pageSize = null,
+    Object? totalCount = null,
+    Object? hasPrevious = null,
+    Object? hasNext = null,
+  }) {
+    return _then(
+      _$PaginatedNotificationsImpl(
+        items: null == items
+            ? _value._items
+            : items // ignore: cast_nullable_to_non_nullable
+                  as List<NotificationItem>,
+        currentPage: null == currentPage
+            ? _value.currentPage
+            : currentPage // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalPages: null == totalPages
+            ? _value.totalPages
+            : totalPages // ignore: cast_nullable_to_non_nullable
+                  as int,
+        pageSize: null == pageSize
+            ? _value.pageSize
+            : pageSize // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCount: null == totalCount
+            ? _value.totalCount
+            : totalCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hasPrevious: null == hasPrevious
+            ? _value.hasPrevious
+            : hasPrevious // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        hasNext: null == hasNext
+            ? _value.hasNext
+            : hasNext // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PaginatedNotificationsImpl implements _PaginatedNotifications {
+  const _$PaginatedNotificationsImpl({
+    final List<NotificationItem> items = const [],
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.pageSize = 10,
+    this.totalCount = 0,
+    this.hasPrevious = false,
+    this.hasNext = false,
+  }) : _items = items;
+
+  factory _$PaginatedNotificationsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PaginatedNotificationsImplFromJson(json);
+
+  final List<NotificationItem> _items;
+  @override
+  @JsonKey()
+  List<NotificationItem> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  @JsonKey()
+  final int currentPage;
+  @override
+  @JsonKey()
+  final int totalPages;
+  @override
+  @JsonKey()
+  final int pageSize;
+  @override
+  @JsonKey()
+  final int totalCount;
+  @override
+  @JsonKey()
+  final bool hasPrevious;
+  @override
+  @JsonKey()
+  final bool hasNext;
+
+  @override
+  String toString() {
+    return 'PaginatedNotifications(items: $items, currentPage: $currentPage, totalPages: $totalPages, pageSize: $pageSize, totalCount: $totalCount, hasPrevious: $hasPrevious, hasNext: $hasNext)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PaginatedNotificationsImpl &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.totalPages, totalPages) ||
+                other.totalPages == totalPages) &&
+            (identical(other.pageSize, pageSize) ||
+                other.pageSize == pageSize) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.hasPrevious, hasPrevious) ||
+                other.hasPrevious == hasPrevious) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_items),
+    currentPage,
+    totalPages,
+    pageSize,
+    totalCount,
+    hasPrevious,
+    hasNext,
+  );
+
+  /// Create a copy of PaginatedNotifications
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PaginatedNotificationsImplCopyWith<_$PaginatedNotificationsImpl>
+  get copyWith =>
+      __$$PaginatedNotificationsImplCopyWithImpl<_$PaginatedNotificationsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PaginatedNotificationsImplToJson(this);
+  }
+}
+
+abstract class _PaginatedNotifications implements PaginatedNotifications {
+  const factory _PaginatedNotifications({
+    final List<NotificationItem> items,
+    final int currentPage,
+    final int totalPages,
+    final int pageSize,
+    final int totalCount,
+    final bool hasPrevious,
+    final bool hasNext,
+  }) = _$PaginatedNotificationsImpl;
+
+  factory _PaginatedNotifications.fromJson(Map<String, dynamic> json) =
+      _$PaginatedNotificationsImpl.fromJson;
+
+  @override
+  List<NotificationItem> get items;
+  @override
+  int get currentPage;
+  @override
+  int get totalPages;
+  @override
+  int get pageSize;
+  @override
+  int get totalCount;
+  @override
+  bool get hasPrevious;
+  @override
+  bool get hasNext;
+
+  /// Create a copy of PaginatedNotifications
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PaginatedNotificationsImplCopyWith<_$PaginatedNotificationsImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}

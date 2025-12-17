@@ -2,20 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
+import '../../../../core/layouts/app_scaffold.dart';
 import '../../data/models/notification_model.dart';
 import '../providers/notification_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
+  static const _notificationTypes = <String?>[
+    null, // All
+    'General',
+    'FoodExpiringSoon',
+    'MealPlanReminder',
+    'Subscription',
+    'Milestone',
+    'Entitlement',
+    'Trade',
+  ];
+
+  String _labelForType(String? type) {
+    switch (type) {
+      case null:
+        return 'All';
+      case 'General':
+        return 'General';
+      case 'FoodExpiringSoon':
+        return 'Food expiring';
+      case 'MealPlanReminder':
+        return 'Meal plan';
+      case 'Subscription':
+        return 'Subscription';
+      case 'Milestone':
+        return 'Milestone';
+      case 'Entitlement':
+        return 'Entitlement';
+      case 'Trade':
+        return 'Trade';
+      default:
+        return type;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncNotifications = ref.watch(notificationsProvider);
+    final notifier = ref.read(notificationsProvider.notifier);
 
-    Future<void> refreshNotifications() =>
-        ref.read(notificationsProvider.notifier).refresh();
+    Future<void> refreshNotifications() => notifier.refresh();
 
     return AppScaffold(
       title: 'Notifications',
@@ -70,58 +105,165 @@ class NotificationsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          data: (notifications) {
-            if (notifications.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).padding.top +
-                        kToolbarHeight +
-                        16.h,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.notifications_off_outlined,
-                            size: 64.w,
-                            color: AppColors.blueGray.withValues(alpha: 0.4),
-                          ),
-                          SizedBox(height: 16.h),
-                          Text(
-                            'No notifications yet',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: AppColors.blueGray.withValues(alpha: 0.6),
-                            ),
-                          ),
-                        ],
+          data: (notificationState) {
+            final notifications = notificationState.notifications;
+
+            Widget buildList({required bool isEmpty}) {
+              return NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.axis != Axis.vertical) {
+                    return false;
+                  }
+
+                  final data = asyncNotifications.valueOrNull;
+                  if (data == null ||
+                      data.isLoadingMore ||
+                      !data.hasNext) {
+                    return false;
+                  }
+
+                  final threshold =
+                      notification.metrics.maxScrollExtent - 120;
+                  if (notification.metrics.pixels >= threshold &&
+                      notification.metrics.maxScrollExtent > 0) {
+                    notifier.loadNextPage();
+                  }
+
+                  return false;
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).padding.top +
+                            kToolbarHeight +
+                            16.h,
                       ),
                     ),
-                  ),
-                ],
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 40.h,
+                        child: ListView.separated(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            final type = _notificationTypes[index];
+                            final label = _labelForType(type);
+                            final isSelected =
+                                notificationState.selectedType == type ||
+                                    (type == null &&
+                                        notificationState.selectedType ==
+                                            null);
+
+                            return ChoiceChip(
+                              label: Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                              selected: isSelected,
+                              onSelected: (_) =>
+                                  notifier.setTypeFilter(type),
+                              selectedColor: AppColors.blueGray,
+                              backgroundColor: AppColors.iceberg,
+                              labelStyle: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.blueGray,
+                              ),
+                            );
+                          },
+                          separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                          itemCount: _notificationTypes.length,
+                        ),
+                      ),
+                    ),
+                    if (isEmpty) ...[
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.notifications_off_outlined,
+                                size: 64.w,
+                                color: AppColors.blueGray.withValues(
+                                  alpha: 0.4,
+                                ),
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                'No notifications yet',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppColors.blueGray.withValues(
+                                    alpha: 0.6,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      SliverPadding(
+                        padding: EdgeInsets.only(
+                          left: 16.w,
+                          right: 16.w,
+                          top: 12.h,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final notification = notifications[index];
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: 12.h),
+                                child: _NotificationCard(
+                                  notification: notification,
+                                ),
+                              );
+                            },
+                            childCount: notifications.length,
+                          ),
+                        ),
+                      ),
+                      if (notificationState.isLoadingMore) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.h),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (notificationState.loadMoreError != null) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            child: Center(
+                              child: Text(
+                                'Failed to load more. Pull to refresh.',
+                                style:
+                                    Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: 120.h),
+                      ),
+                    ],
+                  ],
+                ),
               );
             }
 
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top +
-                    kToolbarHeight +
-                    16.h,
-                bottom: 120.h,
-              ),
-              itemCount: notifications.length,
-              itemBuilder: (context, index) {
-                final notification = notifications[index];
-                return _NotificationCard(notification: notification);
-              },
-            );
+            return buildList(isEmpty: notifications.isEmpty);
           },
         ),
       ),
@@ -134,35 +276,63 @@ class _NotificationCard extends StatelessWidget {
 
   final NotificationItem notification;
 
-  IconData _getIconForType(String type) {
-    switch (type.toLowerCase()) {
-      case 'subscription':
-        return Icons.card_membership;
-      case 'trade':
-        return Icons.swap_horiz;
-      case 'food':
-        return Icons.restaurant;
-      case 'achievement':
-        return Icons.emoji_events;
-      case 'household':
-        return Icons.home;
+  String _normalizeType(String rawType) {
+    final trimmed = rawType.trim();
+    switch (trimmed) {
+      case '1':
+        return 'General';
+      case '2':
+        return 'FoodExpiringSoon';
+      case '3':
+        return 'MealPlanReminder';
+      case '4':
+        return 'Subscription';
+      case '5':
+        return 'Milestone';
+      case '6':
+        return 'Entitlement';
+      case '7':
+        return 'Trade';
       default:
-        return Icons.notifications;
+        return trimmed;
+    }
+  }
+
+  String _getIconPathForType(String type) {
+    final normalized = _normalizeType(type);
+    switch (normalized) {
+      case 'Subscription':
+        return AppImages.subscriptionNotification;
+      case 'Milestone':
+        return AppImages.milestoneNotification;
+      case 'MealPlanReminder':
+        return AppImages.reminderNotification;
+      case 'Trade':
+        return AppImages.tradeNotification;
+      case 'FoodExpiringSoon':
+      case 'Entitlement':
+      case 'General':
+      default:
+        return AppImages.notification;
     }
   }
 
   Color _getColorForType(String type) {
-    switch (type.toLowerCase()) {
+    final normalized = _normalizeType(type).toLowerCase();
+    switch (normalized) {
       case 'subscription':
         return AppColors.blueGray;
       case 'trade':
         return AppColors.mintLeaf;
-      case 'food':
+      case 'foodexpiringsoon':
         return AppColors.warningSun;
-      case 'achievement':
+      case 'milestone':
         return AppColors.blueGray;
-      case 'household':
+      case 'mealplanreminder':
         return AppColors.powderBlue;
+      case 'entitlement':
+        return AppColors.blueGray;
+      case 'general':
       default:
         return AppColors.blueGray;
     }
@@ -189,10 +359,9 @@ class _NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isRead = notification.readOn != null;
     final typeColor = _getColorForType(notification.type);
-    final typeIcon = _getIconForType(notification.type);
+    final iconPath = _getIconPathForType(notification.type);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: isRead
             ? AppColors.iceberg
@@ -217,7 +386,6 @@ class _NotificationCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon container
             Container(
               width: 44.w,
               height: 44.w,
@@ -225,14 +393,15 @@ class _NotificationCard extends StatelessWidget {
                 color: typeColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Icon(
-                typeIcon,
-                size: 22.w,
-                color: typeColor,
+              child: Padding(
+                padding: EdgeInsets.all(10.w),
+                child: Image.asset(
+                  iconPath,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             SizedBox(width: 12.w),
-            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +457,7 @@ class _NotificationCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Text(
-                          notification.type,
+                          _normalizeType(notification.type),
                           style: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
