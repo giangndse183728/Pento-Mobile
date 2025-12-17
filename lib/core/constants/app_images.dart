@@ -59,10 +59,25 @@ class AppImages {
   static const String receiptScan = "assets/icon/invoice.png";
   static const String search = "assets/icon/search.png";
 
-  //Difficulty icons
+  // Difficulty icons
   static const String easy = "assets/icon/smile.png";
   static const String medium = "assets/icon/melting.png";
   static const String hard = "assets/icon/omg.png";
+
+  // Trade icons
+  static const String inPerson = "assets/icon/trust.png";
+  static const String delivery = "assets/icon/3d-truck.png";
+  static const String flexible = "assets/icon/decision-making.png";
+  static const String calendar = "assets/icon/3d-calendar.png";
+  static const String pickupOption = "assets/icon/tracking.png";
+
+  //Notification icons
+  static const String notification = "assets/icon/bell.png";
+  static const String tradeNotification = "assets/icon/delivery.png";
+  static const String reminderNotification = "assets/icon/reminder.png";
+  static const String milestoneNotification = "assets/icon/3d-achievement.png";
+  static const String subscriptionNotification = "assets/icon/credit-card.png";
+
 }
 
 
