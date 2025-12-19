@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/trade_offers_model.dart';
 
 class TradeOfferCard extends StatelessWidget {
@@ -50,16 +52,16 @@ class TradeOfferCard extends StatelessWidget {
     }
   }
 
-  IconData _getPickupIcon(String option) {
+  String _getPickupIconAsset(String option) {
     switch (option.toLowerCase()) {
       case 'inperson':
-        return Icons.handshake_rounded;
+        return AppImages.inPerson;
       case 'delivery':
-        return Icons.delivery_dining_rounded;
+        return AppImages.delivery;
       case 'flexible':
-        return Icons.all_inclusive_rounded;
+        return AppImages.flexible;
       default:
-        return Icons.local_shipping_rounded;
+        return AppImages.delivery;
     }
   }
 
@@ -80,10 +82,9 @@ class TradeOfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pickupColor = _getPickupColor(tradeOffer.pickupOption);
     final itemCount = tradeOffer.items.length.clamp(0, 2);
-    final baseHeight = 220.h;
-    final itemHeight = itemCount * 56.h;
-    final extraItemsHeight = tradeOffer.items.length > 2 ? 20.h : 0;
-    final totalHeight = baseHeight + itemHeight + extraItemsHeight;
+    final baseHeight = 200.h;
+    final itemHeight = itemCount * 48.h;
+    final totalHeight = baseHeight + itemHeight;
 
     return Container(
       height: totalHeight,
@@ -96,7 +97,12 @@ class TradeOfferCard extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: onTap,
+              onTap: () {
+                _showAllItemsDialog(context, pickupColor);
+                if (onTap != null) {
+                  onTap!();
+                }
+              },
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -196,10 +202,10 @@ class TradeOfferCard extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                _getPickupIcon(tradeOffer.pickupOption),
-                size: 22.sp,
-                color: Colors.white,
+              child: Image.asset(
+                _getPickupIconAsset(tradeOffer.pickupOption),
+                height: 22.w,
+                width: 22.w,
               ),
             ),
             SizedBox(height: 6.h),
@@ -334,24 +340,30 @@ class TradeOfferCard extends StatelessWidget {
 
           // Items list
           if (tradeOffer.items.isNotEmpty) ...[
-            ...tradeOffer.items.take(2).map((item) => _buildItemRow(item)),
-          if (tradeOffer.items.length > 2)
+            ...tradeOffer.items.take(2).map(
+              (item) => _buildItemRow(item),
+            ),
+            if (tradeOffer.items.length > 2)
               Padding(
                 padding: EdgeInsets.only(top: 4.h),
-                child: Text(
-                  '+ ${tradeOffer.items.length - 2} more items',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: AppColors.blueGray,
-                    fontStyle: FontStyle.italic,
+                child: GestureDetector(
+                  onTap: () => _showAllItemsDialog(context, pickupColor),
+                  child: Text(
+                    '+ ${tradeOffer.items.length - 2} more items',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: AppColors.blueGray,
+                      fontStyle: FontStyle.italic,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
-        ],
+          ],
 
-        const Spacer(),
+          const Spacer(),
 
-        // Request button
+          // Request button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -494,6 +506,102 @@ class TradeOfferCard extends StatelessWidget {
         size: 20.w,
         color: AppColors.blueGray,
       ),
+    );
+  }
+
+  void _showAllItemsDialog(BuildContext context, Color pickupColor) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AppDialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: pickupColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(
+                      Icons.inventory_2_rounded,
+                      size: 20.sp,
+                      color: pickupColor,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      'All Items in This Trade',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, size: 20.sp),
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    color: AppColors.blueGray,
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.h),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: 320.h,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: tradeOffer.items
+                        .map((item) => _buildItemRow(item))
+                        .toList(),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    context.push(
+                      '${AppRoutes.selectFoodItemsForTradeRequest}/${tradeOffer.offerId}',
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.blueGray,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.swap_horiz_rounded, size: 18.sp),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Request Trade',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

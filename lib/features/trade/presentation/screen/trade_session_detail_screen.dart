@@ -9,6 +9,7 @@ import '../../data/models/trade_offers_model.dart';
 import '../providers/trade_sessions_provider.dart';
 import '../widgets/trade_session_chat_widget.dart';
 import '../widgets/trade_session_items_widget.dart';
+import '../widgets/trade_report_dialog.dart';
 
 class TradeSessionDetailScreen extends ConsumerStatefulWidget {
   const TradeSessionDetailScreen({
@@ -120,6 +121,24 @@ class _TradeSessionDetailScreenState
       if (mounted) {
         setState(() => _isConfirming = false);
       }
+    }
+  }
+
+  Future<void> _showReportDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => TradeReportDialog(
+        tradeSessionId: widget.sessionId,
+      ),
+    );
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Report submitted successfully'),
+          backgroundColor: AppColors.mintLeaf,
+        ),
+      );
     }
   }
 
@@ -352,6 +371,25 @@ class _TradeSessionDetailScreenState
         },
       ),
       actions: [
+        asyncDetail.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (detail) {
+            final canReport = detail.tradeSession.status.toLowerCase() == 'cancelled' ||
+                detail.tradeSession.status.toLowerCase() == 'completed';
+            
+            if (!canReport) return const SizedBox.shrink();
+            
+            return IconButton(
+              icon: Icon(
+                Icons.flag_outlined,
+                color: AppColors.dangerRed,
+              ),
+              onPressed: () => _showReportDialog(),
+              tooltip: 'Report',
+            );
+          },
+        ),
         IconButton(
           icon: Icon(
             Icons.more_vert_rounded,

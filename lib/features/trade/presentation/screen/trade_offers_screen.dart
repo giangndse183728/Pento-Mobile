@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
-import '../providers/trade_request_provider.dart';
+import '../providers/trade_offers_provider.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../widgets/trade_offers_card.dart';
 import '../../../../core/widgets/circle_icon_button.dart';

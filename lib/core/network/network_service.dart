@@ -223,5 +223,27 @@ class NetworkService {
       onSuccess: onSuccess,
     );
   }
+
+  Future<T> uploadFile<T>(
+    String path, {
+    required String filePath,
+    required String fieldName,
+    Map<String, dynamic>? additionalFields,
+    Map<String, dynamic>? queryParameters,
+    ProgressCallback? onSendProgress,
+    required T Function(dynamic data) onSuccess,
+  }) async {
+    return handleRequest(
+      () => _client.uploadFile(
+        path,
+        filePath: filePath,
+        fieldName: fieldName,
+        additionalFields: additionalFields,
+        queryParameters: queryParameters,
+        onSendProgress: onSendProgress,
+      ),
+      onSuccess: onSuccess,
+    );
+  }
 }
 

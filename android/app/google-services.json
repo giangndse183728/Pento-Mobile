@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "367912163580",
+    "project_id": "pento-notification",
+    "storage_bucket": "pento-notification.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367912163580:android:c35ff27b12e67e05e45f79",
+        "android_client_info": {
+          "package_name": "com.example.pento_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIuvwjHMoNhw7NkGSSDr8KZlVeFLzE1So"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367912163580:android:f0508e5c431d4676e45f79",
+        "android_client_info": {
+          "package_name": "com.pento.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIuvwjHMoNhw7NkGSSDr8KZlVeFLzE1So"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

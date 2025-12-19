@@ -9,11 +9,13 @@ class MyPosts extends _$MyPosts {
   late final TradeOfferRepository _repository;
   int _currentPage = 1;
   static const int _pageSize = 12;
+  String? _selectedStatus;
 
   @override
   FutureOr<PaginatedTradeOffers> build() async {
     _repository = TradeOfferRepository();
     _currentPage = 1;
+    _selectedStatus = null;
     return await _loadPosts();
   }
 
@@ -21,6 +23,7 @@ class MyPosts extends _$MyPosts {
     return await _repository.getMyPosts(
       pageNumber: _currentPage,
       pageSize: _pageSize,
+      status: _selectedStatus,
     );
   }
 
@@ -47,6 +50,15 @@ class MyPosts extends _$MyPosts {
       state = await AsyncValue.guard(_loadPosts);
     }
   }
+
+  Future<void> setStatusFilter(String? status) async {
+    _selectedStatus = status;
+    _currentPage = 1;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_loadPosts);
+  }
+
+  String? get selectedStatus => _selectedStatus;
 }
 
 

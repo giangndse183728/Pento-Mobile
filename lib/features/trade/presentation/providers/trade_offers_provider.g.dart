@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'trade_request_provider.dart';
+part of 'trade_offers_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tradeOffersHash() => r'4500f075fe9e9e377efbc083639b6199bcb94799';
+String _$tradeOffersHash() => r'644590d828245929840096a8f9934dd5325b4455';
 
 /// See also [TradeOffers].
 @ProviderFor(TradeOffers)

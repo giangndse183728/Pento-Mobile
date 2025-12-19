@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +28,8 @@ class _SelectFoodItemsWidgetState
     extends ConsumerState<SelectFoodItemsWidget> {
   late final TextEditingController _searchController;
 
+  int _currentPage = 1;
+
   // Local filter state - only applied when search is triggered
   String _pendingSearchText = '';
   List<String> _pendingFoodGroups = [];
@@ -47,6 +51,7 @@ class _SelectFoodItemsWidgetState
       _pendingSortBy = filters.sortBy;
       _pendingSortOrder = filters.sortOrder;
       _searchController.text = _pendingSearchText;
+      _currentPage = 1;
     });
   }
 
@@ -63,6 +68,9 @@ class _SelectFoodItemsWidgetState
 
   /// Apply filters and trigger API call
   void _applyFilters() {
+    setState(() {
+      _currentPage = 1;
+    });
     ref.read(foodItemsFiltersProvider.notifier).state = FoodItemsFilters(
       searchText: _pendingSearchText,
       foodGroups: _pendingFoodGroups,
@@ -81,8 +89,43 @@ class _SelectFoodItemsWidgetState
       _pendingSortBy = FoodItemsSortBy.defaultSort;
       _pendingSortOrder = FoodItemsSortOrder.asc;
       _searchController.clear();
+      _currentPage = 1;
     });
     _applyFilters();
+  }
+
+  Future<void> _goToNextPage(FoodItemsState state) async {
+    final maxLoadedPage = state.currentPage;
+    final totalPages = state.totalPages;
+
+    if (_currentPage >= totalPages) {
+      return;
+    }
+
+    if (_currentPage < maxLoadedPage) {
+      setState(() {
+        _currentPage += 1;
+      });
+      return;
+    }
+
+    if (!state.hasNext || state.isLoadingMore) {
+      return;
+    }
+
+    await ref.read(foodItemsProvider.notifier).loadNextPage();
+    setState(() {
+      _currentPage += 1;
+    });
+  }
+
+  void _goToPreviousPage() {
+    if (_currentPage <= 1) {
+      return;
+    }
+    setState(() {
+      _currentPage -= 1;
+    });
   }
 
   @override
@@ -184,46 +227,102 @@ class _SelectFoodItemsWidgetState
               );
             }
 
-            return NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification.metrics.axis != Axis.vertical) {
-                  return false;
-                }
-                if (!state.hasNext || state.isLoadingMore) {
-                  return false;
-                }
-                final threshold = notification.metrics.maxScrollExtent - 120;
-                if (notification.metrics.pixels >= threshold &&
-                    notification.metrics.maxScrollExtent > 0) {
-                  ref.read(foodItemsProvider.notifier).loadNextPage();
-                }
-                return false;
-              },
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
-                separatorBuilder: (_, __) => SizedBox(height: 8.h),
-                itemBuilder: (context, index) {
-                  if (state.isLoadingMore && index == state.items.length) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: CircularProgressIndicator(),
+            final pageSize = state.pageSize;
+            final totalPages = state.totalPages;
+            final maxLoadedPage = state.currentPage;
+
+            final effectiveMaxPage = min(maxLoadedPage, totalPages);
+            final currentPage =
+                _currentPage.clamp(1, effectiveMaxPage);
+
+            final startIndex = (currentPage - 1) * pageSize;
+            final endIndex = min(
+              startIndex + pageSize,
+              state.items.length,
+            );
+
+            final pageItems = startIndex < state.items.length
+                ? state.items.sublist(startIndex, endIndex)
+                : <CompartmentItem>[];
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Page $currentPage of $totalPages',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: AppColors.blueGray,
+                        fontWeight: FontWeight.w500,
                       ),
-                    );
-                  }
+                    ),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed:
+                              currentPage > 1 ? _goToPreviousPage : null,
+                          child: Text(
+                            'Previous',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        TextButton(
+                          onPressed: (currentPage < totalPages &&
+                                  (currentPage < maxLoadedPage ||
+                                      state.hasNext &&
+                                          !state.isLoadingMore))
+                              ? () => _goToNextPage(state)
+                              : null,
+                          child: Text(
+                            'Next',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                SizedBox(
+                  height: 400.h,
+                  child: ListView.separated(
+                    shrinkWrap: false,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: pageItems.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 8.h),
+                    itemBuilder: (context, index) {
+                      final item = pageItems[index];
+                      final isSelected =
+                          widget.selectedItemIds.contains(item.id);
 
-                  final item = state.items[index];
-                  final isSelected = widget.selectedItemIds.contains(item.id);
-
-                  return _SelectableFoodItemCard(
-                    item: item,
-                    isSelected: isSelected,
-                    onTap: () => _toggleSelection(item),
-                  );
-                },
-              ),
+                      return _SelectableFoodItemCard(
+                        item: item,
+                        isSelected: isSelected,
+                        onTap: () => _toggleSelection(item),
+                      );
+                    },
+                  ),
+                ),
+                if (state.isLoadingMore) ...[
+                  SizedBox(height: 8.h),
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ],
+              ],
             );
           },
         ),

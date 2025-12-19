@@ -20,10 +20,28 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
   late final TextEditingController _searchController;
   String? _lastErrorMessage;
 
+  // Local filter state - only applied when search is triggered
+  String _pendingSearchText = '';
+  List<String> _pendingFoodGroups = [];
+  FoodItemsStatusFilter _pendingStatus = FoodItemsStatusFilter.all;
+  FoodItemsSortBy _pendingSortBy = FoodItemsSortBy.defaultSort;
+  FoodItemsSortOrder _pendingSortOrder = FoodItemsSortOrder.asc;
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+
+    // Initialize pending state from current filters
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final filters = ref.read(foodItemsFiltersProvider);
+      _pendingSearchText = filters.searchText;
+      _pendingFoodGroups = List.from(filters.foodGroups);
+      _pendingStatus = filters.status;
+      _pendingSortBy = filters.sortBy;
+      _pendingSortOrder = filters.sortOrder;
+      _searchController.text = _pendingSearchText;
+    });
   }
 
   @override
@@ -32,17 +50,34 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
     super.dispose();
   }
 
+  /// Apply filters and trigger API call
+  void _applyFilters() {
+    ref.read(foodItemsFiltersProvider.notifier).state = FoodItemsFilters(
+      searchText: _pendingSearchText,
+      foodGroups: _pendingFoodGroups,
+      status: _pendingStatus,
+      sortBy: _pendingSortBy,
+      sortOrder: _pendingSortOrder,
+    );
+  }
+
+  /// Clear all filters and search
+  void _clearAllFilters() {
+    setState(() {
+      _pendingSearchText = '';
+      _pendingFoodGroups = [];
+      _pendingStatus = FoodItemsStatusFilter.all;
+      _pendingSortBy = FoodItemsSortBy.defaultSort;
+      _pendingSortOrder = FoodItemsSortOrder.asc;
+      _searchController.clear();
+    });
+    _applyFilters();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filters = ref.watch(foodItemsFiltersProvider);
+    final currentFilters = ref.watch(foodItemsFiltersProvider);
     final foodItemsAsync = ref.watch(foodItemsProvider);
-
-    if (_searchController.text != filters.searchText) {
-      _searchController.text = filters.searchText;
-      _searchController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _searchController.text.length),
-      );
-    }
 
     return AppScaffold(
       title: 'Food items',
@@ -92,7 +127,9 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
                 bottom: 24.h,
               ),
               itemCount:
-                  1 + (isEmpty ? 0 : state.items.length) + (state.isLoadingMore ? 1 : 0),
+                  1 +
+                  (isEmpty ? 0 : state.items.length) +
+                  (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, index) {
                 if (index == 0) return SizedBox(height: 16.h);
                 return SizedBox(height: 4.h);
@@ -101,33 +138,31 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
                 if (index == 0) {
                   return _FoodItemsFilterCard(
                     searchController: _searchController,
-                    filters: filters,
+                    pendingSearchText: _pendingSearchText,
+                    pendingFoodGroups: _pendingFoodGroups,
+                    pendingStatus: _pendingStatus,
+                    pendingSortBy: _pendingSortBy,
+                    pendingSortOrder: _pendingSortOrder,
+                    currentFilters: currentFilters,
                     foodGroups: foodGroups,
                     totalCount: state.totalCount,
-                    onSearchChanged: (value) {
-                      ref
-                          .read(foodItemsFiltersProvider.notifier)
-                          .state = filters.copyWith(searchText: value);
+                    onSearchTextChanged: (value) {
+                      setState(() => _pendingSearchText = value);
                     },
                     onFoodGroupChanged: (value) {
-                      ref.read(foodItemsFiltersProvider.notifier).state =
-                          filters.copyWith(
-                        foodGroups: value,
-                        clearFoodGroups: value.isEmpty,
-                      );
+                      setState(() => _pendingFoodGroups = value);
                     },
                     onStatusChanged: (status) {
-                      ref.read(foodItemsFiltersProvider.notifier).state =
-                          filters.copyWith(status: status);
+                      setState(() => _pendingStatus = status);
                     },
                     onSortByChanged: (sortBy) {
-                      ref.read(foodItemsFiltersProvider.notifier).state =
-                          filters.copyWith(sortBy: sortBy);
+                      setState(() => _pendingSortBy = sortBy);
                     },
                     onSortOrderChanged: (sortOrder) {
-                      ref.read(foodItemsFiltersProvider.notifier).state =
-                          filters.copyWith(sortOrder: sortOrder);
+                      setState(() => _pendingSortOrder = sortOrder);
                     },
+                    onSearch: _applyFilters,
+                    onClearAll: _clearAllFilters,
                   );
                 }
 
@@ -190,25 +225,61 @@ class _FoodItemsScreenState extends ConsumerState<FoodItemsScreen> {
 class _FoodItemsFilterCard extends StatelessWidget {
   const _FoodItemsFilterCard({
     required this.searchController,
-    required this.filters,
+    required this.pendingSearchText,
+    required this.pendingFoodGroups,
+    required this.pendingStatus,
+    required this.pendingSortBy,
+    required this.pendingSortOrder,
+    required this.currentFilters,
     required this.foodGroups,
     required this.totalCount,
-    required this.onSearchChanged,
+    required this.onSearchTextChanged,
     required this.onFoodGroupChanged,
     required this.onStatusChanged,
     required this.onSortByChanged,
     required this.onSortOrderChanged,
+    required this.onSearch,
+    required this.onClearAll,
   });
 
   final TextEditingController searchController;
-  final FoodItemsFilters filters;
+  final String pendingSearchText;
+  final List<String> pendingFoodGroups;
+  final FoodItemsStatusFilter pendingStatus;
+  final FoodItemsSortBy pendingSortBy;
+  final FoodItemsSortOrder pendingSortOrder;
+  final FoodItemsFilters currentFilters;
   final List<String> foodGroups;
   final int totalCount;
-  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSearchTextChanged;
   final ValueChanged<List<String>> onFoodGroupChanged;
   final ValueChanged<FoodItemsStatusFilter> onStatusChanged;
   final ValueChanged<FoodItemsSortBy> onSortByChanged;
   final ValueChanged<FoodItemsSortOrder> onSortOrderChanged;
+  final VoidCallback onSearch;
+  final VoidCallback onClearAll;
+
+  bool get _hasActiveFilters =>
+      currentFilters.searchText.isNotEmpty ||
+      currentFilters.foodGroups.isNotEmpty ||
+      currentFilters.status != FoodItemsStatusFilter.all ||
+      currentFilters.sortBy != FoodItemsSortBy.defaultSort ||
+      currentFilters.sortOrder != FoodItemsSortOrder.asc;
+
+  bool get _hasPendingChanges =>
+      pendingSearchText != currentFilters.searchText ||
+      !_listEquals(pendingFoodGroups, currentFilters.foodGroups) ||
+      pendingStatus != currentFilters.status ||
+      pendingSortBy != currentFilters.sortBy ||
+      pendingSortOrder != currentFilters.sortOrder;
+
+  bool _listEquals(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -226,11 +297,52 @@ class _FoodItemsFilterCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
+          Row(
+            children: [
+              Icon(
+                Icons.inventory_2_rounded,
+                color: AppColors.blueGray,
+                size: 18.sp,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  'Search & Filter',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              if (_hasActiveFilters)
+                TextButton(
+                  onPressed: onClearAll,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.dangerRed,
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Clear All',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          // Search Field
           _SearchField(
             controller: searchController,
-            value: filters.searchText,
-            onChanged: onSearchChanged,
+            onChanged: onSearchTextChanged,
+            onSearch: onSearch,
             onFilterTap: () => _showFilterSheet(context),
+            hasPendingChanges: _hasPendingChanges,
           ),
           SizedBox(height: 8.h),
           if (totalCount > 0) ...[
@@ -248,14 +360,23 @@ class _FoodItemsFilterCard extends StatelessWidget {
             SizedBox(height: 4.h),
           ],
           _ActiveFilters(
-            filters: filters,
-            onClearGroup: () => onFoodGroupChanged(<String>[]),
-            onClearStatus: () =>
-                onStatusChanged(FoodItemsStatusFilter.all),
-            onClearSortBy: () =>
-                onSortByChanged(FoodItemsSortBy.defaultSort),
-            onClearSortOrder: () =>
-                onSortOrderChanged(FoodItemsSortOrder.asc),
+            filters: currentFilters,
+            onClearGroup: () {
+              onFoodGroupChanged(<String>[]);
+              onSearch();
+            },
+            onClearStatus: () {
+              onStatusChanged(FoodItemsStatusFilter.all);
+              onSearch();
+            },
+            onClearSortBy: () {
+              onSortByChanged(FoodItemsSortBy.defaultSort);
+              onSearch();
+            },
+            onClearSortOrder: () {
+              onSortOrderChanged(FoodItemsSortOrder.asc);
+              onSearch();
+            },
           ),
         ],
       ),
@@ -296,10 +417,11 @@ class _FoodItemsFilterCard extends StatelessWidget {
   }
 
   void _showFilterSheet(BuildContext context) {
-    var tempFoodGroups = List<String>.from(filters.foodGroups);
-    var tempStatus = filters.status;
-    var tempSortBy = filters.sortBy;
-    var tempSortOrder = filters.sortOrder;
+    // Local state for the modal
+    var localFoodGroups = List<String>.from(pendingFoodGroups);
+    var localStatus = pendingStatus;
+    var localSortBy = pendingSortBy;
+    var localSortOrder = pendingSortOrder;
 
     showModalBottomSheet<void>(
       context: context,
@@ -308,16 +430,16 @@ class _FoodItemsFilterCard extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            16.h,
-            16.w,
-            MediaQuery.of(context).viewInsets.bottom + 32.h,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setModalState) {
-              return SingleChildScrollView(
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                16.w,
+                16.h,
+                16.w,
+                MediaQuery.of(context).viewInsets.bottom + 32.h,
+              ),
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -328,33 +450,55 @@ class _FoodItemsFilterCard extends StatelessWidget {
                         width: 40.w,
                         height: 4.h,
                         decoration: BoxDecoration(
-                          color: AppColors.powderBlue.withValues(alpha: 0.5),
+                          color:
+                              AppColors.powderBlue.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 20.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.filter_list_rounded,
+                          color: AppColors.blueGray,
+                          size: 22.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Filters & Sorting',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
                     Text(
-                      'Filters',
+                      'Food Groups',
                       style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.blueGray,
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 8.h),
                     _FoodGroupChips(
                       foodGroups: foodGroups,
-                      selectedGroups: tempFoodGroups,
+                      selectedGroups: localFoodGroups,
                       onChanged: (value) {
-                        setModalState(() => tempFoodGroups = value);
+                        setModalState(() {
+                          localFoodGroups = value;
+                        });
                         onFoodGroupChanged(value);
                       },
                     ),
                     SizedBox(height: 16.h),
                     _DropdownField<FoodItemsStatusFilter>(
                       label: 'Status',
-                      value: tempStatus,
+                      value: localStatus,
                       items: FoodItemsStatusFilter.values
                           .map(
                             (status) =>
@@ -366,14 +510,16 @@ class _FoodItemsFilterCard extends StatelessWidget {
                           .toList(),
                       onChanged: (value) {
                         if (value == null) return;
-                        setModalState(() => tempStatus = value);
+                        setModalState(() {
+                          localStatus = value;
+                        });
                         onStatusChanged(value);
                       },
                     ),
                     SizedBox(height: 16.h),
                     _DropdownField<FoodItemsSortBy>(
                       label: 'Sort by',
-                      value: tempSortBy,
+                      value: localSortBy,
                       items: FoodItemsSortBy.values
                           .map(
                             (v) => DropdownMenuItem<FoodItemsSortBy>(
@@ -384,17 +530,20 @@ class _FoodItemsFilterCard extends StatelessWidget {
                           .toList(),
                       onChanged: (value) {
                         if (value == null) return;
-                        setModalState(() => tempSortBy = value);
+                        setModalState(() {
+                          localSortBy = value;
+                        });
                         onSortByChanged(value);
                       },
                     ),
                     SizedBox(height: 16.h),
                     _DropdownField<FoodItemsSortOrder>(
                       label: 'Sort order',
-                      value: tempSortOrder,
+                      value: localSortOrder,
                       items: FoodItemsSortOrder.values
                           .map(
-                            (v) => DropdownMenuItem<FoodItemsSortOrder>(
+                            (v) =>
+                                DropdownMenuItem<FoodItemsSortOrder>(
                               value: v,
                               child: Text(_sortOrderLabel(v)),
                             ),
@@ -402,37 +551,47 @@ class _FoodItemsFilterCard extends StatelessWidget {
                           .toList(),
                       onChanged: (value) {
                         if (value == null) return;
-                        setModalState(() => tempSortOrder = value);
+                        setModalState(() {
+                          localSortOrder = value;
+                        });
                         onSortOrderChanged(value);
                       },
                     ),
                     SizedBox(height: 24.h),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          onSearch();
+                        },
+                        icon: Icon(
+                          Icons.search_rounded,
+                          size: 20.sp,
+                        ),
+                        label: Text(
+                          'Apply & Search',
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.blueGray,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24.r),
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                        ),
-                        child: Text(
-                          'Done',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          elevation: 0,
                         ),
                       ),
                     ),
                   ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -442,21 +601,24 @@ class _FoodItemsFilterCard extends StatelessWidget {
 class _SearchField extends StatelessWidget {
   const _SearchField({
     required this.controller,
-    required this.value,
     required this.onChanged,
     required this.onFilterTap,
+    required this.onSearch,
+    required this.hasPendingChanges,
   });
 
   final TextEditingController controller;
-  final String value;
   final ValueChanged<String> onChanged;
   final VoidCallback onFilterTap;
+  final VoidCallback onSearch;
+  final bool hasPendingChanges;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       textInputAction: TextInputAction.search,
+      onSubmitted: (_) => onSearch(),
       decoration: InputDecoration(
         hintText: 'Search by food name',
         prefixIcon: Icon(
@@ -467,7 +629,7 @@ class _SearchField extends StatelessWidget {
         suffixIcon: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (value.isNotEmpty)
+            if (controller.text.isNotEmpty)
               IconButton(
                 icon: Icon(
                   Icons.clear,
@@ -479,13 +641,39 @@ class _SearchField extends StatelessWidget {
                   onChanged('');
                 },
               ),
-            IconButton(
-              icon: Icon(
-                Icons.tune,
-                color: AppColors.blueGray,
-                size: 20.sp,
+            Container(
+              margin: EdgeInsets.only(right: 4.w),
+              decoration: BoxDecoration(
+                color: AppColors.blueGray.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(32.r),
               ),
-              onPressed: onFilterTap,
+              child: IconButton(
+                icon: Icon(
+                  Icons.tune,
+                  color: AppColors.blueGray,
+                  size: 20.sp,
+                ),
+                onPressed: onFilterTap,
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(right: 4.w),
+              decoration: BoxDecoration(
+                color: hasPendingChanges
+                    ? AppColors.blueGray
+                    : AppColors.blueGray.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(32.r),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.search_rounded,
+                  color: hasPendingChanges
+                      ? Colors.white
+                      : AppColors.blueGray,
+                  size: 20.sp,
+                ),
+                onPressed: onSearch,
+              ),
             ),
           ],
         ),
@@ -505,8 +693,10 @@ class _SearchField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24.r),
           borderSide: BorderSide(
-            color: AppColors.powderBlue.withValues(alpha: 0.4),
-            width: 1,
+            color: hasPendingChanges
+                ? AppColors.blueGray
+                : AppColors.powderBlue.withValues(alpha: 0.4),
+            width: hasPendingChanges ? 2 : 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(

@@ -24,6 +24,8 @@ class TradeOfferItem with _$TradeOfferItem {
 class TradeOffer with _$TradeOffer {
   const factory TradeOffer({
     @JsonKey(name: 'offerId') required String offerId,
+    @JsonKey(name: 'status') required String status,
+    @JsonKey(name: 'pendingRequests') @Default(0) int pendingRequests,
     @JsonKey(name: 'startDate') required DateTime startDate,
     @JsonKey(name: 'endDate') required DateTime endDate,
     @JsonKey(name: 'pickupOption') required String pickupOption,
@@ -291,5 +293,65 @@ class TradeRequestDetail with _$TradeRequestDetail {
 
   factory TradeRequestDetail.fromJson(Map<String, dynamic> json) =>
       _$TradeRequestDetailFromJson(json);
+}
+
+// Trade Report Models
+enum TradeReportReason {
+  @JsonValue('FoodSafetyConcern')
+  foodSafetyConcern,
+  @JsonValue('ExpiredFood')
+  expiredFood,
+  @JsonValue('PoorHygiene')
+  poorHygiene,
+  @JsonValue('MisleadingInformation')
+  misleadingInformation,
+  @JsonValue('InappropriateBehavior')
+  inappropriateBehavior,
+  @JsonValue('Other')
+  other,
+}
+
+enum FoodSafetyIssueLevel {
+  @JsonValue('Minor')
+  minor,
+  @JsonValue('Serious')
+  serious,
+  @JsonValue('Critical')
+  critical,
+}
+
+enum ReportMediaType {
+  @JsonValue('Image')
+  image,
+  @JsonValue('Video')
+  video,
+}
+
+@freezed
+class CreateTradeReportRequest with _$CreateTradeReportRequest {
+  const factory CreateTradeReportRequest({
+    @JsonKey(name: 'tradeSessionId') required String tradeSessionId,
+    @JsonKey(name: 'reason') required TradeReportReason reason,
+    @JsonKey(name: 'severity') required FoodSafetyIssueLevel severity,
+    @JsonKey(name: 'description') required String description,
+  }) = _CreateTradeReportRequest;
+
+  factory CreateTradeReportRequest.fromJson(Map<String, dynamic> json) =>
+      _$CreateTradeReportRequestFromJson(json);
+}
+
+@freezed
+class TradeReportResponse with _$TradeReportResponse {
+  const factory TradeReportResponse({
+    @JsonKey(name: 'tradeReportId') required String tradeReportId,
+    @JsonKey(name: 'tradeSessionId') required String tradeSessionId,
+    @JsonKey(name: 'reason') required String reason,
+    @JsonKey(name: 'severity') required String severity,
+    @JsonKey(name: 'description') required String description,
+    @JsonKey(name: 'createdAt') required DateTime createdAt,
+  }) = _TradeReportResponse;
+
+  factory TradeReportResponse.fromJson(Map<String, dynamic> json) =>
+      _$TradeReportResponseFromJson(json);
 }
 

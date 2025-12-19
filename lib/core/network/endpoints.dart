@@ -158,4 +158,7 @@ class ApiEndpoints {
   static const String updateTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
   static const String removeTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
 
+  //Report
+  static const String reportTrade = '/trades/reports';
+  static const String reportTradeMedia = '/trades/reports/{tradeReportId}/media';
 }

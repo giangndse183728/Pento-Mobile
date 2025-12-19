@@ -57,7 +57,8 @@ class MyRequestCard extends StatelessWidget {
     switch (status.toLowerCase()) {
       case 'pending':
         return Icons.schedule_rounded;
-      case 'fulfill':
+      case 'fulfilled':
+        return Icons.verified_rounded;
       case 'accepted':
         return Icons.check_circle_rounded;
       case 'rejected':
@@ -114,7 +115,7 @@ class MyRequestCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.babyBlue.withValues(alpha: 0.8),
+                      Colors.white,  
                       AppColors.blueGray.withValues(alpha: 0.8),
                       
                     ],

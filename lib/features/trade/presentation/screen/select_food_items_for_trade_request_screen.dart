@@ -13,7 +13,7 @@ import '../../../compartment/data/models/compartment_models.dart';
 import '../../../compartment/presentation/widgets/select_food_items_widget.dart';
 import '../../../unit/data/models/unit_model.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
-import '../../data/repositories/trade_offers_repository.dart';
+import '../../data/repositories/trade_requests_repository.dart';
 
 class SelectFoodItemsForTradeRequestScreen extends ConsumerStatefulWidget {
   const SelectFoodItemsForTradeRequestScreen({
@@ -98,7 +98,7 @@ class _SelectFoodItemsForTradeRequestScreenState
     setState(() => _isSubmitting = true);
 
     try {
-      final repository = TradeOfferRepository();
+      final repository = TradeRequestRepository();
       final items = _selectedItemsMap.values.map((selectedItem) {
         final quantity = double.tryParse(
               selectedItem.quantityController.text.replaceAll(',', ''),
