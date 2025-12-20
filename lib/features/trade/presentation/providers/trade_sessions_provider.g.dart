@@ -23,7 +23,7 @@ final tradeSessionsProvider =
 
 typedef _$TradeSessions = AsyncNotifier<PaginatedTradeSessions>;
 String _$tradeSessionDetailNotifierHash() =>
-    r'fcc5962ca9226746bb4bdb22be9a352e7dc46eb1';
+    r'107335e3b47241b7922e049090d2fb8eeda99e56';
 
 /// Copied from Dart SDK
 class _SystemHash {

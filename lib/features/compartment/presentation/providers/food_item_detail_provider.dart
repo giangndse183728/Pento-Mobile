@@ -61,6 +61,7 @@ class FoodItemDetail extends _$FoodItemDetail {
     required String? compartmentId,
     String? name,
     double? quantity,
+    String? unitAbbreviation,
     DateTime? expirationDate,
   }) {
     if (compartmentId == null || compartmentId.isEmpty) return;
@@ -75,6 +76,7 @@ class FoodItemDetail extends _$FoodItemDetail {
             foodItemId: _foodItemId,
             name: name,
             quantity: quantity,
+            unitAbbreviation: unitAbbreviation,
             expirationDate: expirationDate,
           );
         }
@@ -231,10 +233,45 @@ class FoodItemDetail extends _$FoodItemDetail {
 
     final previousState = state;
     
+    // Get unit abbreviation if unitId is provided
+    String? newUnitAbbreviation;
+    double? finalQuantity = quantity;
+    
+    if (unitId != null && unitId.isNotEmpty) {
+      final units = ref.read(unitsProvider).whenOrNull(data: (value) => value);
+      if (units != null && units.isNotEmpty) {
+        final newUnit = UnitConverter.findById(units, unitId);
+        if (newUnit != null) {
+          newUnitAbbreviation = newUnit.abbreviation;
+          
+          // Convert quantity if unit is changing and no new quantity provided
+          if (quantity == null && currentDetail.unitAbbreviation.isNotEmpty) {
+            final currentUnit = UnitConverter.findByAbbreviation(
+              units,
+              currentDetail.unitAbbreviation,
+            );
+            if (currentUnit != null && currentUnit.id != newUnit.id) {
+              // Unit is changing, convert current quantity to new unit
+              final converted = UnitConverter.convert(
+                quantity: currentDetail.quantity,
+                fromUnit: currentUnit,
+                toUnit: newUnit,
+              );
+              finalQuantity = converted ?? currentDetail.quantity;
+            } else {
+              // Same unit, keep current quantity
+              finalQuantity = currentDetail.quantity;
+            }
+          }
+        }
+      }
+    }
+    
     // Optimistic update in detail screen
     state = AsyncValue.data(currentDetail.copyWith(
       name: name ?? currentDetail.name,
-      quantity: quantity ?? currentDetail.quantity,
+      quantity: finalQuantity ?? currentDetail.quantity,
+      unitAbbreviation: newUnitAbbreviation ?? currentDetail.unitAbbreviation,
       expirationDateUtc: expirationDate,
       notes: notes,
     ));
@@ -243,7 +280,8 @@ class FoodItemDetail extends _$FoodItemDetail {
     _updateItemDetailsInCompartments(
       compartmentId: _compartmentId,
       name: name,
-      quantity: quantity,
+      quantity: finalQuantity,
+      unitAbbreviation: newUnitAbbreviation,
       expirationDate: expirationDate,
     );
 
@@ -251,7 +289,7 @@ class FoodItemDetail extends _$FoodItemDetail {
       await _repository.updateFoodItem(
         foodItemId: _foodItemId,
         name: name,
-        quantity: quantity,
+        quantity: finalQuantity,
         unitId: unitId,
         expirationDate: expirationDate,
         notes: notes,
@@ -299,6 +337,108 @@ class FoodItemDetail extends _$FoodItemDetail {
         compartmentId: _compartmentId,
         imageUrl: previousImageUrl,
       );
+      rethrow;
+    }
+  }
+
+  Future<void> updateStorage({
+    required String compartmentId,
+  }) async {
+    final currentDetail = state.valueOrNull;
+    if (currentDetail == null) return;
+
+    final previousState = state;
+    final previousCompartmentId = _compartmentId;
+
+    // Get current compartment item if it exists in the old compartment list
+    CompartmentItem? currentItem;
+    if (previousCompartmentId != null && previousCompartmentId.isNotEmpty) {
+      try {
+        final oldCompartmentState = ref.read(
+          compartmentItemsProvider(previousCompartmentId),
+        );
+        oldCompartmentState.whenData((state) {
+          try {
+            currentItem = state.items.firstWhere(
+              (item) => item.id == _foodItemId,
+            );
+          } catch (_) {
+            // Item not found in old compartment
+          }
+        });
+      } catch (_) {
+        // Old compartment doesn't exist
+      }
+    }
+
+    // Update compartment ID
+    _compartmentId = compartmentId;
+
+    // Optimistic update: Move item between compartment lists
+    if (currentItem != null && previousCompartmentId != null) {
+      try {
+        // Remove from old compartment
+        final oldCompartmentState = ref.read(
+          compartmentItemsProvider(previousCompartmentId),
+        );
+        if (oldCompartmentState is AsyncData) {
+          ref.read(compartmentItemsProvider(previousCompartmentId).notifier)
+              .removeItemOptimistically(_foodItemId);
+        }
+
+        // Add to new compartment
+        final newCompartmentState = ref.read(
+          compartmentItemsProvider(compartmentId),
+        );
+        if (newCompartmentState is AsyncData) {
+          final updatedItem = currentItem!.copyWith(
+            compartmentId: compartmentId,
+          );
+          ref.read(compartmentItemsProvider(compartmentId).notifier)
+              .addItemOptimistically(updatedItem);
+        }
+      } catch (_) {
+        // Silently fail if compartments don't exist
+      }
+    }
+
+    try {
+      await _repository.updateFoodItem(
+        foodItemId: _foodItemId,
+        compartmentId: compartmentId,
+      );
+      // Refresh to get updated storage/compartment names
+      await refresh();
+    } catch (error) {
+      // Rollback on error
+      _compartmentId = previousCompartmentId;
+      state = previousState;
+      
+      // Rollback compartment list changes
+      if (currentItem != null && previousCompartmentId != null) {
+        try {
+          // Restore to old compartment
+          final oldCompartmentState = ref.read(
+            compartmentItemsProvider(previousCompartmentId),
+          );
+          if (oldCompartmentState is AsyncData) {
+            ref.read(compartmentItemsProvider(previousCompartmentId).notifier)
+                .addItemOptimistically(currentItem!);
+          }
+
+          // Remove from new compartment
+          final newCompartmentState = ref.read(
+            compartmentItemsProvider(compartmentId),
+          );
+          if (newCompartmentState is AsyncData) {
+            ref.read(compartmentItemsProvider(compartmentId).notifier)
+                .removeItemOptimistically(_foodItemId);
+          }
+        } catch (_) {
+          // Silently fail rollback
+        }
+      }
+      
       rethrow;
     }
   }
