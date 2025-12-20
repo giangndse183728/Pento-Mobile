@@ -160,5 +160,30 @@ class ApiClient {
       options: options,
     );
   }
+
+  // Upload file with multipart/form-data
+  Future<Response> uploadFile(
+    String path, {
+    required String filePath,
+    required String fieldName,
+    Map<String, dynamic>? additionalFields,
+    Map<String, dynamic>? queryParameters,
+    ProgressCallback? onSendProgress,
+  }) async {
+    final formData = FormData.fromMap({
+      fieldName: await MultipartFile.fromFile(filePath),
+      if (additionalFields != null) ...additionalFields,
+    });
+
+    return await _dio.post(
+      path,
+      data: formData,
+      queryParameters: queryParameters,
+      options: Options(
+        contentType: 'multipart/form-data',
+      ),
+      onSendProgress: onSendProgress,
+    );
+  }
 }
 

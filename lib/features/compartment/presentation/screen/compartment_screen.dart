@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
@@ -34,6 +35,7 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
   String? _selectedFoodGroup;
   FoodItemStatusFilter _statusFilter = FoodItemStatusFilter.all;
   QuantitySortOption _quantitySort = QuantitySortOption.none;
+  bool _isDragging = false;
 
   @override
   void dispose() {
@@ -41,6 +43,44 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
     _pageController?.dispose();
     _scrollController?.dispose();
     super.dispose();
+  }
+
+  void _handleDragUpdate(BuildContext context, Offset position) {
+    if (!_isDragging || _scrollController == null || !_scrollController!.hasClients) {
+      return;
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final edgeThreshold = 80.w;
+    final scrollSpeed = 5.0;
+
+    if (position.dx < edgeThreshold) {
+      // Near left edge - scroll left
+      final newOffset = (_scrollController!.offset - scrollSpeed).clamp(
+        0.0,
+        _scrollController!.position.maxScrollExtent,
+      );
+      if (newOffset != _scrollController!.offset) {
+        _scrollController!.jumpTo(newOffset);
+      }
+    } else if (position.dx > screenWidth - edgeThreshold) {
+      // Near right edge - scroll right
+      final newOffset = (_scrollController!.offset + scrollSpeed).clamp(
+        0.0,
+        _scrollController!.position.maxScrollExtent,
+      );
+      if (newOffset != _scrollController!.offset) {
+        _scrollController!.jumpTo(newOffset);
+      }
+    }
+  }
+
+  void _startDragTracking() {
+    _isDragging = true;
+  }
+
+  void _stopDragTracking() {
+    _isDragging = false;
   }
 
   void _handleZoomToggle(BuildContext context) {
@@ -250,50 +290,65 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
         }
         return false;
       },
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: 8.w),
-            for (final c in compartments) ...[
-              CompartmentColumn(
-                compartmentId: c.id,
-                storageId: storageId,
-                title: c.name,
-                subtitle: c.notes,
-                width: 220.w,
-                scale: 0.7,
-                searchQuery: searchQuery,
-                foodGroupFilter: foodGroupFilter,
-                statusFilter: statusFilter,
-                quantitySort: quantitySort,
-              ),
-              SizedBox(width: 12.w),
-            ],
-            if (compartmentState.isLoadingMore) ...[
-              SizedBox(
-                width: 220.w,
-                child: const Center(
-                  child: CircularProgressIndicator(),
+      child: Listener(
+        onPointerMove: (event) {
+          if (_isDragging) {
+            _handleDragUpdate(context, event.position);
+          }
+        },
+        onPointerUp: (_) {
+          _stopDragTracking();
+        },
+        onPointerCancel: (_) {
+          _stopDragTracking();
+        },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 8.w),
+              for (final c in compartments) ...[
+                CompartmentColumn(
+                  compartmentId: c.id,
+                  storageId: storageId,
+                  title: c.name,
+                  subtitle: c.notes,
+                  width: 220.w,
+                  scale: 0.7,
+                  searchQuery: searchQuery,
+                  foodGroupFilter: foodGroupFilter,
+                  statusFilter: statusFilter,
+                  quantitySort: quantitySort,
+                  onDragStart: _startDragTracking,
+                  onDragEnd: _stopDragTracking,
                 ),
-              ),
-              SizedBox(width: 12.w),
-            ],
-            if (compartmentState.loadMoreError != null) ...[
-              SizedBox(
-                width: 220.w,
-                child: Text(
-                  'Failed to load more compartments. Pull down to refresh.',
-                  style: AppTextStyles.inputHint,
+                SizedBox(width: 12.w),
+              ],
+              if (compartmentState.isLoadingMore) ...[
+                SizedBox(
+                  width: 220.w,
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
-              ),
+                SizedBox(width: 12.w),
+              ],
+              if (compartmentState.loadMoreError != null) ...[
+                SizedBox(
+                  width: 220.w,
+                  child: Text(
+                    'Failed to load more compartments. Pull down to refresh.',
+                    style: AppTextStyles.inputHint,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+              ],
+              AddCompartmentTile(storageId: storageId, width: 220.w),
               SizedBox(width: 12.w),
             ],
-            AddCompartmentTile(storageId: storageId, width: 220.w),
-            SizedBox(width: 12.w),
-          ],
+          ),
         ),
       ),
     );
@@ -323,6 +378,10 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
     final asyncCompartments = ref.watch(compartmentsProvider(storageId));
     final boardUi = ref.watch(compartmentBoardUiProvider);
 
+    Future<void> refreshCompartments() async {
+      await ref.read(compartmentsProvider(storageId).notifier).refresh();
+    }
+
     return AppScaffold(
       title: storageName,
       centerTitle: false,
@@ -341,24 +400,26 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
           onTap: () => _navigateToLogs(context),
         ),
       ],
-      body: asyncCompartments.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Failed to load compartments'),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () => ref
-                    .read(compartmentsProvider(storageId).notifier)
-                    .refresh(),
-                child: const Text('Retry'),
+      body: Stack(
+        children: [
+          asyncCompartments.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, st) => Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Failed to load compartments'),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => ref
+                        .read(compartmentsProvider(storageId).notifier)
+                        .refresh(),
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        data: (compartmentState) {
+            ),
+            data: (compartmentState) {
           final compartments = compartmentState.compartments;
           _compartments = compartments;
           
@@ -494,6 +555,22 @@ class _CompartmentScreenState extends ConsumerState<CompartmentScreen> {
             ),
           );
         },
+          ),
+          // Floating Action Button for refresh
+          Positioned(
+            right: 6.w,
+            bottom: 6.h,
+            child: FloatingActionButton(
+              shape: CircleBorder(),
+              onPressed: refreshCompartments,
+              backgroundColor: AppColors.babyBlue,
+              child: const Icon(
+                Icons.refresh,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

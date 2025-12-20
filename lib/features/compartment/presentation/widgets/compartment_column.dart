@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +10,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/circle_icon_button.dart';
 import '../providers/compartment_provider.dart';
 import '../../data/models/compartment_models.dart';
+import 'add_food_dialog.dart';
 import 'edit_compartment_dialog.dart';
 import 'food_item_card.dart';
 import '../../../../core/constants/app_enum.dart';
@@ -25,6 +28,8 @@ class CompartmentColumn extends ConsumerWidget {
     this.foodGroupFilter,
     this.statusFilter = FoodItemStatusFilter.all,
     this.quantitySort = QuantitySortOption.none,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   final String compartmentId;
@@ -37,6 +42,20 @@ class CompartmentColumn extends ConsumerWidget {
   final String? foodGroupFilter;
   final FoodItemStatusFilter statusFilter;
   final QuantitySortOption quantitySort;
+  final VoidCallback? onDragStart;
+  final VoidCallback? onDragEnd;
+
+  Future<void> _showAddFoodDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AddFoodDialog(
+        onFoodScanTap: () => _navigateToFoodScanCamera(context),
+        onReceiptScanTap: () => _navigateToFoodScanBill(context),
+        onSearchTap: () => _navigateToAddFood(context),
+        onBarcodeScanTap: () => _navigateToBarcodeScanner(context),
+      ),
+    );
+  }
 
   Future<void> _navigateToAddFood(BuildContext context) async {
     final result = await context.push<bool>(
@@ -500,6 +519,8 @@ class CompartmentColumn extends ConsumerWidget {
                                           item: item,
                                           scale: scale,
                                           compartmentId: compartmentId,
+                                          onDragStart: onDragStart,
+                                          onDragEnd: onDragEnd,
                                         );
                                       },
                                     ),
@@ -527,76 +548,44 @@ class CompartmentColumn extends ConsumerWidget {
                       horizontal: 12.w * scale,
                       vertical: 10.h * scale,
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextButton.icon(
-                            onPressed: () => _navigateToAddFood(context),
-                            icon: Icon(
-                              Icons.add,
-                              size: 18.sp * scale,
+                    child: CustomPaint(
+                      foregroundPainter: DashedRectPainter(
+                        color: AppColors.powderBlue.withValues(alpha: 0.8),
+                        strokeWidth: 1.5 * scale,
+                        dashWidth: 8,
+                        gap: 6,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8.h * scale,
+                          horizontal: 12.w * scale,
+                        ),
+                        child: TextButton.icon(
+                          onPressed: () => _showAddFoodDialog(context),
+                          icon: Icon(
+                            Icons.add,
+                            size: 18.sp * scale,
+                            color: AppColors.blueGray,
+                          ),
+                          label: Text(
+                            'Add Food',
+                            style: TextStyle(
+                              fontSize: 13.sp * scale,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.blueGray,
                             ),
-                            label: Text(
-                              'Add',
-                              style: TextStyle(
-                                fontSize: 13.sp * scale,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.blueGray,
-                              ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 6.h * scale,
+                              horizontal: 4.w * scale,
                             ),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 6.h * scale,
-                                horizontal: 4.w * scale,
-                              ),
-                              foregroundColor: AppColors.blueGray,
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 2.w * scale),
-                        IconButton(
-                          onPressed: () => _navigateToBarcodeScanner(context),
-                          tooltip: 'Scan barcode',
-                          icon: Icon(
-                            Icons.qr_code_scanner,
-                            size: 18.sp * scale,
-                            color: AppColors.blueGray,
-                          ),
-                          style: IconButton.styleFrom(
-                            padding: EdgeInsets.all(6.w * scale),
+                            foregroundColor: AppColors.blueGray,
+                            minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => _navigateToFoodScanCamera(context),
-                          tooltip: 'Scan food',
-                          icon: Icon(
-                            Icons.camera_alt,
-                            size: 18.sp * scale,
-                            color: AppColors.blueGray,
-                          ),
-                          style: IconButton.styleFrom(
-                            padding: EdgeInsets.all(6.w * scale),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => _navigateToFoodScanBill(context),
-                          tooltip: 'Scan bill',
-                          icon: Icon(
-                            Icons.receipt_long,
-                            size: 18.sp * scale,
-                            color: AppColors.blueGray,
-                          ),
-                          style: IconButton.styleFrom(
-                            padding: EdgeInsets.all(6.w * scale),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
@@ -774,5 +763,61 @@ FoodItemStatusFilter _statusForItem(CompartmentItem item) {
     return FoodItemStatusFilter.expiringSoon;
   }
   return FoodItemStatusFilter.available;
+}
+
+class DashedRectPainter extends CustomPainter {
+  const DashedRectPainter({
+    required this.color,
+    required this.strokeWidth,
+    this.dashWidth = 8,
+    this.gap = 4,
+  });
+
+  final Color color;
+  final double strokeWidth;
+  final double dashWidth;
+  final double gap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final topLeft = Offset(strokeWidth / 2, strokeWidth / 2);
+    final topRight = Offset(size.width - strokeWidth / 2, strokeWidth / 2);
+    final bottomLeft = Offset(strokeWidth / 2, size.height - strokeWidth / 2);
+    final bottomRight = Offset(
+      size.width - strokeWidth / 2,
+      size.height - strokeWidth / 2,
+    );
+
+    _drawDashedLine(canvas, paint, topLeft, topRight);
+    _drawDashedLine(canvas, paint, topRight, bottomRight);
+    _drawDashedLine(canvas, paint, bottomRight, bottomLeft);
+    _drawDashedLine(canvas, paint, bottomLeft, topLeft);
+  }
+
+  void _drawDashedLine(Canvas canvas, Paint paint, Offset start, Offset end) {
+    final totalLength = (end - start).distance;
+    final direction = (end - start) / totalLength;
+    double progress = 0;
+    while (progress < totalLength) {
+      final currentDash = math.min(dashWidth, totalLength - progress);
+      final dashStart = start + direction * progress;
+      final dashEnd = dashStart + direction * currentDash;
+      canvas.drawLine(dashStart, dashEnd, paint);
+      progress += currentDash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant DashedRectPainter oldDelegate) {
+    return color != oldDelegate.color ||
+        strokeWidth != oldDelegate.strokeWidth ||
+        dashWidth != oldDelegate.dashWidth ||
+        gap != oldDelegate.gap;
+  }
 }
 

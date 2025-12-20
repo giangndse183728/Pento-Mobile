@@ -18,11 +18,15 @@ class FoodItemCard extends StatelessWidget {
     required this.item,
     this.scale = 1.0,
     this.compartmentId,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   final CompartmentItem item;
   final double scale;
   final String? compartmentId;
+  final VoidCallback? onDragStart;
+  final VoidCallback? onDragEnd;
 
   _ExpirationStatus _expirationStatus() {
     final expiration = item.expirationDateUtc;
@@ -216,6 +220,8 @@ class FoodItemCard extends StatelessWidget {
           'compartmentId': compartmentId,
           'item': item,
         },
+        onDragStarted: onDragStart,
+        onDragEnd: (_) => onDragEnd?.call(),
         feedback: Material(
           color: Colors.transparent,
           child: Container(

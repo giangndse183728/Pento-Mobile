@@ -43,13 +43,14 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
   }
 
   String _formatMessageTime(DateTime date) {
+    final localDate = date.toLocal();
     final now = DateTime.now();
-    final difference = now.difference(date);
+    final difference = now.difference(localDate);
 
     if (difference.inDays > 0) {
-      return DateFormat('MMM d, h:mm a').format(date);
+      return DateFormat('MMM d, h:mm a').format(localDate);
     }
-    return DateFormat('h:mm a').format(date);
+    return DateFormat('h:mm a').format(localDate);
   }
 
   Future<void> _sendMessage() async {
@@ -61,6 +62,7 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
     
     try {
       await widget.onSendMessage(text);
+      FocusScope.of(context).unfocus();
       // Scroll to bottom after sending
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
@@ -93,33 +95,38 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
       ..sort((a, b) => b.sentOn.compareTo(a.sentOn));
     final bothConfirmed = widget.confirmedByOfferer && widget.confirmedByRequester;
 
-    return Column(
-      children: [
-        // Confirmation status banner
-        _buildConfirmationBanner(bothConfirmed),
-        // Messages list
-        Expanded(
-          child: messages.isEmpty
-              ? _buildEmptyMessages()
-              : ListView.builder(
-                  controller: _scrollController,
-                  reverse: true,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Column(
+        children: [
+          // Confirmation status banner
+          _buildConfirmationBanner(bothConfirmed),
+          // Messages list
+          Expanded(
+            child: messages.isEmpty
+                ? _buildEmptyMessages()
+                : ListView.builder(
+                    controller: _scrollController,
+                    reverse: true,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 16.h,
+                    ),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      final isLastFromUser = index == messages.length - 1 ||
+                          messages[index + 1].user.userId !=
+                              message.user.userId;
+                      return _buildMessageBubble(message, isLastFromUser);
+                    },
                   ),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    final isLastFromUser = index == messages.length - 1 ||
-                        messages[index + 1].user.userId != message.user.userId;
-                    return _buildMessageBubble(message, isLastFromUser);
-                  },
-                ),
-        ),
-        // Message input
-        _buildMessageInput(),
-      ],
+          ),
+          // Message input
+          _buildMessageInput(),
+        ],
+      ),
     );
   }
 
@@ -409,6 +416,7 @@ class _TradeSessionChatWidgetState extends State<TradeSessionChatWidget> {
                 ),
                 child: TextField(
                   controller: _messageController,
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
                     hintStyle: TextStyle(

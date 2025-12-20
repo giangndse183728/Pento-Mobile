@@ -41,6 +41,8 @@ mixin _$Recipe {
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
   bool get isPublic => throw _privateConstructorUsedError;
+  @JsonKey(name: 'addedToWishlist')
+  bool get addedToWishlist => throw _privateConstructorUsedError;
   DateTime? get createdOnUtc => throw _privateConstructorUsedError;
   DateTime? get updatedOnUtc => throw _privateConstructorUsedError;
   List<RecipeIngredient> get ingredients => throw _privateConstructorUsedError;
@@ -76,6 +78,7 @@ abstract class $RecipeCopyWith<$Res> {
     String? imageUrl,
     String? createdBy,
     bool isPublic,
+    @JsonKey(name: 'addedToWishlist') bool addedToWishlist,
     DateTime? createdOnUtc,
     DateTime? updatedOnUtc,
     List<RecipeIngredient> ingredients,
@@ -113,6 +116,7 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
     Object? imageUrl = freezed,
     Object? createdBy = freezed,
     Object? isPublic = null,
+    Object? addedToWishlist = null,
     Object? createdOnUtc = freezed,
     Object? updatedOnUtc = freezed,
     Object? ingredients = null,
@@ -180,6 +184,10 @@ class _$RecipeCopyWithImpl<$Res, $Val extends Recipe>
                 ? _value.isPublic
                 : isPublic // ignore: cast_nullable_to_non_nullable
                       as bool,
+            addedToWishlist: null == addedToWishlist
+                ? _value.addedToWishlist
+                : addedToWishlist // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createdOnUtc: freezed == createdOnUtc
                 ? _value.createdOnUtc
                 : createdOnUtc // ignore: cast_nullable_to_non_nullable
@@ -226,6 +234,7 @@ abstract class _$$RecipeImplCopyWith<$Res> implements $RecipeCopyWith<$Res> {
     String? imageUrl,
     String? createdBy,
     bool isPublic,
+    @JsonKey(name: 'addedToWishlist') bool addedToWishlist,
     DateTime? createdOnUtc,
     DateTime? updatedOnUtc,
     List<RecipeIngredient> ingredients,
@@ -262,6 +271,7 @@ class __$$RecipeImplCopyWithImpl<$Res>
     Object? imageUrl = freezed,
     Object? createdBy = freezed,
     Object? isPublic = null,
+    Object? addedToWishlist = null,
     Object? createdOnUtc = freezed,
     Object? updatedOnUtc = freezed,
     Object? ingredients = null,
@@ -329,6 +339,10 @@ class __$$RecipeImplCopyWithImpl<$Res>
             ? _value.isPublic
             : isPublic // ignore: cast_nullable_to_non_nullable
                   as bool,
+        addedToWishlist: null == addedToWishlist
+            ? _value.addedToWishlist
+            : addedToWishlist // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createdOnUtc: freezed == createdOnUtc
             ? _value.createdOnUtc
             : createdOnUtc // ignore: cast_nullable_to_non_nullable
@@ -369,6 +383,7 @@ class _$RecipeImpl implements _Recipe {
     this.imageUrl,
     this.createdBy,
     this.isPublic = false,
+    @JsonKey(name: 'addedToWishlist') this.addedToWishlist = false,
     this.createdOnUtc,
     this.updatedOnUtc,
     final List<RecipeIngredient> ingredients = const [],
@@ -423,6 +438,9 @@ class _$RecipeImpl implements _Recipe {
   @JsonKey()
   final bool isPublic;
   @override
+  @JsonKey(name: 'addedToWishlist')
+  final bool addedToWishlist;
+  @override
   final DateTime? createdOnUtc;
   @override
   final DateTime? updatedOnUtc;
@@ -446,7 +464,7 @@ class _$RecipeImpl implements _Recipe {
 
   @override
   String toString() {
-    return 'Recipe(id: $id, recipeId: $recipeId, title: $title, recipeTitle: $recipeTitle, description: $description, totalTimes: $totalTimes, prepTimeMinutes: $prepTimeMinutes, cookTimeMinutes: $cookTimeMinutes, totalTimeMinutes: $totalTimeMinutes, notes: $notes, servings: $servings, difficultyLevel: $difficultyLevel, imageUrl: $imageUrl, createdBy: $createdBy, isPublic: $isPublic, createdOnUtc: $createdOnUtc, updatedOnUtc: $updatedOnUtc, ingredients: $ingredients, directions: $directions)';
+    return 'Recipe(id: $id, recipeId: $recipeId, title: $title, recipeTitle: $recipeTitle, description: $description, totalTimes: $totalTimes, prepTimeMinutes: $prepTimeMinutes, cookTimeMinutes: $cookTimeMinutes, totalTimeMinutes: $totalTimeMinutes, notes: $notes, servings: $servings, difficultyLevel: $difficultyLevel, imageUrl: $imageUrl, createdBy: $createdBy, isPublic: $isPublic, addedToWishlist: $addedToWishlist, createdOnUtc: $createdOnUtc, updatedOnUtc: $updatedOnUtc, ingredients: $ingredients, directions: $directions)';
   }
 
   @override
@@ -481,6 +499,8 @@ class _$RecipeImpl implements _Recipe {
                 other.createdBy == createdBy) &&
             (identical(other.isPublic, isPublic) ||
                 other.isPublic == isPublic) &&
+            (identical(other.addedToWishlist, addedToWishlist) ||
+                other.addedToWishlist == addedToWishlist) &&
             (identical(other.createdOnUtc, createdOnUtc) ||
                 other.createdOnUtc == createdOnUtc) &&
             (identical(other.updatedOnUtc, updatedOnUtc) ||
@@ -514,6 +534,7 @@ class _$RecipeImpl implements _Recipe {
     imageUrl,
     createdBy,
     isPublic,
+    addedToWishlist,
     createdOnUtc,
     updatedOnUtc,
     const DeepCollectionEquality().hash(_ingredients),
@@ -551,6 +572,7 @@ abstract class _Recipe implements Recipe {
     final String? imageUrl,
     final String? createdBy,
     final bool isPublic,
+    @JsonKey(name: 'addedToWishlist') final bool addedToWishlist,
     final DateTime? createdOnUtc,
     final DateTime? updatedOnUtc,
     final List<RecipeIngredient> ingredients,
@@ -594,6 +616,9 @@ abstract class _Recipe implements Recipe {
   String? get createdBy;
   @override
   bool get isPublic;
+  @override
+  @JsonKey(name: 'addedToWishlist')
+  bool get addedToWishlist;
   @override
   DateTime? get createdOnUtc;
   @override

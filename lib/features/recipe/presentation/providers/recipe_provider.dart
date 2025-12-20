@@ -201,11 +201,23 @@ class RecipeDetailNotifier extends _$RecipeDetailNotifier {
       return await _repository.getRecipeById(_recipeId);
     });
   }
+
+  void updateAddedToWishlist(bool addedToWishlist) {
+    final currentState = state;
+    if (currentState is! AsyncData<Recipe>) {
+      return;
+    }
+
+    state = AsyncValue.data(
+      currentState.value.copyWith(addedToWishlist: addedToWishlist),
+    );
+  }
 }
 
 @Riverpod(keepAlive: true)
 class Wishlist extends _$Wishlist {
   late final RecipeRepository _repository;
+  bool _isMine = true;
 
   @override
   FutureOr<RecipeState> build() async {
@@ -213,8 +225,15 @@ class Wishlist extends _$Wishlist {
     return await _loadFirstPage();
   }
 
+  void setIsMine(bool isMine) {
+    if (_isMine != isMine) {
+      _isMine = isMine;
+      refresh();
+    }
+  }
+
   Future<RecipeState> _loadFirstPage() async {
-    final response = await _repository.getWishlist();
+    final response = await _repository.getWishlist(isMine: _isMine);
     return response.toRecipeState();
   }
 
@@ -241,6 +260,7 @@ class Wishlist extends _$Wishlist {
       final response = await _repository.getWishlist(
         pageNumber: currentData.currentPage + 1,
         pageSize: currentData.pageSize,
+        isMine: _isMine,
       );
 
       final merged = [

@@ -23,6 +23,7 @@ class Recipe with _$Recipe {
     String? imageUrl,
     String? createdBy,
     @Default(false) bool isPublic,
+    @JsonKey(name: 'addedToWishlist') @Default(false) bool addedToWishlist,
     DateTime? createdOnUtc,
     DateTime? updatedOnUtc,
     @Default([]) List<RecipeIngredient> ingredients,

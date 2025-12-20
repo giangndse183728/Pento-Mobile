@@ -14,6 +14,7 @@ import '../providers/food_item_detail_provider.dart';
 import '../widgets/edit_food_item_dialog.dart';
 import '../widgets/food_item_action_buttons.dart';
 import '../widgets/food_item_detail_widgets.dart';
+import '../widgets/change_storage_dialog.dart';
 import '../../../plan/presentation/widgets/create_meal_reservation_sheet.dart';
 
 class FoodItemDetailScreen extends ConsumerWidget {
@@ -97,6 +98,26 @@ class FoodItemDetailScreen extends ConsumerWidget {
       );
     }
 
+    void _showChangeStorageDialog(
+      BuildContext context,
+      CompartmentItemDetail detail,
+      WidgetRef ref,
+    ) async {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => ChangeStorageDialog(
+          foodItemId: foodItemId,
+          currentStorageName: detail.storageName,
+          currentCompartmentName: detail.compartmentName,
+        ),
+      );
+
+      if (result == true && context.mounted) {
+        // Refresh the detail after storage change
+        ref.read(foodItemDetailProvider(foodItemId).notifier).refresh();
+      }
+    }
+
     return AppScaffold(
       title: 'Food Item Details',
       showBackButton: true,
@@ -117,6 +138,8 @@ class FoodItemDetailScreen extends ConsumerWidget {
                 showEditDialog(detail);
               } else if (value == 'upload_image') {
                 _showImageSearchDialog(context, detail, ref);
+              } else if (value == 'change_storage') {
+                _showChangeStorageDialog(context, detail, ref);
               }
             },
             child: CircleIconButton(
@@ -141,6 +164,20 @@ class FoodItemDetailScreen extends ConsumerWidget {
                     Icon(Icons.image, color: AppColors.blueGray, size: 20.sp),
                     SizedBox(width: 12.w),
                     Text('Upload new image'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'change_storage',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.swap_horiz,
+                      color: AppColors.blueGray,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Text('Change Storages'),
                   ],
                 ),
               ),

@@ -6,7 +6,7 @@ part of 'trade_sessions_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tradeSessionsHash() => r'009973e8bbd06064426bff40ca451838e5bb8558';
+String _$tradeSessionsHash() => r'46262797fd2d9f98e88a95494771ad57cba3506e';
 
 /// See also [TradeSessions].
 @ProviderFor(TradeSessions)
@@ -23,7 +23,7 @@ final tradeSessionsProvider =
 
 typedef _$TradeSessions = AsyncNotifier<PaginatedTradeSessions>;
 String _$tradeSessionDetailNotifierHash() =>
-    r'04574b211d8e827e628fcd4f37ee74fa01e3b987';
+    r'107335e3b47241b7922e049090d2fb8eeda99e56';
 
 /// Copied from Dart SDK
 class _SystemHash {

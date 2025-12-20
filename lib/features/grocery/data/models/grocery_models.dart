@@ -43,6 +43,7 @@ class GroceryListItem with _$GroceryListItem {
     @Default(0) double quantity,
     String? unitId,
     String? unitName,
+    String? abbertaionUnit,
     String? priority,
     String? notes,
     String? foodGroup,

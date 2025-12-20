@@ -436,21 +436,32 @@ class _GroceryItemRowState extends ConsumerState<_GroceryItemRow> {
   }
 
   String _resolveSubtitle() {
-    final buffer = StringBuffer();
+    final unitDisplay = widget.item.abbertaionUnit != null &&
+            widget.item.abbertaionUnit!.isNotEmpty
+        ? widget.item.abbertaionUnit
+        : (widget.item.unitName != null &&
+                widget.item.unitName!.isNotEmpty
+            ? widget.item.unitName
+            : null);
+
     if (widget.item.quantity > 0) {
-      buffer.write(
-        widget.item.quantity.toStringAsFixed(
-          widget.item.quantity.truncateToDouble() == widget.item.quantity
-              ? 0
-              : 1,
-        ),
+      final quantityStr = widget.item.quantity.toStringAsFixed(
+        widget.item.quantity.truncateToDouble() == widget.item.quantity
+            ? 0
+            : 1,
       );
-      if (widget.item.unitName != null &&
-          widget.item.unitName!.isNotEmpty) {
-        buffer.write(' ${widget.item.unitName}');
+      
+      if (unitDisplay != null && unitDisplay.isNotEmpty) {
+        return '$quantityStr $unitDisplay';
       }
+      return quantityStr;
     }
-    return buffer.isEmpty ? 'No quantity set' : buffer.toString();
+    
+    if (unitDisplay != null && unitDisplay.isNotEmpty) {
+      return unitDisplay;
+    }
+    
+    return 'No quantity set';
   }
 }
 

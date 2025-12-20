@@ -4,12 +4,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/glass_toggle.dart';
 import '../../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 
-class WishlistScreen extends ConsumerWidget {
+class WishlistScreen extends ConsumerStatefulWidget {
   const WishlistScreen({super.key});
+
+  @override
+  ConsumerState<WishlistScreen> createState() => _WishlistScreenState();
+}
+
+class _WishlistScreenState extends ConsumerState<WishlistScreen> {
+  int _selectedToggleIndex = 0; // 0 = My Wishlist (isMine: true), 1 = Household Wishlist (isMine: false)
+  bool _isInitialized = false;
 
   Widget _buildHeader(int totalCount) {
     return Padding(
@@ -45,8 +54,20 @@ class WishlistScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncWishlist = ref.watch(wishlistProvider);
+
+    // Initialize with My Wishlist (isMine: true) on first build
+    if (!_isInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(wishlistProvider.notifier).setIsMine(true);
+          setState(() {
+            _isInitialized = true;
+          });
+        }
+      });
+    }
 
     Future<void> refreshWishlist() =>
         ref.read(wishlistProvider.notifier).refresh();
@@ -135,6 +156,26 @@ class WishlistScreen extends ConsumerWidget {
                             kToolbarHeight +
                             16.h,
                       ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: GlassToggle(
+                          selectedIndex: _selectedToggleIndex,
+                          labels: const ['My Wishlist', 'Household Wishlist'],
+                          onChanged: (index) {
+                            setState(() {
+                              _selectedToggleIndex = index;
+                            });
+                            // Update provider when toggle changes
+                            final isMine = index == 0;
+                            ref.read(wishlistProvider.notifier).setIsMine(isMine);
+                          },
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: 16.h),
                     ),
                     SliverToBoxAdapter(
                       child: _buildHeader(wishlistState.totalCount),

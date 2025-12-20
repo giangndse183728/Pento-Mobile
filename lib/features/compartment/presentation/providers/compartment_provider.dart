@@ -358,6 +358,7 @@ class CompartmentItems extends _$CompartmentItems {
     required String foodItemId,
     String? name,
     double? quantity,
+    String? unitAbbreviation,
     DateTime? expirationDate,
   }) {
     final currentState = state;
@@ -370,6 +371,7 @@ class CompartmentItems extends _$CompartmentItems {
         return item.copyWith(
           name: name ?? item.name,
           quantity: quantity ?? item.quantity,
+          unitAbbreviation: unitAbbreviation ?? item.unitAbbreviation,
           expirationDateUtc: expirationDate,
         );
       }

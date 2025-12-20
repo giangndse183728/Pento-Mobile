@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_typography.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/utils/toast_helper.dart';
@@ -53,7 +54,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
       tradeSessionDetailNotifierProvider(sessionId),
     );
     
-    // Listen for when both users become ready and refresh
+    // Listen for when both users become ready and show dialog
     ref.listen<AsyncValue<TradeSessionDetail>>(
       tradeSessionDetailNotifierProvider(sessionId),
       (previous, next) {
@@ -66,9 +67,14 @@ class TradeSessionItemsWidget extends ConsumerWidget {
           final nextBothReady = nextDetail.tradeSession.confirmedByOfferUser != null &&
               nextDetail.tradeSession.confirmedByRequestUser != null;
           
-          // If both users just became ready, refresh the page
+          // If both users just became ready, show dialog and refresh
           if (!previousBothReady && nextBothReady) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              try {
+                _showTradeCompletedDialog(context);
+              } catch (e) {
+                // Context might be invalid, ignore
+              }
               ref.read(tradeSessionDetailNotifierProvider(sessionId).notifier).refresh();
             });
           }
@@ -1070,6 +1076,57 @@ class TradeSessionItemsWidget extends ConsumerWidget {
         Icons.restaurant_rounded,
         size: 28.w,
         color: AppColors.blueGray,
+      ),
+    );
+  }
+
+  void _showTradeCompletedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle_rounded,
+              size: 64.sp,
+              color: AppColors.mintLeaf,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Trade Completed!',
+              style: AppTextStyles.sectionHeader(),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Food items have been traded successfully. Please check them at the first storage/compartment.',
+              style: AppTextStyles.inputHint,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mintLeaf,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 32.w,
+                  vertical: 14.h,
+                ),
+              ),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

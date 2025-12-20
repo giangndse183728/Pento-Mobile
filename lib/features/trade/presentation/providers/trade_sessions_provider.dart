@@ -3,17 +3,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/services/signalr_service.dart';
 import '../../../unit/presentation/providers/unit_provider.dart';
 import '../../data/models/trade_offers_model.dart';
-import '../../data/repositories/trade_offers_repository.dart';
+import '../../data/repositories/trade_sessions_repository.dart';
 
 part 'trade_sessions_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class TradeSessions extends _$TradeSessions {
-  late final TradeOfferRepository _repository;
+  late final TradeSessionRepository _repository;
 
   @override
   FutureOr<PaginatedTradeSessions> build() async {
-    _repository = TradeOfferRepository();
+    _repository = TradeSessionRepository();
     return await _loadSessions();
   }
 
@@ -29,7 +29,7 @@ class TradeSessions extends _$TradeSessions {
 
 @riverpod
 class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
-  late final TradeOfferRepository _repository;
+  late final TradeSessionRepository _repository;
   StreamSubscription<TradeMessageResponse>? _messageSubscription;
   StreamSubscription<TradeConfirmationResponse>? _confirmationSubscription;
   StreamSubscription<TradeSessionItemsAddedResponse>? _itemsAddedSubscription;
@@ -40,7 +40,18 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
-    _repository = TradeOfferRepository();
+    _repository = TradeSessionRepository();
+    
+    // Ensure SignalR is connected and join session
+    try {
+      final signalR = SignalRService.instance;
+      if (!signalR.isConnected) {
+        await signalR.connect();
+      }
+      await signalR.joinSession(sessionId);
+    } catch (e) {
+      // SignalR connection failed, continue without real-time updates
+    }
     
     // Set up SignalR connection and listener
     _setupSignalRListeners();
@@ -61,11 +72,12 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
   void _setupSignalRListeners() {
     final signalR = SignalRService.instance;
+    final currentSessionId = sessionId;
     
     // Listen for incoming messages
     _messageSubscription?.cancel();
     _messageSubscription = signalR.messageStream.listen((response) {
-      if (response.sessionId == sessionId) {
+      if (response.sessionId == currentSessionId) {
         _addMessageToState(response);
       }
     });
@@ -79,7 +91,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     // Listen for items added updates
     _itemsAddedSubscription?.cancel();
     _itemsAddedSubscription = signalR.itemsAddedStream.listen((response) {
-      if (response.sessionId == sessionId) {
+      if (response.sessionId == currentSessionId) {
         _addItemsFromSignalR(response.items);
       }
     });
@@ -87,15 +99,25 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     // Listen for items updated updates
     _itemsUpdatedSubscription?.cancel();
     _itemsUpdatedSubscription = signalR.itemsUpdatedStream.listen((response) {
-      if (response.sessionId == sessionId) {
+      if (response.sessionId == currentSessionId) {
         _updateItemsFromSignalR(response.items);
       }
     });
 
     // Listen for single item updated updates
+    // Note: TradeItemUpdatedResponse doesn't have sessionId, so we check if item exists in current session
     _itemUpdatedSubscription?.cancel();
     _itemUpdatedSubscription = signalR.itemUpdatedStream.listen((response) {
-      _updateSingleItemFromSignalR(response);
+      // Verify item belongs to current session before updating
+      final currentState = state.valueOrNull;
+      if (currentState != null) {
+        final itemExists = currentState.items.any(
+          (item) => item.tradeItemId == response.tradeItemId,
+        );
+        if (itemExists) {
+          _updateSingleItemFromSignalR(response);
+        }
+      }
     });
 
     // Listen for items removed updates
@@ -107,7 +129,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     // Listen for session cancelled updates
     _sessionCancelledSubscription?.cancel();
     _sessionCancelledSubscription = signalR.sessionCancelledStream.listen((response) {
-      if (response.sessionId == sessionId) {
+      if (response.sessionId == currentSessionId) {
         _handleSessionCancelled();
       }
     });
@@ -297,26 +319,32 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       (item) => item.tradeItemId == response.tradeItemId,
     );
 
-    if (itemIndex == -1) {
-      // Item not found, might need to refresh
-      return;
-    }
+    if (itemIndex == -1) return;
 
     final existingItem = currentState.items[itemIndex];
+    
+    // Check if update is actually different
+    if (existingItem.quantity == response.quantity && existingItem.unitId == response.unitId) {
+      return;
+    }
     
     String unitAbbreviation = existingItem.unitAbbreviation;
     if (existingItem.unitId != response.unitId) {
       final unitsAsync = ref.read(unitsProvider);
       if (unitsAsync.hasValue) {
         final units = unitsAsync.value!;
-        final unit = units.firstWhere(
-          (u) => u.id == response.unitId,
-          orElse: () => units.firstWhere(
-            (u) => u.id == existingItem.unitId,
-            orElse: () => units.first,
-          ),
-        );
-        unitAbbreviation = unit.abbreviation;
+        try {
+          final unit = units.firstWhere(
+            (u) => u.id == response.unitId,
+            orElse: () => units.firstWhere(
+              (u) => u.id == existingItem.unitId,
+              orElse: () => units.first,
+            ),
+          );
+          unitAbbreviation = unit.abbreviation;
+        } catch (e) {
+          // Keep existing abbreviation if unit lookup fails
+        }
       }
     }
     

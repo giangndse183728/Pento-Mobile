@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/utils/toast_helper.dart';
@@ -15,7 +16,8 @@ import '../../../compartment/presentation/widgets/select_food_items_widget.dart'
 import '../../../unit/data/models/unit_model.dart';
 import '../../../unit/presentation/widgets/unit_select_field.dart';
 import '../../data/repositories/trade_offers_repository.dart';
-import '../providers/trade_request_provider.dart';
+import '../providers/trade_offers_provider.dart';
+import '../providers/my_posts_provider.dart';
 
 class CreateTradePostScreen extends ConsumerStatefulWidget {
   const CreateTradePostScreen({super.key});
@@ -230,6 +232,7 @@ class _CreateTradePostScreenState
       if (mounted) {
         ToastHelper.showSuccess(context, 'Trade post created successfully');
         await ref.read(tradeOffersProvider.notifier).refresh();
+        await ref.read(myPostsProvider.notifier).refresh();
         if (mounted) {
           context.pop();
         }
@@ -435,18 +438,19 @@ class _TradeDetailsCard extends StatelessWidget {
                   color: AppColors.blueGray.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Icon(
-                  Icons.calendar_month_rounded,
-                  color: AppColors.blueGray,
-                  size: 20.sp,
+                child: Image.asset(
+                  AppImages.calendar,
+                  height: 20.h,
+                  width: 20.h,
                 ),
               ),
               SizedBox(width: 12.w),
               Text(
                 'Trade Period',
                 style: TextStyle(
+                  fontFamily: 'MomoTrustDisplay',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),
               ),
@@ -489,18 +493,19 @@ class _TradeDetailsCard extends StatelessWidget {
                   color: AppColors.mintLeaf.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
-                child: Icon(
-                  Icons.local_shipping_rounded,
-                  color: AppColors.blueGray,
-                  size: 20.sp,
+                child: Image.asset(
+                  AppImages.pickupOption,
+                  height: 20.h,
+                  width: 20.h,
                 ),
               ),
               SizedBox(width: 12.w),
               Text(
                 'Pickup Option',
                 style: TextStyle(
+                  fontFamily: 'MomoTrustDisplay',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),
               ),
@@ -614,7 +619,7 @@ class _PickupOptionSelector extends StatelessWidget {
         _PickupOptionChip(
           label: 'In Person',
           value: 'InPerson',
-          icon: Icons.handshake_rounded,
+          iconAsset: AppImages.inPerson,
           isSelected: selectedOption == 'InPerson',
           onTap: () => onChanged('InPerson'),
         ),
@@ -622,7 +627,7 @@ class _PickupOptionSelector extends StatelessWidget {
         _PickupOptionChip(
           label: 'Delivery',
           value: 'Delivery',
-          icon: Icons.delivery_dining_rounded,
+          iconAsset: AppImages.delivery,
           isSelected: selectedOption == 'Delivery',
           onTap: () => onChanged('Delivery'),
         ),
@@ -630,7 +635,7 @@ class _PickupOptionSelector extends StatelessWidget {
         _PickupOptionChip(
           label: 'Flexible',
           value: 'Flexible',
-          icon: Icons.all_inclusive_rounded,
+          iconAsset: AppImages.flexible,
           isSelected: selectedOption == 'Flexible',
           onTap: () => onChanged('Flexible'),
         ),
@@ -643,14 +648,14 @@ class _PickupOptionChip extends StatelessWidget {
   const _PickupOptionChip({
     required this.label,
     required this.value,
-    required this.icon,
+    required this.iconAsset,
     required this.isSelected,
     required this.onTap,
   });
 
   final String label;
   final String value;
-  final IconData icon;
+  final String iconAsset;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -683,10 +688,10 @@ class _PickupOptionChip extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(
-                icon,
-                size: 18.sp,
-                color: isSelected ? Colors.white : AppColors.blueGray,
+              Image.asset(
+                iconAsset,
+                height: 20.h,
+                width: 20.h,
               ),
               SizedBox(height: 4.h),
               Text(
