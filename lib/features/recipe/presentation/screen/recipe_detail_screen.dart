@@ -34,10 +34,6 @@ class RecipeDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(recipeDetailNotifierProvider(recipeId));
-    final currentRecipeId = recipeId;
-    final isInWishlistAsync = ref.watch(
-      isRecipeInWishlistProvider(recipeId),
-    );
 
     return AppScaffold(
       title: 'Recipe',
@@ -47,17 +43,23 @@ class RecipeDetailScreen extends ConsumerWidget {
       padding: EdgeInsets.zero,
       transparentAppBar: true,
       actions: [
-        isInWishlistAsync.when(
-          data: (isInWishlist) => CircleIconButton(
-            icon: isInWishlist
+        detailAsync.when(
+          data: (detail) => CircleIconButton(
+            icon: detail.addedToWishlist
                 ? Icons.favorite
                 : Icons.favorite_border,
-            iconColor: isInWishlist
+            iconColor: detail.addedToWishlist
                 ? Colors.red
                 : Colors.black87,
             onTap: () async {
+              final previousState = detail.addedToWishlist;
+              
+              // Optimistic update
+              ref.read(recipeDetailNotifierProvider(recipeId).notifier)
+                  .updateAddedToWishlist(!previousState);
+
               try {
-                if (isInWishlist) {
+                if (previousState) {
                   await ref
                       .read(wishlistProvider.notifier)
                       .removeFromWishlist(recipeId);
@@ -68,6 +70,10 @@ class RecipeDetailScreen extends ConsumerWidget {
                 }
                 ref.invalidate(isRecipeInWishlistProvider(recipeId));
               } catch (e) {
+                // Rollback on error
+                ref.read(recipeDetailNotifierProvider(recipeId).notifier)
+                    .updateAddedToWishlist(previousState);
+                
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -92,6 +98,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                 await ref
                     .read(wishlistProvider.notifier)
                     .addToWishlist(recipeId);
+                ref.invalidate(recipeDetailNotifierProvider(recipeId));
                 ref.invalidate(isRecipeInWishlistProvider(recipeId));
               } catch (e) {
                 if (context.mounted) {
@@ -589,7 +596,7 @@ class RecipeDetailScreen extends ConsumerWidget {
                 right: 20.w,
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    final recipeIdValue = detail.recipeId ?? detail.id ?? currentRecipeId;
+                    final recipeIdValue = detail.recipeId ?? detail.id ?? recipeId;
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
