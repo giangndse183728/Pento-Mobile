@@ -29,8 +29,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       lottieAsset: 'assets/lottie/Grocery shopping bag pickup and delivery.json',
-      title: 'Food Giveaway',
-      description: 'Save money and help the planet by minimizing food waste. Track savings and see your environmental impact.',
+      title: 'Trade Food',
+      description: 'Exchange food items with other households. Share what you have and get what you need while reducing waste.',
     ),
   ];
 

@@ -37,24 +37,27 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   StreamSubscription<TradeItemUpdatedResponse>? _itemUpdatedSubscription;
   StreamSubscription<TradeItemsRemovedResponse>? _itemsRemovedSubscription;
   StreamSubscription<TradeSessionCancelledResponse>? _sessionCancelledSubscription;
+  StreamSubscription<bool>? _reconnectionSubscription;
+  DateTime? _lastConfirmationTime;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
     _repository = TradeSessionRepository();
     
-    // Ensure SignalR is connected and join session
-    try {
-      final signalR = SignalRService.instance;
-      if (!signalR.isConnected) {
-        await signalR.connect();
-      }
-      await signalR.joinSession(sessionId);
-    } catch (e) {
-      // SignalR connection failed, continue without real-time updates
+      try {
+    // Connect and join session FIRST
+    final signalR = SignalRService.instance;
+    if (!signalR.isConnected) {
+      await signalR.connect();
     }
+    await signalR.joinSession(sessionId);
     
-    // Set up SignalR connection and listener
+    // Setup listeners AFTER connection confirmed
     _setupSignalRListeners();
+    _setupReconnectionListener();
+  } catch (e) {
+    // Continue without real-time updates
+  }
     
     // Clean up when provider is disposed
     ref.onDispose(() {
@@ -65,9 +68,30 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       _itemUpdatedSubscription?.cancel();
       _itemsRemovedSubscription?.cancel();
       _sessionCancelledSubscription?.cancel();
+      _reconnectionSubscription?.cancel();
+      
+      // Leave session when provider is disposed
+      SignalRService.instance.leaveSession().catchError((e) {
+      });
     });
     
     return await _loadDetail();
+  }
+
+  void _setupReconnectionListener() {
+    final signalR = SignalRService.instance;
+    final currentSessionId = sessionId;
+    
+    // Listen for reconnection and rejoin session
+    _reconnectionSubscription?.cancel();
+    _reconnectionSubscription = signalR.connectionStateStream.listen((connected) {
+      if (connected) {
+        // Reconnected, rejoin the session
+        signalR.joinSession(currentSessionId).catchError((e) {
+          // Log error but don't throw
+        });
+      }
+    });
   }
 
   void _setupSignalRListeners() {
@@ -413,21 +437,38 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     
   }
 
-  /// Toggle confirmation for the current user
+  int get remainingCooldownSeconds {
+    if (_lastConfirmationTime == null) return 0;
+    final timeSinceLastConfirmation = 
+        DateTime.now().difference(_lastConfirmationTime!);
+    final remaining = 5 - timeSinceLastConfirmation.inSeconds;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  bool get canToggleConfirmation => remainingCooldownSeconds == 0;
+
   Future<void> toggleConfirmation() async {
+    if (!canToggleConfirmation) {
+      throw Exception(
+        'Please wait $remainingCooldownSeconds second${remainingCooldownSeconds > 1 ? 's' : ''} before toggling confirmation again',
+      );
+    }
+    
     final sessionId = this.sessionId;
     
     await _repository.confirmTradeSession(
       tradeSessionId: sessionId,
     );
     
+    // Update last confirmation time
+    _lastConfirmationTime = DateTime.now();
   }
 
-  /// Connect to SignalR and join this session
   Future<void> connectToSession() async {
     final signalR = SignalRService.instance;
-    await signalR.connect();
-    await signalR.joinSession(sessionId);
+    if (!signalR.isConnected) {
+      await signalR.connect();
+    }
   }
 
   /// Disconnect from the session
