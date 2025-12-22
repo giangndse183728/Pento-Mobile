@@ -466,9 +466,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
 
   Future<void> connectToSession() async {
     final signalR = SignalRService.instance;
-    if (!signalR.isConnected) {
-      await signalR.connect();
-    }
+    await signalR.joinSession(sessionId);
   }
 
   /// Disconnect from the session

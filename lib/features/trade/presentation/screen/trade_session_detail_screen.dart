@@ -26,7 +26,7 @@ class TradeSessionDetailScreen extends ConsumerStatefulWidget {
 
 class _TradeSessionDetailScreenState
     extends ConsumerState<TradeSessionDetailScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   bool _isConnected = false;
   bool _isConfirming = false;
@@ -36,17 +36,32 @@ class _TradeSessionDetailScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
     _connectToSignalR();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     _connectionSubscription?.cancel();
     _cooldownTimer?.cancel();
     _disconnectFromSignalR();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      ref
+          .read(
+            tradeSessionDetailNotifierProvider(widget.sessionId).notifier,
+          )
+          .connectToSession()
+          .catchError((_) {});
+    }
   }
 
   Future<void> _connectToSignalR() async {

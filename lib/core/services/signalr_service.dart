@@ -440,12 +440,6 @@ class SignalRService {
 
   /// Join a trade session group to receive messages
   Future<void> joinSession(String sessionId) async {
-    // If already in this session, no need to join again
-    if (_currentSessionId == sessionId && _isConnected) {
-      _logger.info('Already in session: $sessionId');
-      return;
-    }
-
     // Ensure we're connected
     if (!_isConnected || _hubConnection == null) {
       _logger.info('Not connected, connecting now...');
@@ -460,7 +454,7 @@ class SignalRService {
     try {
       _currentSessionId = sessionId;
       await _hubConnection!.invoke('AddToSession', args: [sessionId]);
-      _logger.info('Joined session: $sessionId');
+      _logger.info('Joined session (ensured): $sessionId');
     } catch (e) {
       _logger.severe('Failed to join session: $e');
       _currentSessionId = null;
