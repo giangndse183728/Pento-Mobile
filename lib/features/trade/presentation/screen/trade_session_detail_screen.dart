@@ -26,25 +26,42 @@ class TradeSessionDetailScreen extends ConsumerStatefulWidget {
 
 class _TradeSessionDetailScreenState
     extends ConsumerState<TradeSessionDetailScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   bool _isConnected = false;
   bool _isConfirming = false;
   StreamSubscription<bool>? _connectionSubscription;
+  Timer? _cooldownTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 2, vsync: this);
     _connectToSignalR();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     _connectionSubscription?.cancel();
+    _cooldownTimer?.cancel();
     _disconnectFromSignalR();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      ref
+          .read(
+            tradeSessionDetailNotifierProvider(widget.sessionId).notifier,
+          )
+          .connectToSession()
+          .catchError((_) {});
+    }
   }
 
   Future<void> _connectToSignalR() async {
@@ -57,17 +74,10 @@ class _TradeSessionDetailScreenState
       }
     });
 
-    try {
-      // Connect and join session
-      await ref
-          .read(tradeSessionDetailNotifierProvider(widget.sessionId).notifier)
-          .connectToSession();
-      
-      if (mounted) {
-        setState(() => _isConnected = signalR.isConnected);
-      }
-    } catch (e) {
-      debugPrint('Failed to connect to SignalR: $e');
+    // Provider's build method already handles connecting and joining the session
+    // Just update the connection state
+    if (mounted) {
+      setState(() => _isConnected = signalR.isConnected);
     }
   }
 
@@ -150,6 +160,35 @@ class _TradeSessionDetailScreenState
     final userSession = ref.watch(userSessionNotifierProvider);
     final currentUserId = userSession?.userId;
     final currentHouseholdId = userSession?.householdId;
+    
+    // Get cooldown from provider
+    final notifier = ref.read(
+      tradeSessionDetailNotifierProvider(widget.sessionId).notifier,
+    );
+    final remainingCooldownSeconds = notifier.remainingCooldownSeconds;
+    
+    // Set up timer to rebuild when cooldown is active
+    if (remainingCooldownSeconds > 0 && _cooldownTimer == null) {
+      _cooldownTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          if (mounted) {
+            final newCooldown = notifier.remainingCooldownSeconds;
+            if (newCooldown <= 0) {
+              timer.cancel();
+              _cooldownTimer = null;
+            }
+            setState(() {});
+          } else {
+            timer.cancel();
+            _cooldownTimer = null;
+          }
+        },
+      );
+    } else if (remainingCooldownSeconds <= 0 && _cooldownTimer != null) {
+      _cooldownTimer?.cancel();
+      _cooldownTimer = null;
+    }
 
     return Scaffold(
       backgroundColor: AppColors.iceberg,
@@ -270,6 +309,7 @@ class _TradeSessionDetailScreenState
                       onToggleConfirmation: _handleToggleConfirmation,
                       isConfirming: _isConfirming,
                       sessionId: widget.sessionId,
+                      remainingCooldownSeconds: remainingCooldownSeconds,
                     ),
                   ],
                 ),

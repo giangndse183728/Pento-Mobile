@@ -24,6 +24,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     required this.onToggleConfirmation,
     this.isConfirming = false,
     required this.sessionId,
+    this.remainingCooldownSeconds = 0,
   });
 
   final TradeSessionDetail detail;
@@ -31,6 +32,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
   final VoidCallback onToggleConfirmation;
   final bool isConfirming;
   final String sessionId;
+  final int remainingCooldownSeconds;
 
   bool get _isOfferHousehold => 
       currentHouseholdId == detail.tradeSession.offerHouseholdId;
@@ -88,6 +90,13 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     final bothConfirmed = (currentDetail.tradeSession.confirmedByOfferUser != null &&
         currentDetail.tradeSession.confirmedByRequestUser != null);
     
+    // Check if current user is confirmed
+    final isCurrentUserConfirmed = _isOfferHousehold
+        ? currentDetail.tradeSession.confirmedByOfferUser != null
+        : _isRequestHousehold
+            ? currentDetail.tradeSession.confirmedByRequestUser != null
+            : false;
+    
     final offeredItems =
         currentDetail.items.where((item) => item.from == 'Offer').toList();
     final requestedItems =
@@ -114,8 +123,9 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                   AppColors.mintLeaf,
                   offeredItems,
                   currentDetail.tradeSession.confirmedByOfferUser != null,
-                  _isOfferHousehold && !bothConfirmed,
+                  _isOfferHousehold && !bothConfirmed && !isCurrentUserConfirmed,
                   bothConfirmed,
+                  isCurrentUserConfirmed,
                 ),
                 SizedBox(height: 20.h),
                 // Requested items
@@ -128,8 +138,9 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                   AppColors.warningSun,
                   requestedItems,
                   currentDetail.tradeSession.confirmedByRequestUser != null,
-                  _isRequestHousehold && !bothConfirmed,
+                  _isRequestHousehold && !bothConfirmed && !isCurrentUserConfirmed,
                   bothConfirmed,
+                  isCurrentUserConfirmed,
                 ),
                 SizedBox(height: 100.h),
               ],
@@ -138,7 +149,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
         ),
         // Ready and Cancel buttons at bottom
         if (currentDetail.tradeSession.status == 'Ongoing')
-          _buildActionButtons(context, ref, bothConfirmed),
+          _buildActionButtons(context, ref, bothConfirmed, isCurrentUserConfirmed),
       ],
     );
   }
@@ -373,6 +384,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     bool bothConfirmed,
+    bool isCurrentUserConfirmed,
   ) {
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -393,13 +405,13 @@ class TradeSessionItemsWidget extends ConsumerWidget {
             // Cancel button
             Expanded(
               child: OutlinedButton(
-                onPressed: (isConfirming || bothConfirmed) ? null : () {
+                onPressed: (isConfirming || bothConfirmed || isCurrentUserConfirmed) ? null : () {
                   _showCancelDialog(context, ref);
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.dangerRed,
                   side: BorderSide(
-                    color: (isConfirming || bothConfirmed)
+                    color: (isConfirming || bothConfirmed || isCurrentUserConfirmed)
                         ? AppColors.dangerRed.withValues(alpha: 0.3)
                         : AppColors.dangerRed,
                     width: 1.5,
@@ -433,12 +445,15 @@ class TradeSessionItemsWidget extends ConsumerWidget {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: (isConfirming || bothConfirmed) ? null : onToggleConfirmation,
+                onPressed: (isConfirming || bothConfirmed || remainingCooldownSeconds > 0) 
+                    ? null 
+                    : onToggleConfirmation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isCurrentUserConfirmed 
                       ? AppColors.blueGray 
                       : Colors.green,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: AppColors.blueGray.withValues(alpha: 0.5),
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -457,22 +472,37 @@ class TradeSessionItemsWidget extends ConsumerWidget {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            _isCurrentUserConfirmed 
-                                ? Icons.close_rounded 
-                                : Icons.check_rounded,
-                            size: 22.sp,
-                          ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            _isCurrentUserConfirmed 
-                                ? 'Cancel Ready' 
-                                : 'I\'m Ready to Trade',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
+                          if (remainingCooldownSeconds > 0) ...[
+                            Icon(
+                              Icons.timer_rounded,
+                              size: 22.sp,
                             ),
-                          ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'Wait ${remainingCooldownSeconds}s',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ] else ...[
+                            Icon(
+                              _isCurrentUserConfirmed 
+                                  ? Icons.close_rounded 
+                                  : Icons.check_rounded,
+                              size: 22.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              _isCurrentUserConfirmed 
+                                  ? 'Cancel Ready' 
+                                  : 'I\'m Ready to Trade',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
               ),
@@ -603,6 +633,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     bool isConfirmed,
     bool canAddItems,
     bool bothConfirmed,
+    bool isCurrentUserConfirmed,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,11 +725,11 @@ class TradeSessionItemsWidget extends ConsumerWidget {
           ],
         ),
         SizedBox(height: 12.h),
-        if (canAddItems && !bothConfirmed)
+        if (canAddItems && !bothConfirmed && !isCurrentUserConfirmed)
           Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: OutlinedButton.icon(
-              onPressed: bothConfirmed ? null : () {
+              onPressed: (bothConfirmed || isCurrentUserConfirmed) ? null : () {
                 context.push(
                   AppRoutes.addTradeSessionItemsRoute(sessionId),
                 ).then((result) {
@@ -743,7 +774,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
             ),
           )
         else
-          ...items.map((item) => _buildItemCard(context, ref, item, color, canAddItems && !bothConfirmed, bothConfirmed)),
+          ...items.map((item) => _buildItemCard(context, ref, item, color, canAddItems && !bothConfirmed && !isCurrentUserConfirmed, bothConfirmed, isCurrentUserConfirmed)),
       ],
     );
   }
@@ -755,6 +786,7 @@ class TradeSessionItemsWidget extends ConsumerWidget {
     Color accentColor,
     bool canEdit,
     bool bothConfirmed,
+    bool isCurrentUserConfirmed,
   ) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
