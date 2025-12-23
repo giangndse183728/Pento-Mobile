@@ -14,7 +14,9 @@ class SignalRService {
   
   HubConnection? _hubConnection;
   bool _isConnected = false;
-  bool _isConnecting = false; // Track connection in progress
+  bool _isConnecting = false;
+  bool _isReconnecting = false;
+  Completer<void>? _connectionLock;
   String? _currentSessionId;
   
   final _messageController = StreamController<TradeMessageResponse>.broadcast();
@@ -45,32 +47,35 @@ class SignalRService {
 
   /// Initialize and connect to the SignalR hub
   Future<void> connect() async {
+    // Wait for any pending connection to complete
+    if (_connectionLock != null && !_connectionLock!.isCompleted) {
+      _logger.info('Waiting for existing connection attempt...');
+      try {
+        await _connectionLock!.future.timeout(
+          const Duration(seconds: 15),
+          onTimeout: () => null,
+        );
+      } catch (e) {
+        _logger.warning('Previous connection attempt timed out: $e');
+      }
+    }
+
     // If already connected, return immediately
     if (_isConnected && _hubConnection != null) {
       _logger.info('SignalR already connected');
       return;
     }
 
-    // If connection in progress, wait for it
-    if (_isConnecting) {
-      _logger.info('SignalR connection already in progress, waiting...');
-      // Wait for connection state to change
-      await _connectionStateController.stream
-          .firstWhere((connected) => connected || !_isConnecting)
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => false,
-          );
-      return;
-    }
-
+    // Create new lock for this connection attempt
+    _connectionLock = Completer<void>();
     _isConnecting = true;
-
+    
     try {
       final accessToken = TokenProvider.instance.accessToken;
       if (accessToken == null || accessToken.isEmpty) {
         _logger.warning('No access token available for SignalR connection');
         _isConnecting = false;
+        _connectionLock?.complete();
         return;
       }
 
@@ -79,10 +84,12 @@ class SignalRService {
             ApiEndpoints.messageHub,
             options: HttpConnectionOptions(
               accessTokenFactory: () async => accessToken,
+              transport: HttpTransportType.WebSockets,
+              skipNegotiation: true,
             ),
           )
           .withAutomaticReconnect(
-            retryDelays: [0, 2000, 5000, 10000, 30000], // Custom retry delays
+            retryDelays: [0, 2000, 5000, 10000, 30000],
           )
           .build();
 
@@ -91,63 +98,126 @@ class SignalRService {
         _logger.warning('SignalR connection closed: $error');
         _isConnected = false;
         _isConnecting = false;
+        _isReconnecting = false;
         _connectionStateController.add(false);
       });
 
       _hubConnection!.onreconnecting(({error}) {
         _logger.info('SignalR reconnecting: $error');
         _isConnected = false;
+        _isReconnecting = true;
         _connectionStateController.add(false);
       });
 
       _hubConnection!.onreconnected(({connectionId}) async {
         _logger.info('SignalR reconnected: $connectionId');
-        _isConnected = true;
-        _connectionStateController.add(true);
         
         // Rejoin session if we were in one
         if (_currentSessionId != null) {
           try {
+            // Add delay to ensure connection is fully ready
+            await Future.delayed(const Duration(milliseconds: 1000));
             await _rejoinSession(_currentSessionId!);
+            
+            // Additional delay after rejoin to ensure subscription is ready
+            await Future.delayed(const Duration(milliseconds: 500));
           } catch (e) {
             _logger.severe('Failed to rejoin session after reconnection: $e');
           }
         }
+        
+        // Mark as connected after rejoining completes
+        _isConnecting = false;
+        _isReconnecting = false;
+        _isConnected = true;
+        _connectionStateController.add(true);
       });
 
-      // Register all handlers
+      // Register all handlers BEFORE starting connection
       _registerHandlers();
 
       // Start connection
       await _hubConnection!.start();
+      
+      // Add a small delay to ensure connection is fully established
+      await Future.delayed(const Duration(milliseconds: 300));
+      
       _isConnected = true;
-      _isConnecting = false;
       _connectionStateController.add(true);
       _logger.info('SignalR connected successfully');
+      
+      _connectionLock?.complete();
     } catch (e) {
       _logger.severe('Failed to connect to SignalR: $e');
       _isConnected = false;
-      _isConnecting = false;
       _connectionStateController.add(false);
+      _connectionLock?.completeError(e);
       rethrow;
     }
   }
 
   /// Register all SignalR event handlers
   void _registerHandlers() {
-    _hubConnection!.on('TradeMessageSent', _handleTradeMessage);
-    _hubConnection!.on('TradeSessionConfirm', _handleTradeConfirmation);
-    _hubConnection!.on('TradeSessionItemsAdded', _handleTradeSessionItemsAdded);
-    _hubConnection!.on('TradeSessionItemsUpdated', _handleTradeSessionItemsUpdated);
-    _hubConnection!.on('TradeItemUpdated', _handleTradeItemUpdated);
-    _hubConnection!.on('TradeItemsRemoved', _handleTradeItemsRemoved);
-    _hubConnection!.on('TradeSessionCancelled', _handleTradeSessionCancelled);
+    // Wrap handlers with error handling to prevent handler failures from stopping message delivery
+    _hubConnection!.on('TradeMessageSent', (args) {
+      try {
+        _handleTradeMessage(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeMessageSent handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeSessionConfirm', (args) {
+      try {
+        _handleTradeConfirmation(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeSessionConfirm handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeSessionItemsAdded', (args) {
+      try {
+        _handleTradeSessionItemsAdded(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeSessionItemsAdded handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeSessionItemsUpdated', (args) {
+      try {
+        _handleTradeSessionItemsUpdated(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeSessionItemsUpdated handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeItemUpdated', (args) {
+      try {
+        _handleTradeItemUpdated(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeItemUpdated handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeItemsRemoved', (args) {
+      try {
+        _handleTradeItemsRemoved(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeItemsRemoved handler: $e\n$stack');
+      }
+    });
+    
+    _hubConnection!.on('TradeSessionCancelled', (args) {
+      try {
+        _handleTradeSessionCancelled(args);
+      } catch (e, stack) {
+        _logger.severe('Error in TradeSessionCancelled handler: $e\n$stack');
+      }
+    });
   }
 
   /// Handle incoming trade messages from SignalR
   void _handleTradeMessage(List<Object?>? arguments) {
-    if (!_messageController.hasListener) return;
-    
     if (arguments == null || arguments.isEmpty) {
       _logger.warning('Received empty trade message');
       return;
@@ -157,24 +227,26 @@ class SignalRService {
       final data = arguments[0];
       _logger.info('Received trade message: $data');
       
+      TradeMessageResponse? message;
+      
       if (data is Map<String, dynamic>) {
-        final message = TradeMessageResponse.fromJson(data);
-        _messageController.add(message);
+        message = TradeMessageResponse.fromJson(data);
       } else if (data is Map) {
-        final message = TradeMessageResponse.fromJson(
+        message = TradeMessageResponse.fromJson(
           Map<String, dynamic>.from(data),
         );
+      }
+      
+      if (message != null) {
         _messageController.add(message);
       }
-    } catch (e) {
-      _logger.severe('Error parsing trade message: $e');
+    } catch (e, stack) {
+      _logger.severe('Error parsing trade message: $e\n$stack');
     }
   }
 
   /// Handle trade session confirmation from SignalR
   void _handleTradeConfirmation(List<Object?>? arguments) {
-    if (!_confirmationController.hasListener) return;
-    
     if (arguments == null || arguments.length < 2) {
       _logger.warning('Received invalid trade confirmation');
       return;
@@ -192,15 +264,13 @@ class SignalRService {
       );
       
       _confirmationController.add(confirmation);
-    } catch (e) {
-      _logger.severe('Error parsing trade confirmation: $e');
+    } catch (e, stack) {
+      _logger.severe('Error parsing trade confirmation: $e\n$stack');
     }
   }
 
   /// Handle trade session items added from SignalR
   void _handleTradeSessionItemsAdded(List<Object?>? arguments) {
-    if (!_itemsAddedController.hasListener) return;
-    
     if (arguments == null || arguments.length < 2) {
       _logger.warning('Received invalid trade session items added');
       return;
@@ -235,6 +305,7 @@ class SignalRService {
           } catch (e, stackTrace) {
             _logger.severe('Error parsing item at index $i: $e');
             _logger.severe('Stack trace: $stackTrace');
+            // Continue processing other items
           }
         }
       } else if (itemsData is Map) {
@@ -281,8 +352,6 @@ class SignalRService {
   }
 
   void _handleTradeSessionItemsUpdated(List<Object?>? arguments) {
-    if (!_itemsUpdatedController.hasListener) return;
-    
     if (arguments == null || arguments.length < 2) {
       _logger.warning('Received invalid trade session items updated');
       return;
@@ -352,8 +421,6 @@ class SignalRService {
   }
 
   void _handleTradeItemUpdated(List<Object?>? arguments) {
-    if (!_itemUpdatedController.hasListener) return;
-    
     if (arguments == null || arguments.length < 3) {
       _logger.warning('Received invalid trade item updated');
       return;
@@ -384,8 +451,6 @@ class SignalRService {
   }
 
   void _handleTradeItemsRemoved(List<Object?>? arguments) {
-    if (!_itemsRemovedController.hasListener) return;
-    
     if (arguments == null || arguments.isEmpty) {
       _logger.warning('Received invalid trade items removed');
       return;
@@ -417,8 +482,6 @@ class SignalRService {
   }
 
   void _handleTradeSessionCancelled(List<Object?>? arguments) {
-    if (!_sessionCancelledController.hasListener) return;
-    
     if (arguments == null || arguments.isEmpty) {
       _logger.warning('Received invalid trade session cancelled');
       return;
@@ -440,6 +503,17 @@ class SignalRService {
 
   /// Join a trade session group to receive messages
   Future<void> joinSession(String sessionId) async {
+    // If reconnecting, wait for it to complete
+    if (_isReconnecting) {
+      _logger.info('Waiting for reconnection to complete before joining session...');
+      await _connectionStateController.stream
+          .firstWhere((connected) => connected)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => false,
+          );
+    }
+    
     // Ensure we're connected
     if (!_isConnected || _hubConnection == null) {
       _logger.info('Not connected, connecting now...');
@@ -453,8 +527,31 @@ class SignalRService {
 
     try {
       _currentSessionId = sessionId;
-      await _hubConnection!.invoke('AddToSession', args: [sessionId]);
-      _logger.info('Joined session (ensured): $sessionId');
+      
+      // Add retry logic for joining session
+      int retries = 3;
+      Exception? lastError;
+      
+      while (retries > 0) {
+        try {
+          await _hubConnection!.invoke('AddToSession', args: [sessionId])
+              .timeout(const Duration(seconds: 5));
+          _logger.info('Joined session: $sessionId');
+          return; // Success
+        } catch (e) {
+          lastError = e as Exception;
+          retries--;
+          if (retries > 0) {
+            _logger.warning('Failed to join session, retrying... ($retries left): $e');
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
+        }
+      }
+      
+      // All retries failed
+      _currentSessionId = null;
+      throw lastError ?? Exception('Failed to join session after retries');
+      
     } catch (e) {
       _logger.severe('Failed to join session: $e');
       _currentSessionId = null;
@@ -465,7 +562,8 @@ class SignalRService {
   /// Rejoin session after reconnection (internal use)
   Future<void> _rejoinSession(String sessionId) async {
     try {
-      await _hubConnection!.invoke('AddToSession', args: [sessionId]);
+      await _hubConnection!.invoke('AddToSession', args: [sessionId])
+          .timeout(const Duration(seconds: 5));
       _logger.info('Rejoined session after reconnection: $sessionId');
     } catch (e) {
       _logger.severe('Failed to rejoin session: $e');
@@ -486,7 +584,8 @@ class SignalRService {
 
     try {
       final sessionId = _currentSessionId!;
-      await _hubConnection!.invoke('RemoveFromSession', args: [sessionId]);
+      await _hubConnection!.invoke('RemoveFromSession', args: [sessionId])
+          .timeout(const Duration(seconds: 5));
       _logger.info('Left session: $sessionId');
       _currentSessionId = null;
     } catch (e) {
@@ -502,6 +601,7 @@ class SignalRService {
       await _hubConnection?.stop();
       _isConnected = false;
       _isConnecting = false;
+      _isReconnecting = false;
       _connectionStateController.add(false);
       _logger.info('SignalR disconnected');
     } catch (e) {
@@ -523,7 +623,7 @@ class SignalRService {
   }
 }
 
-// Keep your existing response classes as they are
+// Response classes remain the same
 class TradeMessageResponse {
   final String messageId;
   final String sessionId;
