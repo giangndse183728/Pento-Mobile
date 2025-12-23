@@ -7,7 +7,7 @@ import '../../data/repositories/trade_sessions_repository.dart';
 
 part 'trade_sessions_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class TradeSessions extends _$TradeSessions {
   late final TradeSessionRepository _repository;
 
