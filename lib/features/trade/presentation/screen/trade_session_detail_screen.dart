@@ -83,9 +83,7 @@ class _TradeSessionDetailScreenState
 
   Future<void> _disconnectFromSignalR() async {
     try {
-      await ref
-          .read(tradeSessionDetailNotifierProvider(widget.sessionId).notifier)
-          .disconnectFromSession();
+      await SignalRService.instance.leaveSession();
     } catch (e) {
       debugPrint('Error disconnecting from SignalR: $e');
     }
