@@ -45,7 +45,7 @@ void main() async {
     sound: true,
   );
 
-  AppLogger.initialize(level: Level.ALL);
+  AppLogger.initialize(level: Level.OFF);
   
   SecureStorageService.instance.initialize();
   await NotificationService.instance.initialize();
