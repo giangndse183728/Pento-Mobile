@@ -117,7 +117,9 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4.h),
-                        Row(
+                        Wrap(
+                          spacing: 8.w,
+                          runSpacing: 4.h,
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(
@@ -138,60 +140,71 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8.w),
-                            if (meal.servings > 0) ...[
-                              Icon(
-                                Icons.people_outline,
-                                size: 14.sp,
-                                color: Colors.black54,
+                            if (meal.servings > 0)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline,
+                                    size: 14.sp,
+                                    color: Colors.black54,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    '${meal.servings} servings',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                '${meal.servings} servings',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                         if (hasContent) ...[
                           SizedBox(height: 4.h),
-                          Row(
+                          Wrap(
+                            spacing: 8.w,
+                            runSpacing: 4.h,
                             children: [
-                              if (meal.hasRecipes) ...[
-                                Icon(
-                                  Icons.restaurant,
-                                  size: 14.sp,
-                                  color: Colors.black54,
+                              if (meal.hasRecipes)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.restaurant,
+                                      size: 14.sp,
+                                      color: Colors.black54,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      '${meal.recipes.length} recipe${meal.recipes.length > 1 ? 's' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '${meal.recipes.length} recipe${meal.recipes.length > 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.black54,
-                                  ),
+                              if (meal.hasFoodItems)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.fastfood_outlined,
+                                      size: 14.sp,
+                                      color: Colors.black54,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      '${meal.foodItems.length} item${meal.foodItems.length > 1 ? 's' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              if (meal.hasRecipes && meal.hasFoodItems)
-                                SizedBox(width: 8.w),
-                              if (meal.hasFoodItems) ...[
-                                Icon(
-                                  Icons.fastfood_outlined,
-                                  size: 14.sp,
-                                  color: Colors.black54,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '${meal.foodItems.length} item${meal.foodItems.length > 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ],
@@ -210,19 +223,6 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                       ),
                     ),
 
-                  SizedBox(width: 4.w),
-
-                  // Delete Button
-                  IconButton(
-                    onPressed: widget.onDelete,
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Colors.red.shade400,
-                      size: 20.sp,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
                 ],
               ),
             ),
@@ -621,10 +621,6 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                             ),
                           ),
                         ],
-                        if (status != null && status.isNotEmpty) ...[
-                          SizedBox(width: 8.w),
-                          _buildStatusChip(status),
-                        ],
                       ],
                     ),
                     if (foodItem.expirationDate != null) ...[
@@ -648,6 +644,10 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                               ),
                             ),
                           ),
+                          if (status != null && status.isNotEmpty) ...[
+                            SizedBox(width: 8.w),
+                            _buildStatusChip(status),
+                          ],
                         ],
                       ),
                     ],
