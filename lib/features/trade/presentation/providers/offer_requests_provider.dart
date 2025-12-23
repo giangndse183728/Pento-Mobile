@@ -1,18 +1,18 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/trade_offers_model.dart';
-import '../../data/repositories/trade_offers_repository.dart';
+import '../../data/repositories/trade_requests_repository.dart';
 
-part 'post_requests_provider.g.dart';
+part 'offer_requests_provider.g.dart';
 
 @riverpod
-class PostRequests extends _$PostRequests {
-  late final TradeOfferRepository _repository;
+class OfferRequests extends _$OfferRequests {
+  late final TradeRequestRepository _repository;
   int _currentPage = 1;
   static const int _pageSize = 10;
 
   @override
   FutureOr<PaginatedTradeRequests> build(String offerId) async {
-    _repository = TradeOfferRepository();
+    _repository = TradeRequestRepository();
     _currentPage = 1;
     return await _loadRequests();
   }
@@ -63,4 +63,11 @@ class PostRequests extends _$PostRequests {
     await refresh();
   }
 }
+
+
+
+
+
+
+
 

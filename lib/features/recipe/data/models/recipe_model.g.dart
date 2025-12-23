@@ -22,6 +22,7 @@ _$RecipeImpl _$$RecipeImplFromJson(Map<String, dynamic> json) => _$RecipeImpl(
   imageUrl: json['imageUrl'] as String?,
   createdBy: json['createdBy'] as String?,
   isPublic: json['isPublic'] as bool? ?? false,
+  addedToWishlist: json['addedToWishlist'] as bool? ?? false,
   createdOnUtc: json['createdOnUtc'] == null
       ? null
       : DateTime.parse(json['createdOnUtc'] as String),
@@ -57,6 +58,7 @@ Map<String, dynamic> _$$RecipeImplToJson(_$RecipeImpl instance) =>
       'imageUrl': instance.imageUrl,
       'createdBy': instance.createdBy,
       'isPublic': instance.isPublic,
+      'addedToWishlist': instance.addedToWishlist,
       'createdOnUtc': instance.createdOnUtc?.toIso8601String(),
       'updatedOnUtc': instance.updatedOnUtc?.toIso8601String(),
       'ingredients': instance.ingredients,

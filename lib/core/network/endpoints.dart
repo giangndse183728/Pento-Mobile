@@ -17,6 +17,9 @@ class ApiEndpoints {
   static const String placeNearBy = '$baseUrlNest/places/nearby';
   static const String getFoodReferenceBarcode = '$baseUrlNest/scan-barcode';
 
+  // SignalR Hub
+  static const String messageHub = '$baseUrl/message-hub';
+
   // Authentication
   static const String signIn = '/auth/mobile-sign-in';
   static const String signUp = '/auth/register';
@@ -138,7 +141,7 @@ class ApiEndpoints {
   static const String cancelTradeOffer = '/trades/offers/{tradeOfferId}/cancel';
 
   static const String acceptTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/accept';
-  static const String rejectTradeRequest = '/trades/offers/{tradeOfferId}/requests/{tradeRequestId}/reject';
+  static const String rejectTradeRequest = '/trades/requests/{tradeRequestId}/reject';
 
 
 
@@ -155,8 +158,7 @@ class ApiEndpoints {
   static const String updateTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
   static const String removeTradeSessionItem = '/trades/sessions/{tradeSessionId}/items';
 
-
-
-  // SignalR Hub
-  static const String messageHub = '$baseUrl/message-hub';
+  //Report
+  static const String reportTrade = '/trades/reports';
+  static const String reportTradeMedia = '/trades/reports/{tradeReportId}/media';
 }

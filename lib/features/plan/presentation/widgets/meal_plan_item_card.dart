@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_images.dart';
+import '../../../../core/constants/app_typography.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/utils/logging.dart';
 import '../../data/repositories/meal_plan_repository.dart';
 import '../providers/meal_plan_provider.dart';
@@ -115,7 +117,9 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                           overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 4.h),
-                        Row(
+                        Wrap(
+                          spacing: 8.w,
+                          runSpacing: 4.h,
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(
@@ -136,60 +140,71 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8.w),
-                            if (meal.servings > 0) ...[
-                              Icon(
-                                Icons.people_outline,
-                                size: 14.sp,
-                                color: Colors.black54,
+                            if (meal.servings > 0)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline,
+                                    size: 14.sp,
+                                    color: Colors.black54,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    '${meal.servings} servings',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                '${meal.servings} servings',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                         if (hasContent) ...[
                           SizedBox(height: 4.h),
-                          Row(
+                          Wrap(
+                            spacing: 8.w,
+                            runSpacing: 4.h,
                             children: [
-                              if (meal.hasRecipes) ...[
-                                Icon(
-                                  Icons.restaurant,
-                                  size: 14.sp,
-                                  color: Colors.black54,
+                              if (meal.hasRecipes)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.restaurant,
+                                      size: 14.sp,
+                                      color: Colors.black54,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      '${meal.recipes.length} recipe${meal.recipes.length > 1 ? 's' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '${meal.recipes.length} recipe${meal.recipes.length > 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.black54,
-                                  ),
+                              if (meal.hasFoodItems)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.fastfood_outlined,
+                                      size: 14.sp,
+                                      color: Colors.black54,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      '${meal.foodItems.length} item${meal.foodItems.length > 1 ? 's' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              if (meal.hasRecipes && meal.hasFoodItems)
-                                SizedBox(width: 8.w),
-                              if (meal.hasFoodItems) ...[
-                                Icon(
-                                  Icons.fastfood_outlined,
-                                  size: 14.sp,
-                                  color: Colors.black54,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  '${meal.foodItems.length} item${meal.foodItems.length > 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ],
@@ -208,19 +223,6 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                       ),
                     ),
 
-                  SizedBox(width: 4.w),
-
-                  // Delete Button
-                  IconButton(
-                    onPressed: widget.onDelete,
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Colors.red.shade400,
-                      size: 20.sp,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
                 ],
               ),
             ),
@@ -619,10 +621,6 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                             ),
                           ),
                         ],
-                        if (status != null && status.isNotEmpty) ...[
-                          SizedBox(width: 8.w),
-                          _buildStatusChip(status),
-                        ],
                       ],
                     ),
                     if (foodItem.expirationDate != null) ...[
@@ -646,6 +644,10 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
                               ),
                             ),
                           ),
+                          if (status != null && status.isNotEmpty) ...[
+                            SizedBox(width: 8.w),
+                            _buildStatusChip(status),
+                          ],
                         ],
                       ),
                     ],
@@ -689,6 +691,62 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
   }
 
   Future<void> _handleCancelRecipe(String recipeId, String mealPlanId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Cancel Recipe Reservation',
+              style: AppTextStyles.sectionHeader(),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Canceling this recipe reservation will return all ingredients to the first storage/compartment.',
+              style: AppTextStyles.inputHint,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: AppColors.blueGray,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
     try {
       await _repository.cancelRecipeReservation(
         mealPlanId: mealPlanId,
@@ -780,6 +838,62 @@ class _MealPlanItemCardState extends ConsumerState<MealPlanItemCard>
           ),
         );
       }
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Cancel Food Item Reservation',
+              style: AppTextStyles.sectionHeader(),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Canceling this food item reservation will return it to the first storage/compartment.',
+              style: AppTextStyles.inputHint,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: AppColors.blueGray,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
       return;
     }
 

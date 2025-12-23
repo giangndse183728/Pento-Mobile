@@ -320,6 +320,10 @@ TradeOffer _$TradeOfferFromJson(Map<String, dynamic> json) {
 mixin _$TradeOffer {
   @JsonKey(name: 'offerId')
   String get offerId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status')
+  String get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'pendingRequests')
+  int get pendingRequests => throw _privateConstructorUsedError;
   @JsonKey(name: 'startDate')
   DateTime get startDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'endDate')
@@ -356,6 +360,8 @@ abstract class $TradeOfferCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: 'offerId') String offerId,
+    @JsonKey(name: 'status') String status,
+    @JsonKey(name: 'pendingRequests') int pendingRequests,
     @JsonKey(name: 'startDate') DateTime startDate,
     @JsonKey(name: 'endDate') DateTime endDate,
     @JsonKey(name: 'pickupOption') String pickupOption,
@@ -383,6 +389,8 @@ class _$TradeOfferCopyWithImpl<$Res, $Val extends TradeOffer>
   @override
   $Res call({
     Object? offerId = null,
+    Object? status = null,
+    Object? pendingRequests = null,
     Object? startDate = null,
     Object? endDate = null,
     Object? pickupOption = null,
@@ -398,6 +406,14 @@ class _$TradeOfferCopyWithImpl<$Res, $Val extends TradeOffer>
                 ? _value.offerId
                 : offerId // ignore: cast_nullable_to_non_nullable
                       as String,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String,
+            pendingRequests: null == pendingRequests
+                ? _value.pendingRequests
+                : pendingRequests // ignore: cast_nullable_to_non_nullable
+                      as int,
             startDate: null == startDate
                 ? _value.startDate
                 : startDate // ignore: cast_nullable_to_non_nullable
@@ -447,6 +463,8 @@ abstract class _$$TradeOfferImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: 'offerId') String offerId,
+    @JsonKey(name: 'status') String status,
+    @JsonKey(name: 'pendingRequests') int pendingRequests,
     @JsonKey(name: 'startDate') DateTime startDate,
     @JsonKey(name: 'endDate') DateTime endDate,
     @JsonKey(name: 'pickupOption') String pickupOption,
@@ -473,6 +491,8 @@ class __$$TradeOfferImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? offerId = null,
+    Object? status = null,
+    Object? pendingRequests = null,
     Object? startDate = null,
     Object? endDate = null,
     Object? pickupOption = null,
@@ -488,6 +508,14 @@ class __$$TradeOfferImplCopyWithImpl<$Res>
             ? _value.offerId
             : offerId // ignore: cast_nullable_to_non_nullable
                   as String,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String,
+        pendingRequests: null == pendingRequests
+            ? _value.pendingRequests
+            : pendingRequests // ignore: cast_nullable_to_non_nullable
+                  as int,
         startDate: null == startDate
             ? _value.startDate
             : startDate // ignore: cast_nullable_to_non_nullable
@@ -530,6 +558,8 @@ class __$$TradeOfferImplCopyWithImpl<$Res>
 class _$TradeOfferImpl implements _TradeOffer {
   const _$TradeOfferImpl({
     @JsonKey(name: 'offerId') required this.offerId,
+    @JsonKey(name: 'status') required this.status,
+    @JsonKey(name: 'pendingRequests') this.pendingRequests = 0,
     @JsonKey(name: 'startDate') required this.startDate,
     @JsonKey(name: 'endDate') required this.endDate,
     @JsonKey(name: 'pickupOption') required this.pickupOption,
@@ -546,6 +576,12 @@ class _$TradeOfferImpl implements _TradeOffer {
   @override
   @JsonKey(name: 'offerId')
   final String offerId;
+  @override
+  @JsonKey(name: 'status')
+  final String status;
+  @override
+  @JsonKey(name: 'pendingRequests')
+  final int pendingRequests;
   @override
   @JsonKey(name: 'startDate')
   final DateTime startDate;
@@ -578,7 +614,7 @@ class _$TradeOfferImpl implements _TradeOffer {
 
   @override
   String toString() {
-    return 'TradeOffer(offerId: $offerId, startDate: $startDate, endDate: $endDate, pickupOption: $pickupOption, postedBy: $postedBy, createdOnUtc: $createdOnUtc, postedByName: $postedByName, postedByAvatarUrl: $postedByAvatarUrl, items: $items)';
+    return 'TradeOffer(offerId: $offerId, status: $status, pendingRequests: $pendingRequests, startDate: $startDate, endDate: $endDate, pickupOption: $pickupOption, postedBy: $postedBy, createdOnUtc: $createdOnUtc, postedByName: $postedByName, postedByAvatarUrl: $postedByAvatarUrl, items: $items)';
   }
 
   @override
@@ -587,6 +623,9 @@ class _$TradeOfferImpl implements _TradeOffer {
         (other.runtimeType == runtimeType &&
             other is _$TradeOfferImpl &&
             (identical(other.offerId, offerId) || other.offerId == offerId) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.pendingRequests, pendingRequests) ||
+                other.pendingRequests == pendingRequests) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
@@ -608,6 +647,8 @@ class _$TradeOfferImpl implements _TradeOffer {
   int get hashCode => Object.hash(
     runtimeType,
     offerId,
+    status,
+    pendingRequests,
     startDate,
     endDate,
     pickupOption,
@@ -635,6 +676,8 @@ class _$TradeOfferImpl implements _TradeOffer {
 abstract class _TradeOffer implements TradeOffer {
   const factory _TradeOffer({
     @JsonKey(name: 'offerId') required final String offerId,
+    @JsonKey(name: 'status') required final String status,
+    @JsonKey(name: 'pendingRequests') final int pendingRequests,
     @JsonKey(name: 'startDate') required final DateTime startDate,
     @JsonKey(name: 'endDate') required final DateTime endDate,
     @JsonKey(name: 'pickupOption') required final String pickupOption,
@@ -651,6 +694,12 @@ abstract class _TradeOffer implements TradeOffer {
   @override
   @JsonKey(name: 'offerId')
   String get offerId;
+  @override
+  @JsonKey(name: 'status')
+  String get status;
+  @override
+  @JsonKey(name: 'pendingRequests')
+  int get pendingRequests;
   @override
   @JsonKey(name: 'startDate')
   DateTime get startDate;
@@ -5886,5 +5935,553 @@ abstract class _TradeRequestDetail implements TradeRequestDetail {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TradeRequestDetailImplCopyWith<_$TradeRequestDetailImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+CreateTradeReportRequest _$CreateTradeReportRequestFromJson(
+  Map<String, dynamic> json,
+) {
+  return _CreateTradeReportRequest.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CreateTradeReportRequest {
+  @JsonKey(name: 'tradeSessionId')
+  String get tradeSessionId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reason')
+  TradeReportReason get reason => throw _privateConstructorUsedError;
+  @JsonKey(name: 'severity')
+  FoodSafetyIssueLevel get severity => throw _privateConstructorUsedError;
+  @JsonKey(name: 'description')
+  String get description => throw _privateConstructorUsedError;
+
+  /// Serializes this CreateTradeReportRequest to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CreateTradeReportRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $CreateTradeReportRequestCopyWith<CreateTradeReportRequest> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CreateTradeReportRequestCopyWith<$Res> {
+  factory $CreateTradeReportRequestCopyWith(
+    CreateTradeReportRequest value,
+    $Res Function(CreateTradeReportRequest) then,
+  ) = _$CreateTradeReportRequestCopyWithImpl<$Res, CreateTradeReportRequest>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeSessionId') String tradeSessionId,
+    @JsonKey(name: 'reason') TradeReportReason reason,
+    @JsonKey(name: 'severity') FoodSafetyIssueLevel severity,
+    @JsonKey(name: 'description') String description,
+  });
+}
+
+/// @nodoc
+class _$CreateTradeReportRequestCopyWithImpl<
+  $Res,
+  $Val extends CreateTradeReportRequest
+>
+    implements $CreateTradeReportRequestCopyWith<$Res> {
+  _$CreateTradeReportRequestCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of CreateTradeReportRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeSessionId = null,
+    Object? reason = null,
+    Object? severity = null,
+    Object? description = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            tradeSessionId: null == tradeSessionId
+                ? _value.tradeSessionId
+                : tradeSessionId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            reason: null == reason
+                ? _value.reason
+                : reason // ignore: cast_nullable_to_non_nullable
+                      as TradeReportReason,
+            severity: null == severity
+                ? _value.severity
+                : severity // ignore: cast_nullable_to_non_nullable
+                      as FoodSafetyIssueLevel,
+            description: null == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$CreateTradeReportRequestImplCopyWith<$Res>
+    implements $CreateTradeReportRequestCopyWith<$Res> {
+  factory _$$CreateTradeReportRequestImplCopyWith(
+    _$CreateTradeReportRequestImpl value,
+    $Res Function(_$CreateTradeReportRequestImpl) then,
+  ) = __$$CreateTradeReportRequestImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeSessionId') String tradeSessionId,
+    @JsonKey(name: 'reason') TradeReportReason reason,
+    @JsonKey(name: 'severity') FoodSafetyIssueLevel severity,
+    @JsonKey(name: 'description') String description,
+  });
+}
+
+/// @nodoc
+class __$$CreateTradeReportRequestImplCopyWithImpl<$Res>
+    extends
+        _$CreateTradeReportRequestCopyWithImpl<
+          $Res,
+          _$CreateTradeReportRequestImpl
+        >
+    implements _$$CreateTradeReportRequestImplCopyWith<$Res> {
+  __$$CreateTradeReportRequestImplCopyWithImpl(
+    _$CreateTradeReportRequestImpl _value,
+    $Res Function(_$CreateTradeReportRequestImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of CreateTradeReportRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeSessionId = null,
+    Object? reason = null,
+    Object? severity = null,
+    Object? description = null,
+  }) {
+    return _then(
+      _$CreateTradeReportRequestImpl(
+        tradeSessionId: null == tradeSessionId
+            ? _value.tradeSessionId
+            : tradeSessionId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        reason: null == reason
+            ? _value.reason
+            : reason // ignore: cast_nullable_to_non_nullable
+                  as TradeReportReason,
+        severity: null == severity
+            ? _value.severity
+            : severity // ignore: cast_nullable_to_non_nullable
+                  as FoodSafetyIssueLevel,
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CreateTradeReportRequestImpl implements _CreateTradeReportRequest {
+  const _$CreateTradeReportRequestImpl({
+    @JsonKey(name: 'tradeSessionId') required this.tradeSessionId,
+    @JsonKey(name: 'reason') required this.reason,
+    @JsonKey(name: 'severity') required this.severity,
+    @JsonKey(name: 'description') required this.description,
+  });
+
+  factory _$CreateTradeReportRequestImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CreateTradeReportRequestImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'tradeSessionId')
+  final String tradeSessionId;
+  @override
+  @JsonKey(name: 'reason')
+  final TradeReportReason reason;
+  @override
+  @JsonKey(name: 'severity')
+  final FoodSafetyIssueLevel severity;
+  @override
+  @JsonKey(name: 'description')
+  final String description;
+
+  @override
+  String toString() {
+    return 'CreateTradeReportRequest(tradeSessionId: $tradeSessionId, reason: $reason, severity: $severity, description: $description)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CreateTradeReportRequestImpl &&
+            (identical(other.tradeSessionId, tradeSessionId) ||
+                other.tradeSessionId == tradeSessionId) &&
+            (identical(other.reason, reason) || other.reason == reason) &&
+            (identical(other.severity, severity) ||
+                other.severity == severity) &&
+            (identical(other.description, description) ||
+                other.description == description));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, tradeSessionId, reason, severity, description);
+
+  /// Create a copy of CreateTradeReportRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CreateTradeReportRequestImplCopyWith<_$CreateTradeReportRequestImpl>
+  get copyWith =>
+      __$$CreateTradeReportRequestImplCopyWithImpl<
+        _$CreateTradeReportRequestImpl
+      >(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CreateTradeReportRequestImplToJson(this);
+  }
+}
+
+abstract class _CreateTradeReportRequest implements CreateTradeReportRequest {
+  const factory _CreateTradeReportRequest({
+    @JsonKey(name: 'tradeSessionId') required final String tradeSessionId,
+    @JsonKey(name: 'reason') required final TradeReportReason reason,
+    @JsonKey(name: 'severity') required final FoodSafetyIssueLevel severity,
+    @JsonKey(name: 'description') required final String description,
+  }) = _$CreateTradeReportRequestImpl;
+
+  factory _CreateTradeReportRequest.fromJson(Map<String, dynamic> json) =
+      _$CreateTradeReportRequestImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'tradeSessionId')
+  String get tradeSessionId;
+  @override
+  @JsonKey(name: 'reason')
+  TradeReportReason get reason;
+  @override
+  @JsonKey(name: 'severity')
+  FoodSafetyIssueLevel get severity;
+  @override
+  @JsonKey(name: 'description')
+  String get description;
+
+  /// Create a copy of CreateTradeReportRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CreateTradeReportRequestImplCopyWith<_$CreateTradeReportRequestImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+TradeReportResponse _$TradeReportResponseFromJson(Map<String, dynamic> json) {
+  return _TradeReportResponse.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TradeReportResponse {
+  @JsonKey(name: 'tradeReportId')
+  String get tradeReportId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tradeSessionId')
+  String get tradeSessionId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reason')
+  String get reason => throw _privateConstructorUsedError;
+  @JsonKey(name: 'severity')
+  String get severity => throw _privateConstructorUsedError;
+  @JsonKey(name: 'description')
+  String get description => throw _privateConstructorUsedError;
+  @JsonKey(name: 'createdAt')
+  DateTime get createdAt => throw _privateConstructorUsedError;
+
+  /// Serializes this TradeReportResponse to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of TradeReportResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $TradeReportResponseCopyWith<TradeReportResponse> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TradeReportResponseCopyWith<$Res> {
+  factory $TradeReportResponseCopyWith(
+    TradeReportResponse value,
+    $Res Function(TradeReportResponse) then,
+  ) = _$TradeReportResponseCopyWithImpl<$Res, TradeReportResponse>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeReportId') String tradeReportId,
+    @JsonKey(name: 'tradeSessionId') String tradeSessionId,
+    @JsonKey(name: 'reason') String reason,
+    @JsonKey(name: 'severity') String severity,
+    @JsonKey(name: 'description') String description,
+    @JsonKey(name: 'createdAt') DateTime createdAt,
+  });
+}
+
+/// @nodoc
+class _$TradeReportResponseCopyWithImpl<$Res, $Val extends TradeReportResponse>
+    implements $TradeReportResponseCopyWith<$Res> {
+  _$TradeReportResponseCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of TradeReportResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeReportId = null,
+    Object? tradeSessionId = null,
+    Object? reason = null,
+    Object? severity = null,
+    Object? description = null,
+    Object? createdAt = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            tradeReportId: null == tradeReportId
+                ? _value.tradeReportId
+                : tradeReportId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            tradeSessionId: null == tradeSessionId
+                ? _value.tradeSessionId
+                : tradeSessionId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            reason: null == reason
+                ? _value.reason
+                : reason // ignore: cast_nullable_to_non_nullable
+                      as String,
+            severity: null == severity
+                ? _value.severity
+                : severity // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: null == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$TradeReportResponseImplCopyWith<$Res>
+    implements $TradeReportResponseCopyWith<$Res> {
+  factory _$$TradeReportResponseImplCopyWith(
+    _$TradeReportResponseImpl value,
+    $Res Function(_$TradeReportResponseImpl) then,
+  ) = __$$TradeReportResponseImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'tradeReportId') String tradeReportId,
+    @JsonKey(name: 'tradeSessionId') String tradeSessionId,
+    @JsonKey(name: 'reason') String reason,
+    @JsonKey(name: 'severity') String severity,
+    @JsonKey(name: 'description') String description,
+    @JsonKey(name: 'createdAt') DateTime createdAt,
+  });
+}
+
+/// @nodoc
+class __$$TradeReportResponseImplCopyWithImpl<$Res>
+    extends _$TradeReportResponseCopyWithImpl<$Res, _$TradeReportResponseImpl>
+    implements _$$TradeReportResponseImplCopyWith<$Res> {
+  __$$TradeReportResponseImplCopyWithImpl(
+    _$TradeReportResponseImpl _value,
+    $Res Function(_$TradeReportResponseImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of TradeReportResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tradeReportId = null,
+    Object? tradeSessionId = null,
+    Object? reason = null,
+    Object? severity = null,
+    Object? description = null,
+    Object? createdAt = null,
+  }) {
+    return _then(
+      _$TradeReportResponseImpl(
+        tradeReportId: null == tradeReportId
+            ? _value.tradeReportId
+            : tradeReportId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        tradeSessionId: null == tradeSessionId
+            ? _value.tradeSessionId
+            : tradeSessionId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        reason: null == reason
+            ? _value.reason
+            : reason // ignore: cast_nullable_to_non_nullable
+                  as String,
+        severity: null == severity
+            ? _value.severity
+            : severity // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$TradeReportResponseImpl implements _TradeReportResponse {
+  const _$TradeReportResponseImpl({
+    @JsonKey(name: 'tradeReportId') required this.tradeReportId,
+    @JsonKey(name: 'tradeSessionId') required this.tradeSessionId,
+    @JsonKey(name: 'reason') required this.reason,
+    @JsonKey(name: 'severity') required this.severity,
+    @JsonKey(name: 'description') required this.description,
+    @JsonKey(name: 'createdAt') required this.createdAt,
+  });
+
+  factory _$TradeReportResponseImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TradeReportResponseImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'tradeReportId')
+  final String tradeReportId;
+  @override
+  @JsonKey(name: 'tradeSessionId')
+  final String tradeSessionId;
+  @override
+  @JsonKey(name: 'reason')
+  final String reason;
+  @override
+  @JsonKey(name: 'severity')
+  final String severity;
+  @override
+  @JsonKey(name: 'description')
+  final String description;
+  @override
+  @JsonKey(name: 'createdAt')
+  final DateTime createdAt;
+
+  @override
+  String toString() {
+    return 'TradeReportResponse(tradeReportId: $tradeReportId, tradeSessionId: $tradeSessionId, reason: $reason, severity: $severity, description: $description, createdAt: $createdAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TradeReportResponseImpl &&
+            (identical(other.tradeReportId, tradeReportId) ||
+                other.tradeReportId == tradeReportId) &&
+            (identical(other.tradeSessionId, tradeSessionId) ||
+                other.tradeSessionId == tradeSessionId) &&
+            (identical(other.reason, reason) || other.reason == reason) &&
+            (identical(other.severity, severity) ||
+                other.severity == severity) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    tradeReportId,
+    tradeSessionId,
+    reason,
+    severity,
+    description,
+    createdAt,
+  );
+
+  /// Create a copy of TradeReportResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TradeReportResponseImplCopyWith<_$TradeReportResponseImpl> get copyWith =>
+      __$$TradeReportResponseImplCopyWithImpl<_$TradeReportResponseImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TradeReportResponseImplToJson(this);
+  }
+}
+
+abstract class _TradeReportResponse implements TradeReportResponse {
+  const factory _TradeReportResponse({
+    @JsonKey(name: 'tradeReportId') required final String tradeReportId,
+    @JsonKey(name: 'tradeSessionId') required final String tradeSessionId,
+    @JsonKey(name: 'reason') required final String reason,
+    @JsonKey(name: 'severity') required final String severity,
+    @JsonKey(name: 'description') required final String description,
+    @JsonKey(name: 'createdAt') required final DateTime createdAt,
+  }) = _$TradeReportResponseImpl;
+
+  factory _TradeReportResponse.fromJson(Map<String, dynamic> json) =
+      _$TradeReportResponseImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'tradeReportId')
+  String get tradeReportId;
+  @override
+  @JsonKey(name: 'tradeSessionId')
+  String get tradeSessionId;
+  @override
+  @JsonKey(name: 'reason')
+  String get reason;
+  @override
+  @JsonKey(name: 'severity')
+  String get severity;
+  @override
+  @JsonKey(name: 'description')
+  String get description;
+  @override
+  @JsonKey(name: 'createdAt')
+  DateTime get createdAt;
+
+  /// Create a copy of TradeReportResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TradeReportResponseImplCopyWith<_$TradeReportResponseImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

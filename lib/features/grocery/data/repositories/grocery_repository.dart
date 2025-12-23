@@ -104,6 +104,10 @@ class GroceryRepository {
             'quantity': (item['quantity'] as num?)?.toDouble() ?? 0,
             'unitId': item['unitId'],
             'unitName': item['unitName'],
+            'abbertaionUnit': item['abbertaionUnit'] ??
+                item['abbreviationUnit'] ??
+                item['unitAbbreviation'] ??
+                item['abbreviation_unit'],
             'priority': item['priority'],
             'notes': item['notes'],
             'foodGroup': item['foodGroup'],
@@ -184,6 +188,10 @@ class GroceryRepository {
           'quantity': quantity,
           'unitId': unitId,
           'unitName': data['unitName'],
+          'abbertaionUnit': data['abbertaionUnit'] ??
+              data['abbreviationUnit'] ??
+              data['unitAbbreviation'] ??
+              data['abbreviation_unit'],
           'priority': priority,
           'notes': notes,
           'isCompleted': data['isCompleted'] ?? false,
@@ -202,6 +210,7 @@ class GroceryRepository {
     String? notes,
     String? customName,
     String? priority,
+    String? listId,
   }) async {
     final endpoint =
         ApiEndpoints.updateGroceryListItem.replaceAll('{id}', id);
@@ -231,7 +240,30 @@ class GroceryRepository {
       data: payload,
       onSuccess: (data) {
         if (data is Map<String, dynamic>) {
-          return GroceryListItem.fromJson(data);
+          // API may only return {id: ...}, so merge with provided data
+          // Ensure required fields (id and listId) are always present
+          final responseId = data['id'];
+          if (responseId == null || responseId is! String) {
+            throw Exception('API response missing required field: id');
+          }
+          
+          if (listId == null) {
+            throw Exception('listId is required for update operation');
+          }
+          
+          final mergedData = <String, dynamic>{
+            'id': responseId,
+            'listId': listId,
+            // Include all other fields from response
+            ...data,
+            // Override with provided values if they exist
+            if (quantity != null) 'quantity': quantity,
+            if (notes != null) 'notes': notes,
+            if (customName != null) 'customName': customName,
+            if (priority != null) 'priority': priority,
+          };
+          
+          return GroceryListItem.fromJson(mergedData);
         }
         throw Exception('Invalid grocery list item payload');
       },

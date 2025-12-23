@@ -3,17 +3,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/services/signalr_service.dart';
 import '../../../unit/presentation/providers/unit_provider.dart';
 import '../../data/models/trade_offers_model.dart';
-import '../../data/repositories/trade_offers_repository.dart';
+import '../../data/repositories/trade_sessions_repository.dart';
 
 part 'trade_sessions_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class TradeSessions extends _$TradeSessions {
-  late final TradeOfferRepository _repository;
+  late final TradeSessionRepository _repository;
 
   @override
   FutureOr<PaginatedTradeSessions> build() async {
-    _repository = TradeOfferRepository();
+    _repository = TradeSessionRepository();
     return await _loadSessions();
   }
 
@@ -29,7 +29,7 @@ class TradeSessions extends _$TradeSessions {
 
 @riverpod
 class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
-  late final TradeOfferRepository _repository;
+  late final TradeSessionRepository _repository;
   StreamSubscription<TradeMessageResponse>? _messageSubscription;
   StreamSubscription<TradeConfirmationResponse>? _confirmationSubscription;
   StreamSubscription<TradeSessionItemsAddedResponse>? _itemsAddedSubscription;
@@ -37,79 +37,181 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
   StreamSubscription<TradeItemUpdatedResponse>? _itemUpdatedSubscription;
   StreamSubscription<TradeItemsRemovedResponse>? _itemsRemovedSubscription;
   StreamSubscription<TradeSessionCancelledResponse>? _sessionCancelledSubscription;
+  DateTime? _lastConfirmationTime;
+  bool _isInitialized = false;
 
   @override
   FutureOr<TradeSessionDetail> build(String sessionId) async {
-    _repository = TradeOfferRepository();
+    _repository = TradeSessionRepository();
     
-    // Set up SignalR connection and listener
-    _setupSignalRListeners();
-    
-    // Clean up when provider is disposed
+    // Setup cleanup on dispose
     ref.onDispose(() {
-      _messageSubscription?.cancel();
-      _confirmationSubscription?.cancel();
-      _itemsAddedSubscription?.cancel();
-      _itemsUpdatedSubscription?.cancel();
-      _itemUpdatedSubscription?.cancel();
-      _itemsRemovedSubscription?.cancel();
-      _sessionCancelledSubscription?.cancel();
+      _cleanup();
     });
     
-    return await _loadDetail();
+    // Load data first
+    final detail = await _loadDetail();
+    
+    // Setup SignalR after data is loaded
+    if (!_isInitialized) {
+      _isInitialized = true;
+      _initializeSignalR(sessionId);
+    }
+    
+    return detail;
   }
 
-  void _setupSignalRListeners() {
+  Future<void> _initializeSignalR(String sessionId) async {
+    try {
+      final signalR = SignalRService.instance;
+      
+      // Connect if not connected
+      if (!signalR.isConnected) {
+        await signalR.connect();
+      }
+      
+      // Join session
+      await signalR.joinSession(sessionId);
+      
+      // Setup all listeners
+      _setupSignalRListeners(sessionId);
+      
+    } catch (e) {
+      // Log error but continue - app works without real-time updates
+      print('Failed to initialize SignalR: $e');
+    }
+  }
+
+  void _setupSignalRListeners(String currentSessionId) {
     final signalR = SignalRService.instance;
     
+    // Cancel existing subscriptions first
+    _cancelSubscriptions();
+    
     // Listen for incoming messages
-    _messageSubscription?.cancel();
-    _messageSubscription = signalR.messageStream.listen((response) {
-      if (response.sessionId == sessionId) {
-        _addMessageToState(response);
-      }
-    });
+    _messageSubscription = signalR.messageStream.listen(
+      (response) {
+        if (response.sessionId == currentSessionId) {
+          _addMessageToState(response);
+        }
+      },
+      onError: (error) {
+        print('Error in message stream: $error');
+      },
+      cancelOnError: false, // Keep listening even after errors
+    );
     
     // Listen for confirmation updates
-    _confirmationSubscription?.cancel();
-    _confirmationSubscription = signalR.confirmationStream.listen((response) {
-      _updateConfirmationState(response);
-    });
+    _confirmationSubscription = signalR.confirmationStream.listen(
+      (response) {
+        _updateConfirmationState(response);
+      },
+      onError: (error) {
+        print('Error in confirmation stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Listen for items added updates
-    _itemsAddedSubscription?.cancel();
-    _itemsAddedSubscription = signalR.itemsAddedStream.listen((response) {
-      if (response.sessionId == sessionId) {
-        _addItemsFromSignalR(response.items);
-      }
-    });
+    _itemsAddedSubscription = signalR.itemsAddedStream.listen(
+      (response) {
+        if (response.sessionId == currentSessionId) {
+          _addItemsFromSignalR(response.items);
+        }
+      },
+      onError: (error) {
+        print('Error in items added stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Listen for items updated updates
-    _itemsUpdatedSubscription?.cancel();
-    _itemsUpdatedSubscription = signalR.itemsUpdatedStream.listen((response) {
-      if (response.sessionId == sessionId) {
-        _updateItemsFromSignalR(response.items);
-      }
-    });
+    _itemsUpdatedSubscription = signalR.itemsUpdatedStream.listen(
+      (response) {
+        if (response.sessionId == currentSessionId) {
+          _updateItemsFromSignalR(response.items);
+        }
+      },
+      onError: (error) {
+        print('Error in items updated stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Listen for single item updated updates
-    _itemUpdatedSubscription?.cancel();
-    _itemUpdatedSubscription = signalR.itemUpdatedStream.listen((response) {
-      _updateSingleItemFromSignalR(response);
-    });
+    _itemUpdatedSubscription = signalR.itemUpdatedStream.listen(
+      (response) {
+        // Verify item belongs to current session before updating
+        final currentState = state.valueOrNull;
+        if (currentState != null) {
+          final itemExists = currentState.items.any(
+            (item) => item.tradeItemId == response.tradeItemId,
+          );
+          if (itemExists) {
+            _updateSingleItemFromSignalR(response);
+          }
+        }
+      },
+      onError: (error) {
+        print('Error in item updated stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Listen for items removed updates
-    _itemsRemovedSubscription?.cancel();
-    _itemsRemovedSubscription = signalR.itemsRemovedStream.listen((response) {
-      _removeItemsFromSignalR(response.tradeItemIds);
-    });
+    _itemsRemovedSubscription = signalR.itemsRemovedStream.listen(
+      (response) {
+        _removeItemsFromSignalR(response.tradeItemIds);
+      },
+      onError: (error) {
+        print('Error in items removed stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Listen for session cancelled updates
+    _sessionCancelledSubscription = signalR.sessionCancelledStream.listen(
+      (response) {
+        if (response.sessionId == currentSessionId) {
+          _handleSessionCancelled();
+        }
+      },
+      onError: (error) {
+        print('Error in session cancelled stream: $error');
+      },
+      cancelOnError: false,
+    );
+  }
+
+  void _cancelSubscriptions() {
+    _messageSubscription?.cancel();
+    _messageSubscription = null;
+    
+    _confirmationSubscription?.cancel();
+    _confirmationSubscription = null;
+    
+    _itemsAddedSubscription?.cancel();
+    _itemsAddedSubscription = null;
+    
+    _itemsUpdatedSubscription?.cancel();
+    _itemsUpdatedSubscription = null;
+    
+    _itemUpdatedSubscription?.cancel();
+    _itemUpdatedSubscription = null;
+    
+    _itemsRemovedSubscription?.cancel();
+    _itemsRemovedSubscription = null;
+    
     _sessionCancelledSubscription?.cancel();
-    _sessionCancelledSubscription = signalR.sessionCancelledStream.listen((response) {
-      if (response.sessionId == sessionId) {
-        _handleSessionCancelled();
-      }
+    _sessionCancelledSubscription = null;
+  }
+
+  void _cleanup() {
+    _cancelSubscriptions();
+    
+    // Leave session
+    SignalRService.instance.leaveSession().catchError((e) {
+      print('Error leaving session: $e');
     });
   }
 
@@ -297,26 +399,36 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       (item) => item.tradeItemId == response.tradeItemId,
     );
 
-    if (itemIndex == -1) {
-      // Item not found, might need to refresh
-      return;
-    }
+    if (itemIndex == -1) return;
 
     final existingItem = currentState.items[itemIndex];
     
+    // Check if update is actually different
+    if (existingItem.quantity == response.quantity && existingItem.unitId == response.unitId) {
+      return;
+    }
+    
     String unitAbbreviation = existingItem.unitAbbreviation;
     if (existingItem.unitId != response.unitId) {
-      final unitsAsync = ref.read(unitsProvider);
-      if (unitsAsync.hasValue) {
-        final units = unitsAsync.value!;
-        final unit = units.firstWhere(
-          (u) => u.id == response.unitId,
-          orElse: () => units.firstWhere(
-            (u) => u.id == existingItem.unitId,
-            orElse: () => units.first,
-          ),
-        );
-        unitAbbreviation = unit.abbreviation;
+      try {
+        final unitsAsync = ref.read(unitsProvider);
+        if (unitsAsync.hasValue) {
+          final units = unitsAsync.value!;
+          try {
+            final unit = units.firstWhere(
+              (u) => u.id == response.unitId,
+              orElse: () => units.firstWhere(
+                (u) => u.id == existingItem.unitId,
+                orElse: () => units.first,
+              ),
+            );
+            unitAbbreviation = unit.abbreviation;
+          } catch (e) {
+            // Keep existing abbreviation if unit lookup fails
+          }
+        }
+      } catch (e) {
+        // Provider may be disposed, keep existing abbreviation
       }
     }
     
@@ -375,6 +487,24 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     state = await AsyncValue.guard(_loadDetail);
   }
 
+  /// Silent refresh that updates state in background without showing loading
+  Future<void> refreshSilently() async {
+    final currentState = state.valueOrNull;
+    if (currentState == null) {
+      // If no current state, use regular refresh
+      await refresh();
+      return;
+    }
+
+    try {
+      final updatedDetail = await _loadDetail();
+      // Update state silently without showing loading indicator
+      state = AsyncValue.data(updatedDetail);
+    } catch (e) {
+      // Silently fail - keep current state
+    }
+  }
+
   Future<void> sendMessage(String messageText) async {
     final sessionId = this.sessionId;
  
@@ -382,23 +512,39 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       tradeSessionId: sessionId,
       messageText: messageText,
     );
-    
   }
 
-  /// Toggle confirmation for the current user
+  int get remainingCooldownSeconds {
+    if (_lastConfirmationTime == null) return 0;
+    final timeSinceLastConfirmation = 
+        DateTime.now().difference(_lastConfirmationTime!);
+    final remaining = 5 - timeSinceLastConfirmation.inSeconds;
+    return remaining > 0 ? remaining : 0;
+  }
+
+  bool get canToggleConfirmation => remainingCooldownSeconds == 0;
+
   Future<void> toggleConfirmation() async {
+    if (!canToggleConfirmation) {
+      throw Exception(
+        'Please wait $remainingCooldownSeconds second${remainingCooldownSeconds > 1 ? 's' : ''} before toggling confirmation again',
+      );
+    }
+    
     final sessionId = this.sessionId;
     
     await _repository.confirmTradeSession(
       tradeSessionId: sessionId,
     );
     
+    _lastConfirmationTime = DateTime.now();
+
+    // Silent refresh to avoid screen flash - SignalR will also update the state
+    refreshSilently();
   }
 
-  /// Connect to SignalR and join this session
   Future<void> connectToSession() async {
     final signalR = SignalRService.instance;
-    await signalR.connect();
     await signalR.joinSession(sessionId);
   }
 
@@ -415,13 +561,13 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
     
     if (currentState == null) return;
 
-    // Optimistically update state
+    // Call API to add items
     final newItems = await _repository.addTradeSessionItems(
       tradeSessionId: sessionId,
       items: items,
     );
 
-    // Update state with new items
+    // Update state with new items - SignalR will also send update but dedup handles it
     _addItemsToState(newItems);
   }
 
@@ -438,7 +584,7 @@ class TradeSessionDetailNotifier extends _$TradeSessionDetailNotifier {
       items: items,
     );
 
-    // Update state with updated items
+    // Update state with updated items - SignalR will also send update but dedup handles it
     _updateItemsInState(updatedItems);
   }
 

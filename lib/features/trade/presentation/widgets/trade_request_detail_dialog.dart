@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/exceptions/network_exception.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/trade_offers_model.dart';
-import '../../data/repositories/trade_offers_repository.dart';
-import '../../../household/presentation/providers/household_provider.dart';
+import '../../data/repositories/trade_requests_repository.dart';
 
 class TradeRequestDetailDialog extends ConsumerStatefulWidget {
   const TradeRequestDetailDialog({
     super.key,
     required this.detail,
+    this.showConfirmButton = true,
   });
 
   final TradeRequestDetail detail;
+  final bool showConfirmButton;
 
   @override
   ConsumerState<TradeRequestDetailDialog> createState() =>
@@ -31,8 +34,12 @@ class _TradeRequestDetailDialogState
     switch (status.toLowerCase()) {
       case 'pending':
         return AppColors.warningSun;
+      case 'fulfilled':
+        return AppColors.blueGray;
       case 'accepted':
         return AppColors.mintLeaf;
+        case 'cancelled':
+        return AppColors.dangerRed;
       case 'rejected':
         return AppColors.dangerRed;
       default:
@@ -42,12 +49,16 @@ class _TradeRequestDetailDialogState
 
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
+      case 'fulfilled':
+        return Icons.verified_rounded;
       case 'pending':
         return Icons.schedule_rounded;
       case 'accepted':
         return Icons.check_circle_rounded;
       case 'rejected':
         return Icons.cancel_rounded;
+      case 'cancelled':
+        return Icons.close_rounded;
       default:
         return Icons.help_outline_rounded;
     }
@@ -70,15 +81,123 @@ class _TradeRequestDetailDialogState
     }
   }
 
-  bool get _isMine {
-    final household = ref.watch(householdProviderProvider).valueOrNull;
-    if (household == null) return false;
-    return widget.detail.tradeRequest.requestHouseholdName == household.name;
+  bool get _canConfirm {
+    return widget.showConfirmButton &&
+        widget.detail.tradeRequest.status.toLowerCase() == 'pending';
   }
 
-  bool get _canConfirm {
-    return !_isMine &&
-        widget.detail.tradeRequest.status.toLowerCase() == 'pending';
+  Future<void> _handleRejectRequest(BuildContext context) async {
+    if (_isConfirming) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AppDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.cancel_outlined,
+                  size: 24.sp,
+                  color: AppColors.dangerRed,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'Reject Trade Request',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, size: 20.sp),
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  color: AppColors.blueGray,
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Are you sure you want to reject this trade request?',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.blueGray,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(
+                    'No, Keep It',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.blueGray,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.dangerRed,
+                  ),
+                  child: Text(
+                    'Yes, Reject',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.dangerRed,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _isConfirming = true);
+
+    try {
+      final repository = TradeRequestRepository();
+      await repository.rejectTradeRequest(
+        tradeRequestId: widget.detail.tradeRequest.tradeRequestId,
+      );
+
+      if (mounted) {
+        ToastHelper.showSuccess(
+          context,
+          'Trade request rejected successfully',
+        );
+        Navigator.of(context).pop(true);
+      }
+    } on NetworkException catch (e) {
+      if (mounted) {
+        ToastHelper.showError(context, e.message);
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(
+          context,
+          'Failed to reject request. Please try again.',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isConfirming = false);
+      }
+    }
   }
 
   Future<void> _handleConfirmRequest() async {
@@ -168,7 +287,7 @@ class _TradeRequestDetailDialogState
     setState(() => _isConfirming = true);
 
     try {
-      final repository = TradeOfferRepository();
+      final repository = TradeRequestRepository();
       await repository.acceptTradeRequest(
         tradeOfferId: widget.detail.tradeRequest.tradeOfferId,
         tradeRequestId: widget.detail.tradeRequest.tradeRequestId,
@@ -179,11 +298,16 @@ class _TradeRequestDetailDialogState
           context,
           'Trade request confirmed successfully',
         );
-        Navigator.of(context).pop(true); // Return true to indicate success
+        // Close dialog and navigate to trade sessions screen
+        Navigator.of(context).pop();
+        context.go(AppRoutes.tradeSessions);
       }
     } on NetworkException catch (e) {
       if (mounted) {
         ToastHelper.showError(context, e.message);
+        // Navigate to trade sessions screen even on error
+        Navigator.of(context).pop();
+        context.go(AppRoutes.tradeSessions);
       }
     } catch (e) {
       if (mounted) {
@@ -191,6 +315,9 @@ class _TradeRequestDetailDialogState
           context,
           'Failed to confirm request. Please try again.',
         );
+        // Navigate to trade sessions screen even on error
+        Navigator.of(context).pop();
+        context.go(AppRoutes.tradeSessions);
       }
     } finally {
       if (mounted) {
@@ -205,11 +332,13 @@ class _TradeRequestDetailDialogState
     final statusColor = _getStatusColor(request.status);
 
     return AppDialog(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Header
             Row(
               children: [
@@ -256,8 +385,8 @@ class _TradeRequestDetailDialogState
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
+                    AppColors.powderBlue,
                     AppColors.blueGray,
-                    AppColors.powderBlue.withValues(alpha: 0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16.r),
@@ -272,7 +401,7 @@ class _TradeRequestDetailDialogState
                       vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.2),
+                      color: Colors.white ,
                       borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(
                         color: statusColor.withValues(alpha: 0.4),
@@ -294,10 +423,10 @@ class _TradeRequestDetailDialogState
                             fontWeight: FontWeight.w600,
                             color: statusColor,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+            ),
+          ],
+        ),
+      ),
                   SizedBox(height: 16.h),
 
                   // Households Info
@@ -381,52 +510,84 @@ class _TradeRequestDetailDialogState
             // Confirm button (only if not mine and status is pending)
             if (_canConfirm) ...[
               SizedBox(height: 24.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isConfirming ? null : _handleConfirmRequest,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isConfirming
-                      ? SizedBox(
-                          width: 24.w,
-                          height: 24.w,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.check_circle_rounded,
-                              size: 22.sp,
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              'Confirm Request',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: OutlinedButton(
+                      onPressed: _isConfirming
+                          ? null
+                          : () => _handleRejectRequest(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.dangerRed,
+                        side: BorderSide(
+                          color: AppColors.dangerRed,
                         ),
-                ),
+                        padding: EdgeInsets.symmetric(vertical: 14.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Reject',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed:
+                          _isConfirming ? null : _handleConfirmRequest,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 14.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: _isConfirming
+                          ? SizedBox(
+                              width: 24.w,
+                              height: 24.w,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 22.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  'Confirm',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildInfoItem({
@@ -534,7 +695,9 @@ class _TradeRequestDetailDialogState
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 8.h),
-                Row(
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 4.h,
                   children: [
                     Container(
                       padding: EdgeInsets.symmetric(
@@ -568,8 +731,7 @@ class _TradeRequestDetailDialogState
                         ],
                       ),
                     ),
-                    if (item.expirationDate.isNotEmpty) ...[
-                      SizedBox(width: 8.w),
+                    if (item.expirationDate.isNotEmpty)
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 8.w,
@@ -602,7 +764,6 @@ class _TradeRequestDetailDialogState
                           ],
                         ),
                       ),
-                    ],
                   ],
                 ),
                 if (item.foodGroup.isNotEmpty) ...[

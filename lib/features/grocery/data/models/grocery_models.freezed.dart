@@ -540,6 +540,7 @@ mixin _$GroceryListItem {
   double get quantity => throw _privateConstructorUsedError;
   String? get unitId => throw _privateConstructorUsedError;
   String? get unitName => throw _privateConstructorUsedError;
+  String? get abbertaionUnit => throw _privateConstructorUsedError;
   String? get priority => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   String? get foodGroup => throw _privateConstructorUsedError;
@@ -578,6 +579,7 @@ abstract class $GroceryListItemCopyWith<$Res> {
     double quantity,
     String? unitId,
     String? unitName,
+    String? abbertaionUnit,
     String? priority,
     String? notes,
     String? foodGroup,
@@ -615,6 +617,7 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
     Object? quantity = null,
     Object? unitId = freezed,
     Object? unitName = freezed,
+    Object? abbertaionUnit = freezed,
     Object? priority = freezed,
     Object? notes = freezed,
     Object? foodGroup = freezed,
@@ -663,6 +666,10 @@ class _$GroceryListItemCopyWithImpl<$Res, $Val extends GroceryListItem>
             unitName: freezed == unitName
                 ? _value.unitName
                 : unitName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            abbertaionUnit: freezed == abbertaionUnit
+                ? _value.abbertaionUnit
+                : abbertaionUnit // ignore: cast_nullable_to_non_nullable
                       as String?,
             priority: freezed == priority
                 ? _value.priority
@@ -729,6 +736,7 @@ abstract class _$$GroceryListItemImplCopyWith<$Res>
     double quantity,
     String? unitId,
     String? unitName,
+    String? abbertaionUnit,
     String? priority,
     String? notes,
     String? foodGroup,
@@ -765,6 +773,7 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
     Object? quantity = null,
     Object? unitId = freezed,
     Object? unitName = freezed,
+    Object? abbertaionUnit = freezed,
     Object? priority = freezed,
     Object? notes = freezed,
     Object? foodGroup = freezed,
@@ -813,6 +822,10 @@ class __$$GroceryListItemImplCopyWithImpl<$Res>
         unitName: freezed == unitName
             ? _value.unitName
             : unitName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        abbertaionUnit: freezed == abbertaionUnit
+            ? _value.abbertaionUnit
+            : abbertaionUnit // ignore: cast_nullable_to_non_nullable
                   as String?,
         priority: freezed == priority
             ? _value.priority
@@ -872,6 +885,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     this.quantity = 0,
     this.unitId,
     this.unitName,
+    this.abbertaionUnit,
     this.priority,
     this.notes,
     this.foodGroup,
@@ -907,6 +921,8 @@ class _$GroceryListItemImpl implements _GroceryListItem {
   @override
   final String? unitName;
   @override
+  final String? abbertaionUnit;
+  @override
   final String? priority;
   @override
   final String? notes;
@@ -929,7 +945,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
 
   @override
   String toString() {
-    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, imageUrl: $imageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, priority: $priority, notes: $notes, foodGroup: $foodGroup, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt, createdOnUtc: $createdOnUtc)';
+    return 'GroceryListItem(id: $id, listId: $listId, foodRefId: $foodRefId, foodRefName: $foodRefName, imageUrl: $imageUrl, customName: $customName, quantity: $quantity, unitId: $unitId, unitName: $unitName, abbertaionUnit: $abbertaionUnit, priority: $priority, notes: $notes, foodGroup: $foodGroup, typicalShelfLifeDaysPantry: $typicalShelfLifeDaysPantry, typicalShelfLifeDaysFridge: $typicalShelfLifeDaysFridge, typicalShelfLifeDaysFreezer: $typicalShelfLifeDaysFreezer, isCompleted: $isCompleted, createdAt: $createdAt, updatedAt: $updatedAt, createdOnUtc: $createdOnUtc)';
   }
 
   @override
@@ -952,6 +968,8 @@ class _$GroceryListItemImpl implements _GroceryListItem {
             (identical(other.unitId, unitId) || other.unitId == unitId) &&
             (identical(other.unitName, unitName) ||
                 other.unitName == unitName) &&
+            (identical(other.abbertaionUnit, abbertaionUnit) ||
+                other.abbertaionUnit == abbertaionUnit) &&
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.notes, notes) || other.notes == notes) &&
@@ -998,6 +1016,7 @@ class _$GroceryListItemImpl implements _GroceryListItem {
     quantity,
     unitId,
     unitName,
+    abbertaionUnit,
     priority,
     notes,
     foodGroup,
@@ -1038,6 +1057,7 @@ abstract class _GroceryListItem implements GroceryListItem {
     final double quantity,
     final String? unitId,
     final String? unitName,
+    final String? abbertaionUnit,
     final String? priority,
     final String? notes,
     final String? foodGroup,
@@ -1071,6 +1091,8 @@ abstract class _GroceryListItem implements GroceryListItem {
   String? get unitId;
   @override
   String? get unitName;
+  @override
+  String? get abbertaionUnit;
   @override
   String? get priority;
   @override

@@ -8,6 +8,7 @@ import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../data/models/trade_offers_model.dart';
 import '../providers/trade_sessions_provider.dart';
+import '../widgets/trade_report_dialog.dart';
 
 class TradeSessionsScreen extends ConsumerStatefulWidget {
   const TradeSessionsScreen({super.key});
@@ -258,6 +259,9 @@ class _TradeSessionsScreenState extends ConsumerState<TradeSessionsScreen> {
                 MediaQuery.of(context).padding.top + kToolbarHeight + 8.h,
           ),
         ),
+        SliverToBoxAdapter(
+          child: _buildPullToRefreshTip(),
+        ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -274,9 +278,74 @@ class _TradeSessionsScreenState extends ConsumerState<TradeSessionsScreen> {
     );
   }
 
+  Widget _buildPullToRefreshTip() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.babyBlue.withValues(alpha: 0.15),
+            AppColors.powderBlue.withValues(alpha: 0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppColors.babyBlue.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: AppColors.babyBlue.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.refresh_rounded,
+              size: 20.sp,
+              color: AppColors.blueGray,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Stay Updated',
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.blueGray,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  'Pull down to refresh and get new messages',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColors.blueGray.withValues(alpha: 0.7),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSessionCard(TradeSession session) {
     final statusColor = _getStatusColor(session.status);
     final totalItems = session.totalOfferedItems + session.totalRequestedItems;
+    final canReport = session.status.toLowerCase() == 'cancelled' ||
+        session.status.toLowerCase() == 'completed';
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
@@ -392,6 +461,17 @@ class _TradeSessionsScreenState extends ConsumerState<TradeSessionsScreen> {
                   ),
                 ),
                 SizedBox(width: 8.w),
+                // Report button (for cancelled/completed sessions)
+                if (canReport)
+                  IconButton(
+                    icon: Icon(
+                      Icons.flag_outlined,
+                      size: 20.sp,
+                      color: AppColors.dangerRed,
+                    ),
+                    onPressed: () => _showReportDialog(session.tradeSessionId),
+                    tooltip: 'Report',
+                  ),
                 // Chevron
                 Icon(
                   Icons.chevron_right_rounded,
@@ -404,6 +484,24 @@ class _TradeSessionsScreenState extends ConsumerState<TradeSessionsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showReportDialog(String tradeSessionId) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => TradeReportDialog(
+        tradeSessionId: tradeSessionId,
+      ),
+    );
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Report submitted successfully'),
+          backgroundColor: AppColors.mintLeaf,
+        ),
+      );
+    }
   }
 
   Widget _buildAvatarStack(List<String> avatarUrls) {

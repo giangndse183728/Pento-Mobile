@@ -5,8 +5,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/trade_offers_model.dart';
 import '../../data/repositories/trade_offers_repository.dart';
 
-part 'trade_request_provider.freezed.dart';
-part 'trade_request_provider.g.dart';
+part 'trade_offers_provider.freezed.dart';
+part 'trade_offers_provider.g.dart';
 
 @freezed
 class TradeOfferState with _$TradeOfferState {
@@ -40,6 +40,7 @@ extension on PaginatedTradeOffers {
 @Riverpod(keepAlive: true)
 class TradeOffers extends _$TradeOffers {
   late final TradeOfferRepository _repository;
+  String? _selectedStatus = 'Open';
 
   @override
   FutureOr<TradeOfferState> build() async {
@@ -51,6 +52,7 @@ class TradeOffers extends _$TradeOffers {
     final response = await _repository.getTradeOffers(
       isMine: false,
       isMyHousehold: false,
+      status: _selectedStatus,
     );
     return response.toTradeOfferState();
   }
@@ -79,7 +81,8 @@ class TradeOffers extends _$TradeOffers {
         pageNumber: currentData.currentPage + 1,
         pageSize: currentData.pageSize,
         isMine: false,
-        isMyHousehold: true,
+        isMyHousehold: false,
+        status: _selectedStatus,
       );
 
       final merged = [
@@ -110,5 +113,13 @@ class TradeOffers extends _$TradeOffers {
       );
     }
   }
+
+  Future<void> setStatusFilter(String? status) async {
+    _selectedStatus = status;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_loadFirstPage);
+  }
+
+  String? get selectedStatus => _selectedStatus;
 }
 

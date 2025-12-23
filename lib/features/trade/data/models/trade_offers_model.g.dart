@@ -30,6 +30,8 @@ Map<String, dynamic> _$$TradeOfferItemImplToJson(
 _$TradeOfferImpl _$$TradeOfferImplFromJson(Map<String, dynamic> json) =>
     _$TradeOfferImpl(
       offerId: json['offerId'] as String,
+      status: json['status'] as String,
+      pendingRequests: (json['pendingRequests'] as num?)?.toInt() ?? 0,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
       pickupOption: json['pickupOption'] as String,
@@ -47,6 +49,8 @@ _$TradeOfferImpl _$$TradeOfferImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$TradeOfferImplToJson(_$TradeOfferImpl instance) =>
     <String, dynamic>{
       'offerId': instance.offerId,
+      'status': instance.status,
+      'pendingRequests': instance.pendingRequests,
       'startDate': instance.startDate.toIso8601String(),
       'endDate': instance.endDate.toIso8601String(),
       'pickupOption': instance.pickupOption,
@@ -472,4 +476,59 @@ Map<String, dynamic> _$$TradeRequestDetailImplToJson(
 ) => <String, dynamic>{
   'tradeRequest': instance.tradeRequest,
   'items': instance.items,
+};
+
+_$CreateTradeReportRequestImpl _$$CreateTradeReportRequestImplFromJson(
+  Map<String, dynamic> json,
+) => _$CreateTradeReportRequestImpl(
+  tradeSessionId: json['tradeSessionId'] as String,
+  reason: $enumDecode(_$TradeReportReasonEnumMap, json['reason']),
+  severity: $enumDecode(_$FoodSafetyIssueLevelEnumMap, json['severity']),
+  description: json['description'] as String,
+);
+
+Map<String, dynamic> _$$CreateTradeReportRequestImplToJson(
+  _$CreateTradeReportRequestImpl instance,
+) => <String, dynamic>{
+  'tradeSessionId': instance.tradeSessionId,
+  'reason': _$TradeReportReasonEnumMap[instance.reason]!,
+  'severity': _$FoodSafetyIssueLevelEnumMap[instance.severity]!,
+  'description': instance.description,
+};
+
+const _$TradeReportReasonEnumMap = {
+  TradeReportReason.foodSafetyConcern: 'FoodSafetyConcern',
+  TradeReportReason.expiredFood: 'ExpiredFood',
+  TradeReportReason.poorHygiene: 'PoorHygiene',
+  TradeReportReason.misleadingInformation: 'MisleadingInformation',
+  TradeReportReason.inappropriateBehavior: 'InappropriateBehavior',
+  TradeReportReason.other: 'Other',
+};
+
+const _$FoodSafetyIssueLevelEnumMap = {
+  FoodSafetyIssueLevel.minor: 'Minor',
+  FoodSafetyIssueLevel.serious: 'Serious',
+  FoodSafetyIssueLevel.critical: 'Critical',
+};
+
+_$TradeReportResponseImpl _$$TradeReportResponseImplFromJson(
+  Map<String, dynamic> json,
+) => _$TradeReportResponseImpl(
+  tradeReportId: json['tradeReportId'] as String,
+  tradeSessionId: json['tradeSessionId'] as String,
+  reason: json['reason'] as String,
+  severity: json['severity'] as String,
+  description: json['description'] as String,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+);
+
+Map<String, dynamic> _$$TradeReportResponseImplToJson(
+  _$TradeReportResponseImpl instance,
+) => <String, dynamic>{
+  'tradeReportId': instance.tradeReportId,
+  'tradeSessionId': instance.tradeSessionId,
+  'reason': instance.reason,
+  'severity': instance.severity,
+  'description': instance.description,
+  'createdAt': instance.createdAt.toIso8601String(),
 };

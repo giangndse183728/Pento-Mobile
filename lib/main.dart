@@ -89,37 +89,31 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Create router without container - it will use ProviderScope.containerOf(context)
     _router = createAppRouter();
   }
 
   void _initializeApiClient() {
     if (_apiClientInitialized) {
-      // Update callbacks with current container after Phoenix.rebirth()
       _updateApiClientCallbacks();
       return;
     }
     _apiClientInitialized = true;
     
-    // Initialize ApiClient
     ApiClient.instance.initialize(
       onTokenRefreshed: (String newAccessToken) async {
         _handleTokenRefreshed(newAccessToken);
       },
       onRefreshTokenFailed: () async {
-        // Navigate to auth screen when refresh token fails
         _router.go(AppRoutes.auth);
       },
     );
     
-    // Fetch user profile on app startup if user is logged in
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialProfile();
     });
   }
 
   void _updateApiClientCallbacks() {
-    // Update callbacks to use current container
     ApiClient.instance.updateCallbacks(
       onTokenRefreshed: (String newAccessToken) async {
         _handleTokenRefreshed(newAccessToken);
@@ -132,7 +126,6 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   void _handleTokenRefreshed(String newAccessToken) {
     try {
-      // Use ref.container which is always current
       ref.read(userSessionNotifierProvider.notifier).updateAccessToken(newAccessToken);
     } catch (e) {
       // Handle error silently
@@ -143,7 +136,6 @@ class _MyAppState extends ConsumerState<MyApp> {
     try {
       final userSession = ref.read(userSessionNotifierProvider);
       if (userSession?.accessToken != null) {
-        // Trigger profile fetch
         ref.read(profileInitializerProvider);
       }
     } catch (e) {
@@ -153,7 +145,6 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize/update ApiClient on each build to ensure callbacks use current container
     _initializeApiClient();
     return ScreenUtilInit(
       designSize: const Size(375, 812),

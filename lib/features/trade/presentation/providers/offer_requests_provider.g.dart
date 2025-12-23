@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'post_requests_provider.dart';
+part of 'offer_requests_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postRequestsHash() => r'f69de19637529f96359b6d63f1ff99aac298de6a';
+String _$offerRequestsHash() => r'6e1b66e37a83805346be902c34a849daf0eebf55';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,30 +29,30 @@ class _SystemHash {
   }
 }
 
-abstract class _$PostRequests
+abstract class _$OfferRequests
     extends BuildlessAutoDisposeAsyncNotifier<PaginatedTradeRequests> {
   late final String offerId;
 
   FutureOr<PaginatedTradeRequests> build(String offerId);
 }
 
-/// See also [PostRequests].
-@ProviderFor(PostRequests)
-const postRequestsProvider = PostRequestsFamily();
+/// See also [OfferRequests].
+@ProviderFor(OfferRequests)
+const offerRequestsProvider = OfferRequestsFamily();
 
-/// See also [PostRequests].
-class PostRequestsFamily extends Family<AsyncValue<PaginatedTradeRequests>> {
-  /// See also [PostRequests].
-  const PostRequestsFamily();
+/// See also [OfferRequests].
+class OfferRequestsFamily extends Family<AsyncValue<PaginatedTradeRequests>> {
+  /// See also [OfferRequests].
+  const OfferRequestsFamily();
 
-  /// See also [PostRequests].
-  PostRequestsProvider call(String offerId) {
-    return PostRequestsProvider(offerId);
+  /// See also [OfferRequests].
+  OfferRequestsProvider call(String offerId) {
+    return OfferRequestsProvider(offerId);
   }
 
   @override
-  PostRequestsProvider getProviderOverride(
-    covariant PostRequestsProvider provider,
+  OfferRequestsProvider getProviderOverride(
+    covariant OfferRequestsProvider provider,
   ) {
     return call(provider.offerId);
   }
@@ -69,32 +69,32 @@ class PostRequestsFamily extends Family<AsyncValue<PaginatedTradeRequests>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'postRequestsProvider';
+  String? get name => r'offerRequestsProvider';
 }
 
-/// See also [PostRequests].
-class PostRequestsProvider
+/// See also [OfferRequests].
+class OfferRequestsProvider
     extends
         AutoDisposeAsyncNotifierProviderImpl<
-          PostRequests,
+          OfferRequests,
           PaginatedTradeRequests
         > {
-  /// See also [PostRequests].
-  PostRequestsProvider(String offerId)
+  /// See also [OfferRequests].
+  OfferRequestsProvider(String offerId)
     : this._internal(
-        () => PostRequests()..offerId = offerId,
-        from: postRequestsProvider,
-        name: r'postRequestsProvider',
+        () => OfferRequests()..offerId = offerId,
+        from: offerRequestsProvider,
+        name: r'offerRequestsProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
             ? null
-            : _$postRequestsHash,
-        dependencies: PostRequestsFamily._dependencies,
+            : _$offerRequestsHash,
+        dependencies: OfferRequestsFamily._dependencies,
         allTransitiveDependencies:
-            PostRequestsFamily._allTransitiveDependencies,
+            OfferRequestsFamily._allTransitiveDependencies,
         offerId: offerId,
       );
 
-  PostRequestsProvider._internal(
+  OfferRequestsProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -108,16 +108,16 @@ class PostRequestsProvider
 
   @override
   FutureOr<PaginatedTradeRequests> runNotifierBuild(
-    covariant PostRequests notifier,
+    covariant OfferRequests notifier,
   ) {
     return notifier.build(offerId);
   }
 
   @override
-  Override overrideWith(PostRequests Function() create) {
+  Override overrideWith(OfferRequests Function() create) {
     return ProviderOverride(
       origin: this,
-      override: PostRequestsProvider._internal(
+      override: OfferRequestsProvider._internal(
         () => create()..offerId = offerId,
         from: from,
         name: null,
@@ -130,14 +130,14 @@ class PostRequestsProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<PostRequests, PaginatedTradeRequests>
+  AutoDisposeAsyncNotifierProviderElement<OfferRequests, PaginatedTradeRequests>
   createElement() {
-    return _PostRequestsProviderElement(this);
+    return _OfferRequestsProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is PostRequestsProvider && other.offerId == offerId;
+    return other is OfferRequestsProvider && other.offerId == offerId;
   }
 
   @override
@@ -151,23 +151,23 @@ class PostRequestsProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin PostRequestsRef
+mixin OfferRequestsRef
     on AutoDisposeAsyncNotifierProviderRef<PaginatedTradeRequests> {
   /// The parameter `offerId` of this provider.
   String get offerId;
 }
 
-class _PostRequestsProviderElement
+class _OfferRequestsProviderElement
     extends
         AutoDisposeAsyncNotifierProviderElement<
-          PostRequests,
+          OfferRequests,
           PaginatedTradeRequests
         >
-    with PostRequestsRef {
-  _PostRequestsProviderElement(super.provider);
+    with OfferRequestsRef {
+  _OfferRequestsProviderElement(super.provider);
 
   @override
-  String get offerId => (origin as PostRequestsProvider).offerId;
+  String get offerId => (origin as OfferRequestsProvider).offerId;
 }
 
 // ignore_for_file: type=lint

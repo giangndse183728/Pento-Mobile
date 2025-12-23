@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../data/models/trade_offers_model.dart';
 
 class MyPostCard extends StatelessWidget {
@@ -19,8 +20,10 @@ class MyPostCard extends StatelessWidget {
   final VoidCallback? onCancel;
 
   bool get _canCancel {
-    return !_isExpired() && _isActive();
+    return postStatus.toLowerCase() == 'open';
   }
+
+  String get postStatus => post.status;
 
   String _formatDate(DateTime date) {
     return DateFormat('MMM d').format(date);
@@ -43,31 +46,49 @@ class MyPostCard extends StatelessWidget {
     }
   }
 
-  bool _isExpired() {
-    return post.endDate.isBefore(DateTime.now());
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return AppColors.mintLeaf;
+      case 'fulfilled':
+        return AppColors.blueGray;
+      case 'cancelled':
+        return AppColors.dangerRed;
+      case 'expired':
+        return AppColors.warningSun;
+      default:
+        return AppColors.blueGray;
+    }
   }
 
-  bool _isActive() {
-    final now = DateTime.now();
-    return now.isAfter(post.startDate) && now.isBefore(post.endDate);
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return Icons.check_circle_rounded;
+      case 'fulfilled':
+        return Icons.verified_rounded;
+      case 'cancelled':
+        return Icons.cancel_rounded;
+      case 'expired':
+        return Icons.event_busy_rounded;
+      default:
+        return Icons.help_outline_rounded;
+    }
   }
 
-  Color _getStatusColor() {
-    if (_isExpired()) return AppColors.dangerRed;
-    if (_isActive()) return AppColors.mintLeaf;
-    return AppColors.warningSun;
-  }
-
-  String _getStatusText() {
-    if (_isExpired()) return 'Expired';
-    if (_isActive()) return 'Active';
-    return 'Upcoming';
-  }
-
-  IconData _getStatusIcon() {
-    if (_isExpired()) return Icons.event_busy_rounded;
-    if (_isActive()) return Icons.check_circle_rounded;
-    return Icons.schedule_rounded;
+  String _formatStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return 'Open';
+      case 'fulfilled':
+        return 'Fulfilled';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'expired':
+        return 'Expired';
+      default:
+        return status;
+    }
   }
 
   Color _getPickupColor(String option) {
@@ -83,16 +104,16 @@ class MyPostCard extends StatelessWidget {
     }
   }
 
-  IconData _getPickupIcon(String option) {
+  String _getPickupIconAsset(String option) {
     switch (option.toLowerCase()) {
       case 'inperson':
-        return Icons.handshake_rounded;
+        return AppImages.inPerson;
       case 'delivery':
-        return Icons.delivery_dining_rounded;
+        return AppImages.delivery;
       case 'flexible':
-        return Icons.all_inclusive_rounded;
+        return AppImages.flexible;
       default:
-        return Icons.local_shipping_rounded;
+        return AppImages.delivery;
     }
   }
 
@@ -111,24 +132,24 @@ class MyPostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor();
+    final status = postStatus;
+    final statusColor = _getStatusColor(status);
     final pickupColor = _getPickupColor(post.pickupOption);
-    final isExpired = _isExpired();
+    final pendingRequests = post.pendingRequests;
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         color: Colors.white,
+        border: Border.all(
+          color: AppColors.blueGray,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.blueGray.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: AppColors.powderBlue.withValues(alpha: 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: AppColors.blueGray.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -138,7 +159,7 @@ class MyPostCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
           onTap: onTap,
           child: Opacity(
-            opacity: isExpired ? 0.7 : 1.0,
+            opacity: postStatus.toLowerCase() == 'expired' ? 0.7 : 1.0,
             child: Column(
               children: [
                 // Header with status indicator
@@ -149,8 +170,8 @@ class MyPostCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppColors.blueGray,
-                        AppColors.babyBlue.withValues(alpha: 0.8),
+                        Colors.white,
+                        AppColors.babyBlue,
                       ],
                     ),
                     borderRadius: BorderRadius.only(
@@ -178,13 +199,13 @@ class MyPostCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _getStatusIcon(),
+                              _getStatusIcon(status),
                               size: 14.sp,
                               color: statusColor,
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              _getStatusText(),
+                              _formatStatus(status),
                               style: TextStyle(
                                 fontSize: 11.sp,
                                 color: statusColor,
@@ -208,10 +229,10 @@ class MyPostCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              _getPickupIcon(post.pickupOption),
-                              size: 14.sp,
-                              color: pickupColor,
+                            Image.asset(
+                              _getPickupIconAsset(post.pickupOption),
+                              height: 14.w,
+                              width: 14.w,
                             ),
                             SizedBox(width: 4.w),
                             Text(
@@ -383,10 +404,10 @@ class MyPostCard extends StatelessWidget {
                                       color: AppColors.blueGray.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8.r),
                                     ),
-                                    child: Icon(
-                                      Icons.date_range_rounded,
-                                      size: 16.sp,
-                                      color: AppColors.blueGray,
+                                    child: Image.asset(
+                                      AppImages.calendar,
+                                      height: 16.w,
+                                      width: 16.w,
                                     ),
                                   ),
                                   SizedBox(width: 8.w),
@@ -441,6 +462,37 @@ class MyPostCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                      ),
+
+                      SizedBox(height: 12.h),
+
+                      // Pending requests info
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(6.w),
+                            decoration: BoxDecoration(
+                              color: AppColors.powderBlue
+                                  .withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Icon(
+                              Icons.people_alt_rounded,
+                              size: 16.sp,
+                              color: AppColors.blueGray,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            '$pendingRequests pending '
+                            'request${pendingRequests == 1 ? '' : 's'}',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: AppColors.blueGray,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

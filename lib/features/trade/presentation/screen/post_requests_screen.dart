@@ -7,8 +7,9 @@ import '../../../../core/layouts/app_scaffold.dart';
 import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../data/models/trade_offers_model.dart';
-import '../../data/repositories/trade_offers_repository.dart';
-import '../providers/post_requests_provider.dart';
+import '../../data/repositories/trade_requests_repository.dart';
+import '../providers/offer_requests_provider.dart';
+import '../providers/my_posts_provider.dart';
 import '../widgets/trade_request_detail_dialog.dart';
 
 class PostRequestsScreen extends ConsumerStatefulWidget {
@@ -52,6 +53,8 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
         return AppColors.mintLeaf;
       case 'rejected':
         return AppColors.dangerRed;
+      case 'cancelled':
+        return AppColors.dangerRed;
       default:
         return AppColors.blueGray;
     }
@@ -59,12 +62,16 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
 
   IconData _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
+      case 'fulfilled':
+        return Icons.verified_rounded;
       case 'pending':
         return Icons.schedule_rounded;
       case 'accepted':
         return Icons.check_circle_rounded;
       case 'rejected':
         return Icons.cancel_rounded;
+      case 'cancelled':
+        return Icons.close_rounded;
       default:
         return Icons.help_outline_rounded;
     }
@@ -72,19 +79,30 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
 
   Future<void> _handleCardTap(TradeRequest request) async {
     try {
-      final repository = TradeOfferRepository();
+      final repository = TradeRequestRepository();
       final detail = await repository.getTradeRequestDetail(
         tradeRequestId: request.tradeRequestId,
       );
 
       if (!mounted) return;
 
-      await showDialog(
+      final result = await showDialog<bool>(
         context: context,
         builder: (context) => TradeRequestDetailDialog(
           detail: detail,
+          showConfirmButton: true,
         ),
       );
+
+      if (!mounted) return;
+
+      if (result == true) {
+        // Refresh requests for this post and parent posts list
+        await ref
+            .read(offerRequestsProvider(widget.offerId).notifier)
+            .refresh();
+        await ref.read(myPostsProvider.notifier).refresh();
+      }
     } on NetworkException catch (e) {
       if (mounted) {
         ToastHelper.showError(context, e.message);
@@ -102,8 +120,8 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncRequests = ref.watch(postRequestsProvider(widget.offerId));
-    final notifier = ref.read(postRequestsProvider(widget.offerId).notifier);
+    final asyncRequests = ref.watch(offerRequestsProvider(widget.offerId));
+    final notifier = ref.read(offerRequestsProvider(widget.offerId).notifier);
 
     Future<void> refreshRequests() => notifier.refresh();
 
@@ -255,7 +273,7 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
 
   Widget _buildRequestsList(
     PaginatedTradeRequests paginatedRequests,
-    PostRequests notifier,
+    OfferRequests notifier,
   ) {
     return Stack(
       children: [
@@ -307,7 +325,7 @@ class _PostRequestsScreenState extends ConsumerState<PostRequestsScreen> {
 
   Widget _buildPaginationControls(
     PaginatedTradeRequests paginatedRequests,
-    PostRequests notifier,
+    OfferRequests notifier,
   ) {
     return Container(
       padding: EdgeInsets.only(

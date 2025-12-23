@@ -11,6 +11,7 @@ import '../../../../core/exceptions/network_exception.dart';
 import '../../../../core/utils/toast_helper.dart';
 import '../../data/models/trade_offers_model.dart';
 import '../../data/repositories/trade_offers_repository.dart';
+import '../../data/repositories/trade_requests_repository.dart';
 import '../providers/my_posts_provider.dart';
 import '../providers/my_requests_provider.dart';
 import '../widgets/my_post_card.dart';
@@ -30,7 +31,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
 
   Future<void> _handleRequestCardTap(TradeRequest request) async {
     try {
-      final repository = TradeOfferRepository();
+      final repository = TradeRequestRepository();
       final detail = await repository.getTradeRequestDetail(
         tradeRequestId: request.tradeRequestId,
       );
@@ -41,6 +42,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
         context: context,
         builder: (context) => TradeRequestDetailDialog(
           detail: detail,
+          showConfirmButton: false,
         ),
       );
     } on NetworkException catch (e) {
@@ -241,7 +243,7 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
     if (confirmed != true) return;
 
     try {
-      final repository = TradeOfferRepository();
+      final repository = TradeRequestRepository();
       await repository.cancelTradeRequest(tradeRequestId: request.tradeRequestId);
 
       if (mounted) {
@@ -324,6 +326,30 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
             ),
           ),
 
+          // Status Filter for My Offers
+          if (_selectedTab == 0) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildStatusChip('All', null, isOffer: true),
+                    SizedBox(width: 8.w),
+                    _buildStatusChip('Open', 'Open', isOffer: true),
+                    SizedBox(width: 8.w),
+                    _buildStatusChip('Fulfilled', 'Fulfilled', isOffer: true),
+                    SizedBox(width: 8.w),
+                    _buildStatusChip('Cancelled', 'Cancelled', isOffer: true),
+                    SizedBox(width: 8.w),
+                    _buildStatusChip('Expired', 'Expired', isOffer: true),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
+
           // Status Filter (only for My Requests)
           if (_selectedTab == 1) ...[
             Padding(
@@ -332,15 +358,15 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildStatusChip('All', null),
+                    _buildStatusChip('All', null, isOffer: false),
                     SizedBox(width: 8.w),
-                    _buildStatusChip('Pending', 'Pending'),
+                    _buildStatusChip('Pending', 'Pending', isOffer: false),
                     SizedBox(width: 8.w),
-                    _buildStatusChip('Fulfill', 'Fulfilled'),
+                    _buildStatusChip('Fulfill', 'Fulfilled', isOffer: false),
                     SizedBox(width: 8.w),
-                    _buildStatusChip('Rejected', 'Rejected'),
+                    _buildStatusChip('Rejected', 'Rejected', isOffer: false),
                     SizedBox(width: 8.w),
-                    _buildStatusChip('Cancelled', 'Cancelled'),
+                    _buildStatusChip('Cancelled', 'Cancelled', isOffer: false),
                   ],
                 ),
               ),
@@ -359,14 +385,18 @@ class _MyPostsScreenState extends ConsumerState<MyPostsScreen> {
     );
   }
 
-  Widget _buildStatusChip(String label, String? status) {
+  Widget _buildStatusChip(String label, String? status, {required bool isOffer}) {
     final isSelected = _selectedStatus == status;
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedStatus = status;
         });
-        ref.read(myRequestsProvider.notifier).setStatusFilter(status);
+        if (isOffer) {
+          ref.read(myPostsProvider.notifier).setStatusFilter(status);
+        } else {
+          ref.read(myRequestsProvider.notifier).setStatusFilter(status);
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),

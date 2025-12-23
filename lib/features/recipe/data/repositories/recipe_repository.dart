@@ -60,11 +60,15 @@ class RecipeRepository {
   Future<PaginatedRecipes> getWishlist({
     int pageNumber = 1,
     int pageSize = defaultPageSize,
+    bool? isMine,
   }) async {
     final queryParams = <String, dynamic>{
       'pageNumber': pageNumber,
       'pageSize': pageSize,
     };
+    if (isMine != null) {
+      queryParams['isMine'] = isMine;
+    }
 
     final queryString = queryParams.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
