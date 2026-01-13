@@ -1,127 +1,104 @@
-📱 Pento – Smart Household Food Management System (Mobile)
+# 📱 Pento – Smart Household Food Management System (Mobile)
 
-Pento Mobile is a smart household food management mobile application designed and developed to support daily household workflows such as tracking, organizing, planning, and exchanging food efficiently.
+Pento Mobile is a **smart household food management mobile application** designed and developed to support daily household workflows such as tracking, organizing, planning, and exchanging food efficiently.
 
-This project was built as a client capstone project, focusing on practical real-world use cases, clean architecture, and seamless integration with external services.
+This project was built as a **client capstone project**, focusing on practical real-world use cases, clean architecture, and seamless integration with external services.
 
-🎯 Project Objectives
+---
 
-Build a production-oriented mobile frontend for smart food management
+## 🎯 Project Objectives
 
-Solve real-life household problems with intuitive mobile interactions
+* Build a **production-oriented Flutter mobile application**
+* Solve real-life household problems with intuitive mobile interactions
+* Apply **MVVM architecture** for scalability and maintainability
+* Integrate third-party services for scanning, location, and notifications
 
-Apply MVVM architecture for scalability and maintainability
+---
 
-Integrate third-party services for scanning, location, and notifications
+## 🚀 Core Features
 
-🚀 Core Features
-📸 Smart Scanning & Input
+### 📸 Smart Scanning & Input
 
-OCR-based food scanning from receipts
+* **OCR-based food scanning** from receipts
+* **Barcode scanning** for quick product entry
 
-Barcode scanning for quick product entry
+### 📦 Food Management
 
-📦 Food Management
+* Track food quantity, categories, and expiration dates
+* **Kanban-style board** to visualize food lifecycle stages
 
-Track food quantity, categories, and expiration dates
+### 🍽️ Meal Planning & Recipes
 
-Kanban-style board to visualize food lifecycle stages
+* **Meal Planning**: Create daily and weekly meal plans
+* **Recipe Management**: Browse, save, and suggest recipes based on available ingredients
+* Reduce food waste by recommending meals using expiring food items
 
-🍽️ Meal Planning & Recipes
+### 🗺️ Discovery & Community
 
-Meal Planning: Create daily and weekly meal plans based on available food
+* **Nearby Store Discovery** using real-time location
+* **Food Trading** between households to share surplus food
 
-Recipe Management: Browse, save, and match recipes with current ingredients
+### 🔔 Real-time Sync & Notifications
 
-Reduce food waste by suggesting meals using expiring items
+* Real-time data synchronization
+* Push notifications for expiring food, meal reminders, and trading updates
 
-🗺️ Discovery & Community
+---
 
-Nearby Store Discovery using real-time location
+## 🎨 Mobile UX & Interaction
 
-Food Trading between households to share surplus food
+* Smooth and intuitive mobile experience
+* Illustration-based UI with **liquid glass–inspired** visual elements
+* Designed for clarity, usability, and daily repetitive interactions
+* Optimized for both Android and iOS platforms
 
-🔔 Real-time Sync & Notifications
+---
 
-Real-time data synchronization
+## 🧠 Architecture Overview (MVVM)
 
-Push notifications for expiring food, meal reminders, and trading updates
+The application follows the **MVVM (Model – View – ViewModel)** architecture:
 
-🎨 Mobile UX & Interaction
+* **Model**: Immutable data models (Freezed, JSON Serializable)
+* **View**: Flutter UI widgets
+* **ViewModel**: Business logic and state management using Riverpod
 
-Smooth and intuitive mobile experience
+Benefits:
 
-Illustration-based UI with liquid glass–inspired visual elements
+* Clear separation of concerns
+* High testability
+* Easy feature scaling and maintenance
 
-Designed for clarity, usability, and daily repetitive interactions
+---
 
-Optimized for both Android and iOS platforms
+## 🛠️ Tech Stack
 
-🔗 Integration & Data Flow
+### Framework
 
-Integrated with backend services to enable:
+* **Flutter**
 
-Real-time data synchronization
+### Libraries & Packages
 
-Notifications and alerts
+* **Riverpod** – State management (ViewModel layer)
+* **Flutter Hooks** – Cleaner widget logic
+* **Dio** – HTTP client
+* **GoRouter** – Declarative navigation
+* **Freezed** – Immutable models & union types
+* **JSON Serializable** – Data serialization
+* **Flutter Secure Storage** – Secure local storage
+* **Mobile Scanner** – Barcode & QR scanning
+* **SignalR (signalr_netcore)** – Real-time communication
+* **Google Maps Flutter** – Map rendering
+* **Geolocator** – Device location services
+* **Image Picker** – Image selection & capture
+* **Cached Network Image** – Optimized image loading
+* **FL Chart** – Charts & analytics
 
-Seamless interaction between scanning, management, meal planning, and trading features
+---
 
-🧠 Architecture Overview (MVVM)
+## ☁️ Third-Party Services
 
-The application follows the MVVM (Model – View – ViewModel) architecture:
+* **Firebase Cloud Messaging (FCM)** – Push notifications
+* **Google Maps Platform** – Maps, geocoding, and places
 
-Model: Immutable data models (Freezed, JSON Serializable)
 
-View: Flutter UI widgets
 
-ViewModel: Business logic and state management using Riverpod
-
-This approach ensures:
-
-Clear separation of concerns
-
-High testability
-
-Easier feature scaling and maintenance
-
-🛠️ Tech Stack (Mobile)
-Framework
-
-Flutter – Cross-platform mobile development
-
-Libraries & Packages
-
-Riverpod – State management (ViewModel layer)
-
-Flutter Hooks – Cleaner widget logic
-
-Dio – HTTP client
-
-GoRouter – Declarative navigation
-
-Freezed – Immutable models & union types
-
-JSON Serializable – Data serialization
-
-Flutter Secure Storage – Secure local storage
-
-Mobile Scanner – Barcode & QR scanning
-
-SignalR (signalr_netcore) – Real-time communication
-
-Google Maps Flutter – Map rendering
-
-Geolocator – Device location services
-
-Image Picker – Image selection & capture
-
-Cached Network Image – Optimized image loading
-
-FL Chart – Charts & analytics
-
-☁️ Third-Party Services
-
-Firebase Cloud Messaging (FCM) – Push notifications
-
-Google Maps Platform – Maps, geocoding, and places
